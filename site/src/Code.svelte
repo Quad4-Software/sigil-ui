@@ -1,8 +1,12 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
-  import { css } from '../styled-system/css'
+  import { css, cx } from '../styled-system/css'
 
-  let { title, children }: { title?: string; children?: Snippet } = $props()
+  let {
+    title,
+    children,
+    class: className
+  }: { title?: string; children?: Snippet; class?: string | undefined } = $props()
   let copied = $state(false)
 
   async function copy() {
@@ -16,14 +20,17 @@
 </script>
 
 <figure
-  class={css({
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
-    rounded: 'sig',
-    border: '1px solid',
-    borderColor: 'sig.border'
-  })}
+  class={cx(
+    css({
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden',
+      rounded: 'sig',
+      border: '1px solid',
+      borderColor: 'sig.border'
+    }),
+    className
+  )}
 >
   {#if title}
     <figcaption

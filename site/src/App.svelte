@@ -96,6 +96,9 @@
     '5 styling adapters'
   ]
 
+  const installCode = 'pnpm add sigil-ui\n\nnpx sigil-ui list\nnpx sigil-ui docs Button'
+  const useCode =
+    "import 'sigil-ui/theme.css'\nimport { Button } from 'sigil-ui'\n\n<Button variant=\"secondary\" onclick={save}>Save</Button>"
   const cliCode =
     'npx sigil-ui list\nnpx sigil-ui docs Button\nnpx sigil-ui tokens\nnpx sigil-ui doctor'
   const metaCode =
@@ -122,6 +125,29 @@
     _hover: { color: 'sig.fg' }
   })
 </script>
+
+<a
+  href="#top"
+  class={css({
+    position: 'absolute',
+    left: '-9999px',
+    top: '0',
+    zIndex: '50',
+    _focusVisible: {
+      position: 'fixed',
+      left: '3',
+      top: '3',
+      bg: 'sig.accent',
+      color: 'sig.accent-fg',
+      px: '3',
+      py: '2',
+      rounded: 'sig',
+      fontSize: 'sm'
+    }
+  })}
+>
+  Skip to content
+</a>
 
 <header
   class={css({
@@ -151,17 +177,21 @@
         gap: '2',
         fontWeight: 'semibold',
         color: 'sig.fg',
-        textDecoration: 'none'
+        textDecoration: 'none',
+        whiteSpace: 'nowrap',
+        flexShrink: '0'
       })}
     >
       <Logo size={22} />
       sigil-ui
     </a>
     <nav class={flex({ alignItems: 'center', gap: '5', fontSize: 'sm' })}>
-      <a class={link} href="#components">components</a>
-      <a class={link} href="#adapters">adapters</a>
-      <a class={link} href="#agents">agents</a>
-      <a class={link} href="#tokens">tokens</a>
+      <span class={css({ display: { base: 'none', sm: 'flex' }, alignItems: 'center', gap: '5' })}>
+        <a class={link} href="#components">components</a>
+        <a class={link} href="#adapters">adapters</a>
+        <a class={link} href="#agents">agents</a>
+        <a class={link} href="#tokens">tokens</a>
+      </span>
       <a
         class={iconBtn}
         href="https://github.com/Quad4-Software/sigil-ui"
@@ -233,10 +263,8 @@
         gridTemplateColumns: { base: '1fr', sm: 'repeat(2, 1fr)' }
       })}
     >
-      <Code title="install">pnpm add sigil-ui</Code>
-      <Code title="use">
-        {`import 'sigil-ui/theme.css'\nimport { Button } from 'sigil-ui'\n\n<Button variant="secondary" onclick={save}>Save</Button>`}
-      </Code>
+      <Code title="install">{installCode}</Code>
+      <Code title="use">{useCode}</Code>
     </div>
   </section>
 
@@ -271,12 +299,27 @@
           >
             <Card.Root>
               <Card.Content class={stack({ gap: '3' })}>
-                <div class={stack({ gap: '1' })}>
-                  <span class={css({ fontSize: 'sm', color: 'sig.muted' })}>Requests</span>
-                  <span class={css({ fontSize: '2xl', fontWeight: 'semibold' })}>
+                <div class={stack({ gap: '1', alignItems: 'start' })}>
+                  <span
+                    class={css({
+                      fontSize: 'xs',
+                      fontWeight: 'medium',
+                      textTransform: 'uppercase',
+                      letterSpacing: 'wider',
+                      color: 'sig.muted'
+                    })}>Requests</span
+                  >
+                  <span
+                    class={css({
+                      fontSize: '2xl',
+                      fontWeight: 'bold',
+                      lineHeight: 'none',
+                      color: 'sig.fg'
+                    })}
+                  >
                     <CountUp value={1284021} format={(n) => Math.round(n).toLocaleString()} />
                   </span>
-                  <Badge tone="success">+12.5 %</Badge>
+                  <Badge tone="success">+12.5%</Badge>
                 </div>
                 <Chart.Sparkline data={traffic} label="Requests over 12 hours" filled />
               </Card.Content>
@@ -707,7 +750,9 @@
       })}
     >
       {#each manifest.adapters as adapter (adapter.name)}
-        <Code title={adapter.name}>{adapter.usage}</Code>
+        <Code title={adapter.name} class={adapter.name === 'sigil css' ? wide : undefined}>
+          {adapter.usage}
+        </Code>
       {/each}
     </div>
   </section>
@@ -814,14 +859,32 @@
   class={css({
     borderTop: '1px solid',
     borderColor: 'sig.border',
-    py: '8',
-    textAlign: 'center',
+    py: '10',
     fontSize: 'sm',
     color: 'sig.muted'
   })}
 >
-  sigil-ui · 0BSD ·
-  <a class={link} href="https://github.com/Quad4-Software/sigil-ui" rel="noopener"
-    >Quad4-Software/sigil-ui</a
+  <div
+    class={flex({
+      mx: 'auto',
+      maxW: '6xl',
+      px: '4',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      flexWrap: 'wrap',
+      gap: '4'
+    })}
   >
+    <span class={flex({ alignItems: 'center', gap: '2', color: 'sig.fg', fontWeight: 'medium' })}>
+      <Logo size={18} />
+      sigil-ui
+    </span>
+    <nav class={flex({ alignItems: 'center', gap: '5' })} aria-label="Footer">
+      <a class={link} href="#components">components</a>
+      <a class={link} href="#adapters">adapters</a>
+      <a class={link} href="#tokens">tokens</a>
+      <a class={link} href="https://github.com/Quad4-Software/sigil-ui" rel="noopener">github</a>
+    </nav>
+    <span>0BSD. Quad4 Software.</span>
+  </div>
 </footer>
