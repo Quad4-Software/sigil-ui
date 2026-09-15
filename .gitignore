@@ -7,7 +7,6 @@ demo-dist/
 coverage/
 styled-system/
 site/src/sizes.ts
-.tmp/
 .tmp-*/
 *.tsbuildinfo
 *.local
