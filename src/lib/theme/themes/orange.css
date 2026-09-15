@@ -1,0 +1,15 @@
+/* sigil-ui orange accent preset. Import after sigil-ui/theme.css. */
+:root,
+[data-theme='light'] {
+  --sig-accent: #ea580c;
+  --sig-accent-hover: #c2410c;
+  --sig-accent-fg: #ffffff;
+  --sig-ring: #ea580c;
+}
+
+[data-theme='dark'] {
+  --sig-accent: #fb923c;
+  --sig-accent-hover: #f97316;
+  --sig-accent-fg: #09090b;
+  --sig-ring: #fb923c;
+}

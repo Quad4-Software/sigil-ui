@@ -1,6 +1,8 @@
 name: publish
 
 on:
+  push:
+    tags: ['v*']
   release:
     types: [published]
   workflow_dispatch:
@@ -72,3 +74,22 @@ jobs:
           pnpm publish --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release-notes:
+    # creates a GitHub release from CHANGELOG.md when a v* tag is pushed
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: extract notes and create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          VERSION="${TAG#v}"
+          awk "/^## ${VERSION}\$/{f=1;next} /^## /{f=0} f" CHANGELOG.md > notes.md
+          if [ ! -s notes.md ]; then echo "no CHANGELOG section for ${VERSION}, using tag message"; echo "Release ${TAG}" > notes.md; fi
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --title "$TAG" --notes-file notes.md

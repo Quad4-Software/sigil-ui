@@ -1,0 +1,15 @@
+/* sigil-ui blue accent preset. Import after sigil-ui/theme.css. */
+:root,
+[data-theme='light'] {
+  --sig-accent: #2563eb;
+  --sig-accent-hover: #1d4ed8;
+  --sig-accent-fg: #ffffff;
+  --sig-ring: #2563eb;
+}
+
+[data-theme='dark'] {
+  --sig-accent: #60a5fa;
+  --sig-accent-hover: #3b82f6;
+  --sig-accent-fg: #09090b;
+  --sig-ring: #60a5fa;
+}

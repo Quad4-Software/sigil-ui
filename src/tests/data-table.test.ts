@@ -44,4 +44,38 @@ describe('DataTable', () => {
     render(DataTable, { columns, rows: [], empty: 'Nothing here' })
     expect(screen.getByText('Nothing here')).toBeInTheDocument()
   })
+
+  it('filters rows via the filterable input', async () => {
+    render(DataTable, { columns, rows, filterable: true })
+    const box = screen.getByRole('searchbox', { name: 'Filter rows' })
+    await fireEvent.input(box, { target: { value: 'ap' } })
+    const cells = screen.getAllByRole('cell').map((c) => c.textContent)
+    expect(cells).toContain('api')
+    expect(cells).not.toContain('db')
+  })
+
+  it('selects rows and toggles all', async () => {
+    render(DataTable, { columns, rows, selectable: true })
+    const rowBoxes = screen.getAllByRole('checkbox', { name: 'Select row' })
+    expect(rowBoxes).toHaveLength(3)
+    const first = rowBoxes[0]
+    if (!first) throw new Error('missing row checkbox')
+    await fireEvent.click(first)
+    expect(first).toBeChecked()
+
+    const all = screen.getByRole('checkbox', { name: 'Select all rows' })
+    await fireEvent.click(all)
+    for (const box of screen.getAllByRole('checkbox', { name: 'Select row' })) {
+      expect(box).toBeChecked()
+    }
+    await fireEvent.click(all)
+    for (const box of screen.getAllByRole('checkbox', { name: 'Select row' })) {
+      expect(box).not.toBeChecked()
+    }
+  })
+
+  it('marks sticky headers', () => {
+    render(DataTable, { columns, rows, stickyHeader: true })
+    expect(document.querySelector('.sig-datatable')).toHaveAttribute('data-sticky')
+  })
 })

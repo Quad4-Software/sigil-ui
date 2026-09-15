@@ -4,4 +4,6 @@ demo-dist/
 .svelte-check/
 .svelte-kit/
 coverage/
+.cache/
+test-results/
 pnpm-lock.yaml

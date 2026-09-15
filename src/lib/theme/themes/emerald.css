@@ -1,0 +1,15 @@
+/* sigil-ui emerald accent preset. Import after sigil-ui/theme.css. */
+:root,
+[data-theme='light'] {
+  --sig-accent: #059669;
+  --sig-accent-hover: #047857;
+  --sig-accent-fg: #ffffff;
+  --sig-ring: #059669;
+}
+
+[data-theme='dark'] {
+  --sig-accent: #34d399;
+  --sig-accent-hover: #10b981;
+  --sig-accent-fg: #09090b;
+  --sig-ring: #34d399;
+}

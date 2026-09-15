@@ -1,0 +1,15 @@
+/* sigil-ui violet accent preset. Import after sigil-ui/theme.css. */
+:root,
+[data-theme='light'] {
+  --sig-accent: #7c3aed;
+  --sig-accent-hover: #6d28d9;
+  --sig-accent-fg: #ffffff;
+  --sig-ring: #7c3aed;
+}
+
+[data-theme='dark'] {
+  --sig-accent: #a78bfa;
+  --sig-accent-hover: #8b5cf6;
+  --sig-accent-fg: #09090b;
+  --sig-ring: #a78bfa;
+}

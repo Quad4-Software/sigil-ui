@@ -1002,6 +1002,147 @@ export const manifest: SigilManifest = {
       classes: ['sig-reveal'],
       dataAttributes: ['data-visible'],
       example: `<script>\n  import { Reveal } from 'sigil-ui'\n</script>\n\n<Reveal><p>Appears when scrolled into view.</p></Reveal>`
+    },
+    {
+      name: 'ScrollArea',
+      path: 'scroll-area',
+      description:
+        'Scrollable container with thin custom scrollbars. overflow is set by data-orientation.',
+      props: [
+        {
+          name: 'orientation',
+          type: "'vertical' | 'horizontal' | 'both'",
+          default: "'vertical'",
+          description: 'Scroll direction, rendered as data-orientation.'
+        },
+        classProp,
+        childrenProp
+      ],
+      classes: ['sig-scroll-area'],
+      dataAttributes: ['data-orientation'],
+      example: `<script>\n  import { ScrollArea } from 'sigil-ui'\n</script>\n\n<ScrollArea style="max-height: 12rem">\n  <LongList />\n</ScrollArea>`
+    },
+    {
+      name: 'Command',
+      path: 'command',
+      description:
+        'Command palette namespace: Root (bindable value, filter, loop), Input (role=combobox), List, Item (role=option, keywords, onSelect), Group (heading), Empty, Separator, Dialog (mod+k modal).',
+      props: [
+        {
+          name: 'value',
+          type: 'string',
+          default: "''",
+          bindable: true,
+          description: 'Bindable selected value on Command.Root.'
+        },
+        {
+          name: 'filter',
+          type: '(query, value, keywords) => boolean',
+          description: 'Custom match function on Command.Root.'
+        },
+        {
+          name: 'open',
+          type: 'boolean',
+          default: 'false',
+          bindable: true,
+          description: 'Bindable open state on Command.Dialog.'
+        },
+        {
+          name: 'shortcut',
+          type: 'string',
+          default: "'k'",
+          description: 'Key combined with meta/ctrl that toggles Command.Dialog.'
+        },
+        {
+          name: 'keywords',
+          type: 'string[]',
+          description: 'Extra search terms on Command.Item.'
+        },
+        classProp,
+        childrenProp
+      ],
+      classes: [
+        'sig-command',
+        'sig-command-input',
+        'sig-command-list',
+        'sig-command-item',
+        'sig-command-group',
+        'sig-command-heading',
+        'sig-command-empty',
+        'sig-command-sep',
+        'sig-command-dialog'
+      ],
+      dataAttributes: ['data-value', 'data-active'],
+      example: `<script>\n  import { Command } from 'sigil-ui'\n</script>\n\n<Command.Dialog>\n  <Command.Input />\n  <Command.List>\n    <Command.Group heading="Actions">\n      <Command.Item value="save" onSelect={save}>Save</Command.Item>\n    </Command.Group>\n    <Command.Empty>No results</Command.Empty>\n  </Command.List>\n</Command.Dialog>`
+    },
+    {
+      name: 'Combobox',
+      path: 'combobox',
+      description:
+        'Autocomplete namespace: Root (bindable value and open, filter), Input (role=combobox, aria-activedescendant), Content (role=listbox), Item (role=option), Empty.',
+      props: [
+        {
+          name: 'value',
+          type: 'string',
+          default: "''",
+          bindable: true,
+          description: 'Bindable selected value on Combobox.Root.'
+        },
+        {
+          name: 'open',
+          type: 'boolean',
+          default: 'false',
+          bindable: true,
+          description: 'Bindable list open state on Combobox.Root.'
+        },
+        {
+          name: 'filter',
+          type: '(query, value, label) => boolean',
+          description: 'Custom match function on Combobox.Root.'
+        },
+        classProp,
+        childrenProp
+      ],
+      classes: [
+        'sig-combobox',
+        'sig-combobox-input',
+        'sig-combobox-content',
+        'sig-combobox-item',
+        'sig-combobox-empty'
+      ],
+      dataAttributes: ['data-value', 'data-active', 'data-selected', 'data-state'],
+      example: `<script>\n  import { Combobox } from 'sigil-ui'\n</script>\n\n<Combobox.Root bind:value>\n  <Combobox.Input placeholder="Pick a fruit" />\n  <Combobox.Content>\n    <Combobox.Item value="apple">Apple</Combobox.Item>\n    <Combobox.Empty>No results</Combobox.Empty>\n  </Combobox.Content>\n</Combobox.Root>`
+    },
+    {
+      name: 'ContextMenu',
+      path: 'context-menu',
+      description:
+        'Right-click menu namespace: Root (opens at pointer, bindable open), Content (role=menu, viewport clamped), Item (role=menuitem, onSelect), Separator.',
+      props: [
+        {
+          name: 'open',
+          type: 'boolean',
+          default: 'false',
+          bindable: true,
+          description: 'Bindable open state on ContextMenu.Root.'
+        },
+        {
+          name: 'disabled',
+          type: 'boolean',
+          default: 'false',
+          description: 'Suppress the context menu on Root or an Item.'
+        },
+        {
+          name: 'onSelect',
+          type: '() => void',
+          description: 'Called when the item is picked on ContextMenu.Item.'
+        },
+        classProp,
+        childrenProp
+      ],
+      classes: ['sig-cm-wrap', 'sig-cm-content', 'sig-cm-item', 'sig-cm-sep'],
+      dataAttributes: ['data-state', 'data-disabled'],
+      example: `<script>\n  import { ContextMenu } from 'sigil-ui'\n</script>\n\n<ContextMenu.Root>\n  <div>Right click me</div>\n  <ContextMenu.Content>\n    <ContextMenu.Item onSelect={copy}>Copy</ContextMenu.Item>\n  </ContextMenu.Content>\n</ContextMenu.Root>`
     }
   ],
   tokens: [

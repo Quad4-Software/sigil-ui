@@ -16,23 +16,86 @@
     rows: T[]
     caption?: string | undefined
     empty?: string
+    selectable?: boolean
+    selected?: T[]
+    onSelectionChange?: (rows: T[]) => void
+    rowKey?: string | undefined
+    filterable?: boolean
+    filter?: string
+    filterPlaceholder?: string
+    stickyHeader?: boolean
   }
 
-  let { columns, rows, caption, empty = 'No data', class: className, ...rest }: Props = $props()
+  let {
+    columns,
+    rows,
+    caption,
+    empty = 'No data',
+    selectable = false,
+    selected = $bindable<T[]>([]),
+    onSelectionChange,
+    rowKey,
+    filterable = false,
+    filter = $bindable(''),
+    filterPlaceholder = 'Filter...',
+    stickyHeader = false,
+    class: className,
+    ...rest
+  }: Props = $props()
 
   let sortKey = $state<string | null>(null)
   let sortDir = $state<'asc' | 'desc'>('asc')
+  let selectAllInput: HTMLInputElement | undefined = $state()
+
+  const filtered = $derived.by(() => {
+    const q = filter.trim().toLowerCase()
+    if (!q) return rows
+    return rows.filter((row) =>
+      columns.some((col) =>
+        String(row[col.key] ?? '')
+          .toLowerCase()
+          .includes(q)
+      )
+    )
+  })
 
   const sorted = $derived.by(() => {
     const key = sortKey
-    if (!key) return rows
+    if (!key) return filtered
     const dir = sortDir === 'asc' ? 1 : -1
-    return [...rows].sort((a, b) => {
+    return [...filtered].sort((a, b) => {
       const av = a[key]
       const bv = b[key]
       if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * dir
       return String(av ?? '').localeCompare(String(bv ?? '')) * dir
     })
+  })
+
+  // Rows are compared by key rather than object identity because $state
+  // proxies break === comparisons between raw and proxied rows.
+  const keyOf = (row: T) => (rowKey ? String(row[rowKey]) : JSON.stringify(row))
+  const selectedKeys = $derived(new Set(selected.map(keyOf)))
+  const isSelected = (row: T) => selectedKeys.has(keyOf(row))
+
+  function setSelected(next: T[]) {
+    selected = next
+    onSelectionChange?.(next)
+  }
+
+  function toggleRow(row: T, checked: boolean) {
+    const k = keyOf(row)
+    setSelected(checked ? [...selected, row] : selected.filter((r) => keyOf(r) !== k))
+  }
+
+  function toggleAll(checked: boolean) {
+    setSelected(checked ? [...sorted] : [])
+  }
+
+  const allSelected = $derived(sorted.length > 0 && sorted.every(isSelected))
+  const someSelected = $derived(sorted.some(isSelected))
+
+  $effect(() => {
+    if (selectAllInput) selectAllInput.indeterminate = !allSelected && someSelected
   })
 
   function sortBy(col: Column) {
@@ -50,11 +113,33 @@
     sortKey === col.key ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'
 </script>
 
-<div class={cn('sig-datatable', className)} {...rest}>
+<div class={cn('sig-datatable', className)} data-sticky={stickyHeader || undefined} {...rest}>
+  {#if filterable}
+    <div class="sig-datatable-toolbar">
+      <input
+        type="search"
+        aria-label="Filter rows"
+        placeholder={filterPlaceholder}
+        bind:value={filter}
+        class="sig-input sig-datatable-filter"
+      />
+    </div>
+  {/if}
   <table>
     {#if caption}<caption class="sig-datatable-caption">{caption}</caption>{/if}
     <thead>
       <tr>
+        {#if selectable}
+          <th scope="col" class="sig-datatable-check">
+            <input
+              bind:this={selectAllInput}
+              type="checkbox"
+              aria-label="Select all rows"
+              checked={allSelected}
+              onchange={(e) => toggleAll(e.currentTarget.checked)}
+            />
+          </th>
+        {/if}
         {#each columns as col (col.key)}
           <th
             scope="col"
@@ -79,7 +164,17 @@
     </thead>
     <tbody>
       {#each sorted as row, i (i)}
-        <tr>
+        <tr data-selected={isSelected(row) || undefined}>
+          {#if selectable}
+            <td class="sig-datatable-check">
+              <input
+                type="checkbox"
+                aria-label="Select row"
+                checked={isSelected(row)}
+                onchange={(e) => toggleRow(row, e.currentTarget.checked)}
+              />
+            </td>
+          {/if}
           {#each columns as col (col.key)}
             <td data-align={col.align}>
               {#if col.cell}
@@ -92,7 +187,9 @@
         </tr>
       {:else}
         <tr>
-          <td colspan={columns.length} class="sig-datatable-empty">{empty}</td>
+          <td colspan={columns.length + (selectable ? 1 : 0)} class="sig-datatable-empty">
+            {empty}
+          </td>
         </tr>
       {/each}
     </tbody>
@@ -126,6 +223,30 @@
     font-size: 0.8125rem;
     color: var(--sig-muted, #71717a);
     border-bottom: 1px solid var(--sig-border, #e4e4e7);
+    background: var(--sig-surface, #f4f4f5);
+  }
+
+  :global(.sig-datatable[data-sticky] thead th) {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  :global(.sig-datatable-toolbar) {
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--sig-border, #e4e4e7);
+  }
+
+  :global(.sig-datatable-filter) {
+    max-width: 20rem;
+  }
+
+  :global(.sig-datatable-check) {
+    width: 2.5rem;
+    text-align: center;
+  }
+
+  :global(.sig-datatable tbody tr[data-selected] td) {
     background: var(--sig-surface, #f4f4f5);
   }
 

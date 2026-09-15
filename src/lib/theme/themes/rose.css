@@ -1,0 +1,15 @@
+/* sigil-ui rose accent preset. Import after sigil-ui/theme.css. */
+:root,
+[data-theme='light'] {
+  --sig-accent: #e11d48;
+  --sig-accent-hover: #be123c;
+  --sig-accent-fg: #ffffff;
+  --sig-ring: #e11d48;
+}
+
+[data-theme='dark'] {
+  --sig-accent: #fb7185;
+  --sig-accent-hover: #f43f5e;
+  --sig-accent-fg: #09090b;
+  --sig-ring: #fb7185;
+}

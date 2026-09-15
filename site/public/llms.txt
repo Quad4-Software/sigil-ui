@@ -53,6 +53,10 @@
 - Pagination: Page navigation in a nav landmark.
 - CopyButton: Copy text to the clipboard with a textarea fallback.
 - Reveal: Scroll-into-view reveal via IntersectionObserver.
+- ScrollArea: Scrollable container with thin custom scrollbars.
+- Command: Command palette namespace: Root (bindable value, filter, loop), Input (role=combobox), List, Item (role=option, keywords, onSelect), Group (heading), Empty, Separator, Dialog (mod+k modal).
+- Combobox: Autocomplete namespace: Root (bindable value and open, filter), Input (role=combobox, aria-activedescendant), Content (role=listbox), Item (role=option), Empty.
+- ContextMenu: Right-click menu namespace: Root (opens at pointer, bindable open), Content (role=menu, viewport clamped), Item (role=menuitem, onSelect), Separator.
 
 ## Adapters
 

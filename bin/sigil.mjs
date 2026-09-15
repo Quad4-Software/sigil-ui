@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { existsSync, readFileSync, readdirSync, watch, writeFileSync } from 'node:fs'
+import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
@@ -26,6 +26,8 @@ usage:
   sigil-ui doctor            inspect the current project for setup gaps
   sigil-ui css               build-time atomic CSS: generate styled-system/
   sigil-ui css init          write a starter sigil.config.mjs
+  sigil-ui css --watch       rebuild styled-system/ when source files change
+  sigil-ui theme [name]      list accent presets or print one to stdout
 
 quickstart:
   pnpm add sigil-ui
@@ -209,6 +211,58 @@ export default defineConfig({
   console.log(
     `sigil css: scanned ${res.files} files, emitted ${res.count} rules to ${res.outdir}/styles.css`
   )
+  if (arg === '--watch' || arg === '-w') {
+    const roots = new Set()
+    for (const glob of config.include ?? []) {
+      // watch the deepest directory before the first glob segment
+      const base = resolve(
+        cwd,
+        String(glob)
+          .split('*')[0]
+          .replace(/\/[^/]*$/, '')
+      )
+      if (existsSync(base)) roots.add(base)
+    }
+    let timer
+    const rebuild = () => {
+      clearTimeout(timer)
+      timer = setTimeout(() => {
+        try {
+          const r = build(config, cwd)
+          console.log(`sigil css: ${r.files} files, ${r.count} rules`)
+        } catch (err) {
+          console.error(`sigil css rebuild failed: ${err.message}`)
+        }
+      }, 50)
+    }
+    for (const dir of roots) watch(dir, { recursive: true }, rebuild)
+    console.log(`sigil css: watching ${[...roots].join(', ') || '.'}`)
+    // the watchers hold the event loop open, so skip the exit below
+  } else {
+    process.exit(0)
+  }
+}
+
+if (cmd === 'theme') {
+  const dirs = [join(root, 'dist', 'theme', 'themes'), join(root, 'src', 'lib', 'theme', 'themes')]
+  const dir = dirs.find(existsSync)
+  const presets = dir
+    ? readdirSync(dir)
+        .filter((f) => f.endsWith('.css'))
+        .map((f) => f.slice(0, -4))
+    : []
+  if (!arg) {
+    console.log('theme presets (import after sigil-ui/theme.css):\n')
+    for (const p of presets) console.log(`  ${p.padEnd(10)} sigil-ui/themes/${p}.css`)
+    console.log('\nusage: sigil-ui theme <name>    print the preset CSS to stdout')
+    process.exit(0)
+  }
+  const file = dir ? join(dir, `${arg}.css`) : ''
+  if (!dir || !existsSync(file)) {
+    console.error(`unknown theme "${arg}". Available: ${presets.join(', ') || 'none'}`)
+    process.exit(1)
+  }
+  console.log(readFileSync(file, 'utf8'))
   process.exit(0)
 }
 

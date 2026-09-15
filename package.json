@@ -42,9 +42,15 @@
       "default": "./css/index.mjs"
     },
     "./theme.css": "./dist/theme/sigil.css",
+    "./components.css": "./dist/components.css",
+    "./headless": {
+      "types": "./dist/headless/index.d.ts",
+      "default": "./dist/headless/index.js"
+    },
     "./tailwind.css": "./dist/theme/tailwind.css",
     "./manifest.json": "./dist/manifest.json",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./themes/*": "./dist/theme/themes/*"
   },
   "bin": {
     "sigil-ui": "./bin/sigil.mjs"
@@ -59,7 +65,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "svelte-package && node scripts/gen-manifest.mjs",
+    "build": "svelte-package && node scripts/gen-manifest.mjs && node scripts/gen-css.mjs",
     "build:demo": "vite build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json --fail-on-warnings",
@@ -68,6 +74,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "test:coverage": "vitest run --coverage",
     "llms": "node scripts/gen-llms.mjs",
     "pack:check": "publint",
@@ -78,6 +85,7 @@
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
+    "@playwright/test": "1.63.0",
     "@sveltejs/package": "2.5.8",
     "@sveltejs/vite-plugin-svelte": "7.3.0",
     "@testing-library/jest-dom": "7.0.1",
@@ -85,6 +93,7 @@
     "@types/node": "22.20.1",
     "@typescript/native": "npm:typescript@7.0.2",
     "@vitest/coverage-v8": "5.0.0",
+    "axe-core": "4.13.0",
     "eslint": "10.10.0",
     "eslint-plugin-svelte": "3.23.0",
     "globals": "17.12.0",

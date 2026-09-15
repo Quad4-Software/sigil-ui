@@ -35,6 +35,10 @@ const SELECTOR_CONDITIONS = {
   _placeholder: '&::placeholder',
   _marker: '&::marker',
   _selection: '&::selection',
+  _open: '&[data-state="open"], &[data-state="checked"], &[data-state="active"]',
+  _closed: '&[data-state="closed"], &[data-state="inactive"]',
+  _groupHover: '.group:hover &, [data-sig-group]:hover &',
+  _groupFocus: '.group:focus-within &, [data-sig-group]:focus-within &',
   _dark: '[data-theme="dark"] &',
   _light: '[data-theme="light"] &'
 }
@@ -170,6 +174,11 @@ function resolveDecl(prop, raw, flat) {
   const category = entry ? entry[1] : null
   const numeric = entry ? entry[2] : false
   let value = String(raw)
+  // arbitrary values bypass token lookup: p: '[2px]', w: '[calc(100%-8px)]'
+  if (value.length > 2 && value.startsWith('[') && value.endsWith(']')) {
+    value = value.slice(1, -1).replaceAll('_', ' ')
+    return props.map((p) => `${p}:${value}`).join(';')
+  }
   const table = category ? flat[category] : null
   if (table && value in table) value = String(table[value])
   else if (category === 'sizes' && flat.spacing && value in flat.spacing)

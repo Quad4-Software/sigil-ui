@@ -24,15 +24,25 @@ Provide your own `--sig-*` values to theme.
 - Primitives: Button, Badge, Switch, Toggle, Input, Textarea, Select,
   Checkbox, Slider, Avatar, Progress, Skeleton, Spinner, Separator,
   Tooltip, Alert, Stat, Kbd, Empty, Field (label + hint + error wiring,
-  children snippet receives control props).
+  children snippet receives control props), ScrollArea, Pagination,
+  CountUp, CopyButton, Reveal (IntersectionObserver scroll-in).
 - Namespaces: Dialog (Root, Trigger, Portal, Overlay, Content, Title,
   Description, Close), Sheet (same parts, Content takes
   side: left/right/top/bottom), Card (Root, Header, Title, Description,
   Content, Footer), Tabs (Root, List, Trigger, Content), Accordion
   (Root, Item, Trigger, Content), RadioGroup (Root, Item), Breadcrumb
   (Root, Item), Popover (Root, Trigger, Content), DropdownMenu (Root,
-  Trigger, Content, Item, Separator), Table (Root, Head, Body, Row, H,
-  Cell, Caption).
+  Trigger, Content, Item, Separator), ContextMenu (Root wraps the
+  trigger area; Content is the viewport-clamped menu), Table (Root,
+  Head, Body, Row, H, Cell, Caption), Command (Root, Input, List,
+  Item, Group, Empty, Separator, Dialog), Combobox (Root, Input,
+  Content, Item, Empty).
+- Data: DataTable (columns/rows generics, sortable headers with
+  aria-sort, selectable rows, filter input, sticky header) and
+  Pagination (bind:page, sibling windowing).
+- Charts: Chart.Line (multi-series), Chart.Bar, Chart.Area,
+  Chart.Sparkline, Chart.Donut, Chart.Gauge. Pure SVG, role=img,
+  native tooltips, token-driven colors.
 - Overlays: Toaster plus the `toast` API
   (`toast(title, opts)`, `toast.success/info/warning/danger`, action
   buttons, `duration`, `toast.dismiss(id)`).
@@ -66,19 +76,35 @@ Provide your own `--sig-*` values to theme.
   outline elements whose content leaks or clips, or call
   `findOverflows()` / `measure(el)` directly in tests and tools.
 
+## Vanilla usage, no framework
+
+Two entry points cover plain HTML and JavaScript:
+
+- `sigil-ui/components.css` is every component's stylesheet extracted
+  to flat classes. Write the documented markup
+  (`<button class="sig-btn" data-variant="primary">`) and it looks
+  identical to the Svelte output.
+- `sigil-ui/headless` is the behavior layer: attachTabs,
+  attachAccordion, attachRadioGroup, attachSwitch, attachPaneGroup,
+  attachTooltip, createOverlay, createPopover, createMenu,
+  createToaster, createTheme, and attachAll(root) which wires every
+  recognized structure under a node. The controllers produce the same
+  roles, aria attributes and data-state values as the Svelte parts.
+
 ## Theming by framework
 
 Pick one. All five produce the same result.
 
 - sigil css: the bundled build-time atomic engine, zero dependencies.
   Create sigil.config.mjs with `defineConfig` from `sigil-ui/css`, run
-  `npx sigil-ui css`, then import `{ css }` and patterns
-  (`flex`, `stack`, `grid`, `hstack`, `center`) from the generated
-  styled-system/. Style calls must be literal objects: the compiler
-  extracts them statically. Conditions (`_hover`, `_dark`,
-  `_focusVisible`, breakpoints as keys) and per-property responsive
-  values (`{ base: '4', md: '8' }`) are supported. Unknown values pass
-  through as raw CSS.
+  `npx sigil-ui css` (`--watch` for rebuilds), then import `{ css }`
+  and patterns (`flex`, `stack`, `grid`, `hstack`, `center`) from the
+  generated styled-system/. Style calls must be literal objects: the
+  compiler extracts them statically. Conditions (`_hover`, `_dark`,
+  `_focusVisible`, `_open`, `_groupHover`, breakpoints as keys),
+  per-property responsive values (`{ base: '4', md: '8' }`) and
+  arbitrary values (`w: '[300px]'`, underscores become spaces) are
+  supported. Unknown values pass through as raw CSS.
 - Tailwind v4: `@import 'sigil-ui/tailwind.css'` after the tailwindcss
   import. Utilities: `bg-sig-accent`, `text-sig-fg`, `border-sig-border`,
   `rounded-sig`, `shadow-sig`.
@@ -104,6 +130,8 @@ It stamps `data-theme` on `<html>` and syncs across tabs.
 
 - `npx sigil-ui docs <Component>` prints props, classes and an example.
 - `npx sigil-ui tokens` prints the full `--sig-*` contract.
+- `npx sigil-ui theme [name]` lists or prints accent presets shipped
+  under `sigil-ui/themes/*`.
 - `npx sigil-ui doctor` audits a project for setup gaps.
 - `import { manifest } from 'sigil-ui'` or fetch `sigil-ui/manifest.json`
   for structured component metadata.

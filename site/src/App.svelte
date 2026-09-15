@@ -9,6 +9,9 @@
     Card,
     Chart,
     Checkbox,
+    Combobox,
+    Command,
+    ContextMenu,
     CopyButton,
     CountUp,
     createTheme,
@@ -30,6 +33,7 @@
     Progress,
     RadioGroup,
     Reveal,
+    ScrollArea,
     Select,
     Sheet,
     Skeleton,
@@ -53,6 +57,8 @@
   import Spec from './Spec.svelte'
 
   const theme = createTheme()
+  const jump = (hash: string) => () =>
+    document.querySelector(hash)?.scrollIntoView({ behavior: 'smooth' })
   let switched = $state(false)
   let dialogOpen = $state(false)
   let agreed = $state(true)
@@ -64,6 +70,8 @@
   let debug = $state(false)
   let sheetOpen = $state(false)
   let servicePage = $state(1)
+  let paletteOpen = $state(false)
+  let pickedFruit = $state('')
 
   const traffic = [12, 18, 14, 22, 19, 28, 26, 34, 31, 42, 38, 47]
   const latency = [220, 180, 240, 160, 190, 140, 170, 150, 165, 132]
@@ -93,7 +101,8 @@
     `${manifest.components.length} components`,
     '0 runtime deps',
     '0 primitive libs',
-    '5 styling adapters'
+    `${manifest.adapters.length} styling adapters`,
+    'vanilla headless'
   ]
 
   const installCode = 'pnpm add sigil-ui\n\nnpx sigil-ui list\nnpx sigil-ui docs Button'
@@ -103,6 +112,10 @@
     'npx sigil-ui list\nnpx sigil-ui docs Button\nnpx sigil-ui tokens\nnpx sigil-ui doctor'
   const metaCode =
     "import { manifest } from 'sigil-ui'\n// or fetch sigil-ui/manifest.json\n// llms.txt and llms-full.txt are served at this site's root"
+  const vanillaCssCode =
+    '<link rel="stylesheet" href="sigil-ui/theme.css" />\n<link rel="stylesheet" href="sigil-ui/components.css" />\n\n<button class="sig-btn" data-variant="primary">Save</button>'
+  const vanillaJsCode =
+    "import { attachTabs, createOverlay, attachAll, createTheme } from 'sigil-ui/headless'\n\nattachAll(document.body)\n// or wire one structure:\nattachTabs(document.querySelector('.sig-tabs'))\ncreateTheme()"
 
   const section = css({
     scrollMarginTop: '20',
@@ -189,9 +202,17 @@
       <span class={css({ display: { base: 'none', sm: 'flex' }, alignItems: 'center', gap: '5' })}>
         <a class={link} href="#components">components</a>
         <a class={link} href="#adapters">adapters</a>
-        <a class={link} href="#agents">agents</a>
+        <a class={link} href="#vanilla">vanilla</a>
         <a class={link} href="#tokens">tokens</a>
+        <a class={link} href="#api">api</a>
       </span>
+      <button
+        class={iconBtn}
+        aria-label="Open command palette"
+        onclick={() => (paletteOpen = true)}
+      >
+        <Kbd>⌘K</Kbd>
+      </button>
       <a
         class={iconBtn}
         href="https://github.com/Quad4-Software/sigil-ui"
@@ -708,6 +729,102 @@
       >
 
       <Reveal
+        ><Spec label="Command palette" hint="Cmd+K menu, keyboard filter and navigation">
+          <div class={stack({ gap: '4' })}>
+            <p class={css({ fontSize: 'sm', color: 'sig.muted' })}>
+              Try <Kbd>Ctrl</Kbd> + <Kbd>K</Kbd>, or:
+            </p>
+            <Button variant="secondary" onclick={() => (paletteOpen = true)}>Open palette</Button>
+            <Command.Root
+              class={css({ rounded: 'sig', border: '1px solid', borderColor: 'sig.border' })}
+            >
+              <Command.Input placeholder="Type a command" />
+              <Command.List>
+                <Command.Empty>No results.</Command.Empty>
+                <Command.Item value="docs" keywords={['documentation', 'help']}>
+                  Open docs
+                </Command.Item>
+                <Command.Item value="theme" keywords={['dark', 'light']}>Toggle theme</Command.Item>
+                <Command.Item value="repo" keywords={['github', 'source']}>
+                  Open repository
+                </Command.Item>
+              </Command.List>
+            </Command.Root>
+          </div>
+        </Spec></Reveal
+      >
+
+      <Reveal
+        ><Spec label="Combobox" hint="filterable listbox with aria-activedescendant">
+          <div class={stack({ gap: '3' })}>
+            <Combobox.Root bind:value={pickedFruit}>
+              <Combobox.Input placeholder="Pick a fruit" />
+              <Combobox.Content>
+                <Combobox.Empty>No fruit found.</Combobox.Empty>
+                {#each ['Apple', 'Apricot', 'Banana', 'Cherry', 'Grape', 'Mango'] as fruit (fruit)}
+                  <Combobox.Item value={fruit}>{fruit}</Combobox.Item>
+                {/each}
+              </Combobox.Content>
+            </Combobox.Root>
+            <p class={css({ fontSize: 'sm', color: 'sig.muted' })}>
+              Selected: {pickedFruit || 'none'}
+            </p>
+          </div>
+        </Spec></Reveal
+      >
+
+      <Reveal
+        ><Spec label="Context menu" hint="right-click the box, viewport-clamped menu">
+          <ContextMenu.Root>
+            <div
+              class={css({
+                rounded: 'sig',
+                border: '1px dashed',
+                borderColor: 'sig.border',
+                p: '8',
+                textAlign: 'center',
+                fontSize: 'sm',
+                color: 'sig.muted'
+              })}
+            >
+              Right-click here
+            </div>
+            <ContextMenu.Content>
+              <ContextMenu.Item value="copy" onSelect={() => toast.success('Copied')}>
+                Copy
+              </ContextMenu.Item>
+              <ContextMenu.Item value="rename">Rename</ContextMenu.Item>
+              <ContextMenu.Separator />
+              <ContextMenu.Item value="delete" disabled>Delete</ContextMenu.Item>
+            </ContextMenu.Content>
+          </ContextMenu.Root>
+        </Spec></Reveal
+      >
+
+      <Reveal
+        ><Spec label="Scroll area" hint="custom scrollbar, vertical or horizontal">
+          <ScrollArea
+            class={css({ h: '40', rounded: 'sig', border: '1px solid', borderColor: 'sig.border' })}
+          >
+            <div class={stack({ p: '3', gap: '2' })}>
+              {#each services as svc (svc.name)}
+                <div
+                  class={flex({
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    fontSize: 'sm'
+                  })}
+                >
+                  <span>{svc.name}</span>
+                  <span class={css({ color: 'sig.muted' })}>{svc.uptime}</span>
+                </div>
+              {/each}
+            </div>
+          </ScrollArea>
+        </Spec></Reveal
+      >
+
+      <Reveal
         ><Spec label="Empty" hint="dashed empty state with actions">
           <Empty title="No deployments yet" description="Push to main to trigger the first build.">
             <Button variant="secondary">Read the docs</Button>
@@ -792,6 +909,32 @@
     </p>
   </section>
 
+  <section id="vanilla" class={section}>
+    <h2 class={h2}>Without a framework</h2>
+    <p class={lead}>
+      The component styles are stable sig-* classes over --sig-* tokens, so plain HTML can consume
+      them directly. For behavior, sigil-ui/headless ships framework-free controllers that wire the
+      same markup: roles, aria attributes, keyboard navigation, focus traps and dismissal. It
+      follows the Ark UI model where headless logic owns behavior and the DOM owns presentation.
+    </p>
+    <div
+      class={css({
+        display: 'grid',
+        mt: '8',
+        gap: '3',
+        gridTemplateColumns: { base: '1fr', sm: 'repeat(2, 1fr)' }
+      })}
+    >
+      <Code title="styles only">{vanillaCssCode}</Code>
+      <Code title="headless behavior">{vanillaJsCode}</Code>
+    </div>
+    <p class={css({ mt: '4', fontSize: 'sm', color: 'sig.muted' })}>
+      attachAll wires every sig-* structure it finds: tabs, accordions, radios, switches, overlays,
+      popovers, menus, tooltips, panes and toasts. Individual attach and create functions cover
+      one-off wiring.
+    </p>
+  </section>
+
   <section id="tokens" class={section}>
     <h2 class={h2}>Token contract</h2>
     <p class={lead}>Override any of these to retheme every component at once.</p>
@@ -848,7 +991,76 @@
       </table>
     </div>
   </section>
+
+  <section id="api" class={section}>
+    <h2 class={h2}>API reference</h2>
+    <p class={lead}>
+      Every component, prop and styling hook, generated from the same manifest agents consume.
+    </p>
+    <div class={stack({ mt: '8', gap: '3' })}>
+      {#each manifest.components as component (component.name)}
+        <details
+          class={css({ rounded: 'sig', border: '1px solid', borderColor: 'sig.border', p: '4' })}
+        >
+          <summary class={css({ cursor: 'pointer', fontWeight: 'medium' })}>
+            {component.name}
+            <span class={css({ fontWeight: 'normal', color: 'sig.muted', fontSize: 'sm' })}>
+              {component.description}
+            </span>
+          </summary>
+          <div class={css({ mt: '3', overflowX: 'auto' })}>
+            <table class={css({ w: 'full', textAlign: 'left', fontSize: 'sm' })}>
+              <thead class={css({ color: 'sig.muted' })}>
+                <tr>
+                  <th class={css({ py: '1', pr: '4', fontWeight: 'medium' })}>prop</th>
+                  <th class={css({ py: '1', pr: '4', fontWeight: 'medium' })}>type</th>
+                  <th class={css({ py: '1', fontWeight: 'medium' })}>description</th>
+                </tr>
+              </thead>
+              <tbody>
+                {#each component.props as prop, i (i)}
+                  <tr class={css({ borderTop: '1px solid', borderColor: 'sig.border' })}>
+                    <td class={css({ py: '1.5', pr: '4', fontFamily: 'mono', fontSize: 'xs' })}
+                      >{prop.name}{prop.bindable ? ' (bindable)' : ''}</td
+                    >
+                    <td
+                      class={css({
+                        py: '1.5',
+                        pr: '4',
+                        fontFamily: 'mono',
+                        fontSize: 'xs',
+                        color: 'sig.muted'
+                      })}>{prop.type}</td
+                    >
+                    <td class={css({ py: '1.5', color: 'sig.muted' })}>{prop.description}</td>
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
+            <p class={css({ mt: '2', fontSize: 'xs', color: 'sig.muted' })}>
+              classes: {component.classes.join(', ')}
+            </p>
+          </div>
+        </details>
+      {/each}
+    </div>
+  </section>
 </main>
+
+<Command.Dialog bind:open={paletteOpen} label="Site commands">
+  <Command.Input placeholder="Type a command" />
+  <Command.List>
+    <Command.Empty>No results.</Command.Empty>
+    <Command.Item value="components" onSelect={jump('#components')}>Components</Command.Item>
+    <Command.Item value="adapters" onSelect={jump('#adapters')}>Adapters</Command.Item>
+    <Command.Item value="vanilla" onSelect={jump('#vanilla')}>Vanilla usage</Command.Item>
+    <Command.Item value="tokens" onSelect={jump('#tokens')}>Token contract</Command.Item>
+    <Command.Item value="api" onSelect={jump('#api')}>API reference</Command.Item>
+    <Command.Item value="theme" keywords={['dark', 'light']} onSelect={() => theme.toggle()}>
+      Toggle theme
+    </Command.Item>
+  </Command.List>
+</Command.Dialog>
 
 <Toaster />
 {#if debug}

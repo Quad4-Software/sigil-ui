@@ -909,6 +909,111 @@ Data attributes: data-visible
 <Reveal><p>Appears when scrolled into view.</p></Reveal>
 ```
 
+### ScrollArea
+
+Scrollable container with thin custom scrollbars. overflow is set by data-orientation.
+
+Props:
+- orientation ('vertical' | 'horizontal' | 'both', default 'vertical'): Scroll direction, rendered as data-orientation.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-scroll-area
+Data attributes: data-orientation
+
+```svelte
+<script>
+  import { ScrollArea } from 'sigil-ui'
+</script>
+
+<ScrollArea style="max-height: 12rem">
+  <LongList />
+</ScrollArea>
+```
+
+### Command
+
+Command palette namespace: Root (bindable value, filter, loop), Input (role=combobox), List, Item (role=option, keywords, onSelect), Group (heading), Empty, Separator, Dialog (mod+k modal).
+
+Props:
+- value (string, bindable, default ''): Bindable selected value on Command.Root.
+- filter ((query, value, keywords) => boolean): Custom match function on Command.Root.
+- open (boolean, bindable, default false): Bindable open state on Command.Dialog.
+- shortcut (string, default 'k'): Key combined with meta/ctrl that toggles Command.Dialog.
+- keywords (string[]): Extra search terms on Command.Item.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-command, sig-command-input, sig-command-list, sig-command-item, sig-command-group, sig-command-heading, sig-command-empty, sig-command-sep, sig-command-dialog
+Data attributes: data-value, data-active
+
+```svelte
+<script>
+  import { Command } from 'sigil-ui'
+</script>
+
+<Command.Dialog>
+  <Command.Input />
+  <Command.List>
+    <Command.Group heading="Actions">
+      <Command.Item value="save" onSelect={save}>Save</Command.Item>
+    </Command.Group>
+    <Command.Empty>No results</Command.Empty>
+  </Command.List>
+</Command.Dialog>
+```
+
+### Combobox
+
+Autocomplete namespace: Root (bindable value and open, filter), Input (role=combobox, aria-activedescendant), Content (role=listbox), Item (role=option), Empty.
+
+Props:
+- value (string, bindable, default ''): Bindable selected value on Combobox.Root.
+- open (boolean, bindable, default false): Bindable list open state on Combobox.Root.
+- filter ((query, value, label) => boolean): Custom match function on Combobox.Root.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-combobox, sig-combobox-input, sig-combobox-content, sig-combobox-item, sig-combobox-empty
+Data attributes: data-value, data-active, data-selected, data-state
+
+```svelte
+<script>
+  import { Combobox } from 'sigil-ui'
+</script>
+
+<Combobox.Root bind:value>
+  <Combobox.Input placeholder="Pick a fruit" />
+  <Combobox.Content>
+    <Combobox.Item value="apple">Apple</Combobox.Item>
+    <Combobox.Empty>No results</Combobox.Empty>
+  </Combobox.Content>
+</Combobox.Root>
+```
+
+### ContextMenu
+
+Right-click menu namespace: Root (opens at pointer, bindable open), Content (role=menu, viewport clamped), Item (role=menuitem, onSelect), Separator.
+
+Props:
+- open (boolean, bindable, default false): Bindable open state on ContextMenu.Root.
+- disabled (boolean, default false): Suppress the context menu on Root or an Item.
+- onSelect (() => void): Called when the item is picked on ContextMenu.Item.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-cm-wrap, sig-cm-content, sig-cm-item, sig-cm-sep
+Data attributes: data-state, data-disabled
+
+```svelte
+<script>
+  import { ContextMenu } from 'sigil-ui'
+</script>
+
+<ContextMenu.Root>
+  <div>Right click me</div>
+  <ContextMenu.Content>
+    <ContextMenu.Item onSelect={copy}>Copy</ContextMenu.Item>
+  </ContextMenu.Content>
+</ContextMenu.Root>
+```
+
 ## Tokens
 
 - --sig-bg: light #ffffff, dark #09090b. Page and surface base
