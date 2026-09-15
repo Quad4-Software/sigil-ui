@@ -49,10 +49,19 @@
 <style>
   :global(.sig-chart-bar) {
     fill: var(--sig-chart-1, var(--sig-accent, #4f46e5));
-    transition: opacity 120ms ease;
+    transition:
+      opacity 120ms ease,
+      y 600ms ease,
+      height 600ms ease;
   }
 
   :global(.sig-chart-bar:hover) {
     opacity: 0.75;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.sig-chart-bar) {
+      transition: none;
+    }
   }
 </style>

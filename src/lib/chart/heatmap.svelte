@@ -16,7 +16,7 @@
     xLabels,
     yLabels,
     label = 'Heatmap',
-    cell = 14,
+    cell = 17,
     gap = 3,
     class: className,
     ...rest
@@ -93,5 +93,12 @@
   :global(.sig-heatmap-cell) {
     stroke: var(--sig-bg, #fff);
     stroke-width: 1;
+    transition: fill 500ms ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.sig-heatmap-cell) {
+      transition: none;
+    }
   }
 </style>

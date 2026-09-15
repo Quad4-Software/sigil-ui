@@ -65,47 +65,47 @@
     <div class="sig-carousel-track" style="transform: translateX(-{index * 100}%)">
       {@render children?.()}
     </div>
+    {#if controls && count > 1}
+      <button
+        type="button"
+        class="sig-carousel-btn sig-carousel-prev"
+        aria-label="Previous slide"
+        disabled={!loop && index === 0}
+        onclick={() => goTo(index - 1)}
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg
+        >
+      </button>
+      <button
+        type="button"
+        class="sig-carousel-btn sig-carousel-next"
+        aria-label="Next slide"
+        disabled={!loop && index === count - 1}
+        onclick={() => goTo(index + 1)}
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg
+        >
+      </button>
+    {/if}
   </div>
-  {#if controls && count > 1}
-    <button
-      type="button"
-      class="sig-carousel-btn sig-carousel-prev"
-      aria-label="Previous slide"
-      disabled={!loop && index === 0}
-      onclick={() => goTo(index - 1)}
-    >
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg
-      >
-    </button>
-    <button
-      type="button"
-      class="sig-carousel-btn sig-carousel-next"
-      aria-label="Next slide"
-      disabled={!loop && index === count - 1}
-      onclick={() => goTo(index + 1)}
-    >
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg
-      >
-    </button>
-  {/if}
   {#if indicators && count > 1}
     <div class="sig-carousel-dots" role="tablist" aria-label="Slides">
       {#each Array.from({ length: count }, (_, i) => i) as i (i)}
@@ -129,6 +129,7 @@
   }
 
   :global(.sig-carousel-viewport) {
+    position: relative;
     overflow: hidden;
     border-radius: var(--sig-radius, 0.375rem);
   }

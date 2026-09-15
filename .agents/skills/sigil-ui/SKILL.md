@@ -30,7 +30,14 @@ Provide your own `--sig-*` values to theme.
   (bind:tags, Enter/comma adds, Backspace removes), FileUpload
   (bind:files, dropzone), Tree (items: TreeNode[], bind:selected,
   bind:expanded, arrow-key nav), Presence (show + exit animation),
-  Marquee (loop, pauseOnHover).
+  Marquee (loop, pauseOnHover), NumberInput, PinInput, Rating,
+  Editable (click-to-edit), Carousel (Root + Item, dots, loop),
+  Loader (spinner/dots/bars/pulse), LikeButton (heart or star,
+  aria-pressed), Prose (long-form typography wrapper),
+  StreamingText (AI chat reveal, caret while streaming), Suggestion
+  (ghost-text completion, Tab to accept), LevelMeter (segmented VU
+  meter, static value or live MediaStream/AnalyserNode), ComparisonTable
+  (columns + rows of boolean or text cells, highlight column).
 - Namespaces: Dialog (Root, Trigger, Portal, Overlay, Content, Title,
   Description, Close), AlertDialog (Root, Trigger, Content, Title,
   Description, Cancel, Action; role=alertdialog), Sheet (same parts,
@@ -54,7 +61,11 @@ Provide your own `--sig-*` values to theme.
   Chart.Scatter, Chart.Radar, Chart.Heatmap, Chart.Sparkline,
   Chart.Donut, Chart.Gauge, Chart.Uptime (status-page pill bars for
   latency series: number[] or { ms, status, label }[], warnAt,
-  summary). Pure SVG, role=img, native tooltips, token-driven colors.
+  summary), Chart.Waterfall (running-total bridge), Chart.Funnel
+  (conversion stages), Chart.Gantt (schedule bars). Waveform renders
+  amplitude bars for audio (static bars or live MediaStream/
+  AnalyserNode, variants bars/flat/dots, sizes sm/md/lg). Pure SVG,
+  role=img, native tooltips, token-driven colors.
 - Overlays: Toaster plus the `toast` API
   (`toast(title, opts)`, `toast.success/info/warning/danger`, action
   buttons, `duration`, `toast.dismiss(id)`).
@@ -98,9 +109,13 @@ Three entry points cover plain HTML and JavaScript:
   (`<button class="sig-btn" data-variant="primary">`) and it looks
   identical to the Svelte output.
 - `sigil-ui/base.css` is optional bare-element styling: box-sizing
-  reset, body tokens, nav lists, pre/code/kbd/samp, details/summary,
-  links, `role="button"`, `role="group"`, fieldset/legend, and an
-  `aria-busy="true"` spinner. Everything reads the `--sig-*` contract.
+  reset, body tokens, themed thin scrollbars, nav lists,
+  pre/code/kbd/samp, details/summary, links, mark, abbr, tables,
+  `role="button"`, `role="group"`, fieldset/legend, an
+  `aria-busy="true"` spinner (including on buttons with text), a
+  `sig-sr-only` visually-hidden utility, and `sig-prose` long-form
+  typography with `sig-prose-sm`, `sig-prose-lg` and `sig-prose-invert`
+  variants. Everything reads the `--sig-*` contract.
 - `sigil-ui/headless` is the behavior layer: attachTabs,
   attachAccordion, attachRadioGroup, attachCheckbox, attachSwitch,
   attachToggle, attachToggleGroup, attachSlider, attachTagsInput,
@@ -119,7 +134,8 @@ Three entry points cover plain HTML and JavaScript:
 Pick one. All five produce the same result.
 
 - sigil css: the bundled build-time atomic engine, zero dependencies.
-  Create sigil.config.mjs with `defineConfig` from `sigil-ui/css`, run
+  Scaffold a config with `npx sigil-ui css --init`, or write
+  sigil.config.mjs by hand with `defineConfig` from `sigil-ui/css`. Run
   `npx sigil-ui css` (`--watch` for rebuilds, `--minify` or
   `minify: true` to minify styles.css; styles.min.css is always
   emitted), then import `{ css }`,
@@ -162,6 +178,8 @@ Pick one. All five produce the same result.
   presets in panda.config.ts. Tokens become `sig.accent`, `sig.fg`, etc.
 - Plain CSS: `import 'sigil-ui/theme.css'` then override `--sig-*` vars.
   Dark mode activates on `[data-theme="dark"]` or prefers-color-scheme.
+  The contract includes colors, radius, shadow and `--sig-space-0`
+  through `--sig-space-16` spacing steps.
 
 ## Dark mode
 
@@ -186,7 +204,11 @@ It stamps `data-theme` on `<html>` and syncs across tabs.
 - `npx sigil-ui tokens` prints the full `--sig-*` contract.
 - `npx sigil-ui theme [name]` lists or prints accent presets shipped
   under `sigil-ui/themes/*`.
-- `npx sigil-ui doctor` audits a project for setup gaps.
+- `npx sigil-ui doctor` audits a project for setup gaps;
+  `--contrast` also checks `--sig-*` text pairs for WCAG AA contrast.
+- `cdn/` in the repo holds committed bundles for jsdelivr or
+  statically.io: `sigil.min.css` (theme + base + components),
+  individual sheets, the headless modules and `demo.html`.
 - `import { manifest } from 'sigil-ui'` or fetch `sigil-ui/manifest.json`
   for structured component metadata.
 - The site serves llms.txt and llms-full.txt at its root.

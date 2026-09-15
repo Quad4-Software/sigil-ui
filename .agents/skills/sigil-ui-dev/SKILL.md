@@ -46,6 +46,17 @@ describe the command in HELP only.
 
 ## Releases
 
-Tags `v*` trigger publish.yml: npm (provenance, needs NPM_TOKEN) and
-GitHub Packages (name rewritten to `@<owner>/sigil-ui`). Bump
-`version` in package.json and manifest.ts together before tagging.
+Tags `v*` trigger publish.yml: npm (OIDC trusted publishing when
+NPM_TOKEN is unset, token path when set) and GitHub Packages (name
+rewritten to `@<owner>/sigil-ui`). Built stylesheets and manifest.json
+attach to the GitHub release. Bump `version` in package.json and
+manifest.ts together before tagging.
+
+## Benchmarks
+
+`pnpm -F sigil-bench bench` regenerates site/src/bench.ts (median of 5
+runs: cold, warm, change rebuild, CSS size, deps, install size, peak
+RSS, config lines, composite score). `pnpm -F sigil-bench bench:browser`
+loads the built site and cdn/demo.html in Chromium and writes
+site/src/browser.ts with request, transfer and timing metrics. Both
+generated files are prettier-ignored.

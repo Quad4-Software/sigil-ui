@@ -42,6 +42,7 @@
   :global(.sig-marquee-track) {
     display: flex;
     width: max-content;
+    will-change: transform;
     animation: sig-marquee var(--sig-marquee-duration) linear infinite;
   }
 
@@ -61,8 +62,11 @@
   }
 
   @keyframes -global-sig-marquee {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
     to {
-      transform: translateX(-50%);
+      transform: translate3d(-50%, 0, 0);
     }
   }
 

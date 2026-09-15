@@ -50,6 +50,10 @@
 - Waveform: Voice-note style amplitude bars.
 - LikeButton: Star or heart reaction button with aria-pressed, an optional count and a transform-only pop animation.
 - Prose: Long-form typography wrapper.
+- LevelMeter: Segmented VU-style level meter.
+- StreamingText: Smooth text reveal for AI chat responses.
+- Suggestion: Inline ghost-text completion.
+- ComparisonTable: Feature comparison grid.
 - Field: Form field wrapper: label, control, hint and error with generated id, aria-describedby and aria-invalid wiring.
 - Table: Table namespace: Root (scroll wrapper + table), Head, Body, Row, H, Cell, Caption.
 - Sheet: Sheet namespace: Root (bind:open), Trigger, Portal, Overlay, Content (side: left/right/top/bottom), Title, Description, Close.

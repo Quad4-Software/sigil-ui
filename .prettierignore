@@ -10,3 +10,6 @@ pnpm-lock.yaml
 bench/.fixture/
 cdn/
 !cdn/demo.html
+site/src/bench.ts
+site/src/sizes.ts
+site/src/browser.ts

@@ -848,16 +848,28 @@ export const manifest: SigilManifest = {
           description: 'Enables slider semantics and pointer or keyboard seeking.'
         },
         {
+          name: 'variant',
+          type: "'bars' | 'flat' | 'dots'",
+          default: "'bars'",
+          description: 'bars center each bar, flat anchors to the baseline, dots scale fixed dots.'
+        },
+        {
+          name: 'size',
+          type: "'sm' | 'md' | 'lg'",
+          default: "'md'",
+          description: 'Preset height and bar spacing.'
+        },
+        {
           name: 'label',
           type: 'string',
           default: 'Audio waveform',
           description: 'Accessible name.'
         },
-        { name: 'height', type: 'number', default: '48', description: 'Rendered height in px.' },
+        { name: 'height', type: 'number', description: 'Rendered height in px. Overrides size.' },
         classProp
       ],
       classes: ['sig-waveform', 'sig-waveform-bar'],
-      dataAttributes: ['data-playing', 'data-played'],
+      dataAttributes: ['data-playing', 'data-played', 'data-variant', 'data-size'],
       example: `<script>\n  import { Waveform } from 'sigil-ui'\n  let progress = $state(0.4)\n</script>\n\n<Waveform bars={amps} {progress} playing onseek={(f) => (progress = f)} />`
     },
     {
@@ -903,6 +915,121 @@ export const manifest: SigilManifest = {
       classes: ['sig-prose', 'sig-prose-sm', 'sig-prose-lg', 'sig-prose-invert'],
       dataAttributes: [],
       example: `<script>\n  import 'sigil-ui/base.css'\n  import { Prose } from 'sigil-ui'\n</script>\n\n<Prose>\n  <h1>Release notes</h1>\n  <p>Long-form content.</p>\n</Prose>`
+    },
+    {
+      name: 'LevelMeter',
+      path: 'level-meter',
+      description:
+        'Segmented VU-style level meter. A static value prop or a live MediaStream/AnalyserNode sampled per frame; segments color safe, warn and peak zones. role=meter with aria-valuenow.',
+      props: [
+        { name: 'value', type: 'number', description: 'Level 0-1.' },
+        {
+          name: 'live',
+          type: 'MediaStream | AnalyserNode',
+          description: 'Real-time source. Streams create and close their own AudioContext.'
+        },
+        { name: 'segments', type: 'number', default: '20', description: 'Segment count.' },
+        {
+          name: 'orientation',
+          type: "'horizontal' | 'vertical'",
+          default: "'horizontal'",
+          description: 'Bar direction.'
+        },
+        {
+          name: 'size',
+          type: "'sm' | 'md' | 'lg'",
+          default: "'md'",
+          description: 'Rendered size.'
+        },
+        {
+          name: 'label',
+          type: 'string',
+          default: 'Audio level',
+          description: 'Accessible name.'
+        },
+        classProp
+      ],
+      classes: ['sig-meter', 'sig-meter-seg'],
+      dataAttributes: ['data-orientation', 'data-size', 'data-zone', 'data-on'],
+      example: `<script>\n  import { LevelMeter } from 'sigil-ui'\n</script>\n\n<LevelMeter value={0.65} />\n<LevelMeter live={stream} orientation="vertical" />`
+    },
+    {
+      name: 'StreamingText',
+      path: 'streaming-text',
+      description:
+        'Smooth text reveal for AI chat responses. Pass the full text received so far; the component catches up at speed chars per second with a blinking caret while streaming. Honors prefers-reduced-motion by rendering instantly.',
+      props: [
+        {
+          name: 'text',
+          type: 'string',
+          description: 'Text received so far. Append as tokens arrive.'
+        },
+        { name: 'streaming', type: 'boolean', description: 'Animate the reveal and show a caret.' },
+        { name: 'speed', type: 'number', default: '360', description: 'Characters per second.' },
+        {
+          name: 'oncomplete',
+          type: '() => void',
+          description: 'Called once when the reveal catches up after streaming ends.'
+        },
+        classProp
+      ],
+      classes: ['sig-stream', 'sig-stream-caret'],
+      dataAttributes: ['data-streaming'],
+      example: `<script>\n  import { StreamingText } from 'sigil-ui'\n  let reply = $state('')\n</script>\n\n<StreamingText text={reply} streaming />`
+    },
+    {
+      name: 'Suggestion',
+      path: 'suggestion',
+      description:
+        'Inline ghost-text completion. The suggestion renders muted after the typed value with a screen-reader announcement; interactive adds focus, a tab hint, and Tab, ArrowRight or Enter to accept.',
+      props: [
+        { name: 'value', type: 'string', description: 'Text the user has typed.' },
+        { name: 'suggestion', type: 'string', description: 'Ghost completion suffix.' },
+        {
+          name: 'interactive',
+          type: 'boolean',
+          description: 'Focusable; Tab, ArrowRight or Enter accepts, Escape dismisses.'
+        },
+        {
+          name: 'onaccept',
+          type: '(suggestion: string) => void',
+          description: 'Called with value plus suggestion on accept.'
+        },
+        { name: 'ondismiss', type: '() => void', description: 'Called on Escape.' },
+        classProp
+      ],
+      classes: [
+        'sig-suggestion',
+        'sig-suggestion-value',
+        'sig-suggestion-ghost',
+        'sig-suggestion-key'
+      ],
+      dataAttributes: [],
+      example: `<script>\n  import { Suggestion } from 'sigil-ui'\n  let q = $state('deploy to')\n</script>\n\n<Suggestion value={q} suggestion=" production" interactive onaccept={(v) => (q = v)} />`
+    },
+    {
+      name: 'ComparisonTable',
+      path: 'comparison-table',
+      description:
+        'Feature comparison grid. Rows pair a feature label with one cell per column: true renders a check icon, false a muted dash, text passes through. highlight accents one column. A real table with row and column headers plus screen-reader yes and no text.',
+      props: [
+        { name: 'columns', type: 'string[]', description: 'Column headers.' },
+        {
+          name: 'rows',
+          type: 'ComparisonRow[]',
+          description: '{ label, cells } per feature; cells are boolean or text.'
+        },
+        { name: 'highlight', type: 'number', description: 'Column index given the accent tint.' },
+        {
+          name: 'label',
+          type: 'string',
+          description: 'Accessible caption. Visually hidden, still announced.'
+        },
+        classProp
+      ],
+      classes: ['sig-compare', 'sig-compare-feature', 'sig-compare-yes', 'sig-compare-no'],
+      dataAttributes: ['data-highlight'],
+      example: `<script>\n  import { ComparisonTable } from 'sigil-ui'\n  const rows = [\n    { label: 'Zero dependencies', cells: [true, false, false] },\n    { label: 'Typed tokens', cells: [true, 'partial', true] }\n  ]\n</script>\n\n<ComparisonTable columns={['sigil', 'A', 'B']} {rows} highlight={0} label="Comparison" />`
     },
     {
       name: 'Field',

@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements'
   import { cn } from '../utils/cn.js'
+  import { watchLevel } from '../utils/analyser.js'
 
   interface Props extends HTMLAttributes<HTMLElement> {
     /** Amplitudes 0-1 per bar. Ignored while live is set. */
@@ -15,6 +16,10 @@
     playing?: boolean
     /** Called with the clicked bar fraction 0-1; makes the figure a slider. */
     onseek?: (fraction: number) => void
+    /** bars are centered, flat anchors to the baseline, dots scale fixed dots. */
+    variant?: 'bars' | 'flat' | 'dots'
+    /** Preset height and bar spacing. height overrides it. */
+    size?: 'sm' | 'md' | 'lg'
     label?: string
     height?: number
   }
@@ -26,8 +31,10 @@
     progress = 0,
     playing = false,
     onseek,
+    variant = 'bars',
+    size = 'md',
     label = 'Audio waveform',
-    height = 48,
+    height,
     class: className,
     ...rest
   }: Props = $props()
@@ -36,39 +43,7 @@
 
   $effect(() => {
     if (!live) return
-    let ctx: AudioContext | undefined
-    let analyser: AnalyserNode
-    if ('getByteFrequencyData' in live) {
-      analyser = live
-    } else {
-      ctx = new AudioContext()
-      analyser = ctx.createAnalyser()
-      analyser.fftSize = 256
-      analyser.smoothingTimeConstant = 0.8
-      ctx.createMediaStreamSource(live).connect(analyser)
-    }
-    const buf = new Uint8Array(analyser.frequencyBinCount)
-    let raf = 0
-    const tick = () => {
-      analyser.getByteFrequencyData(buf)
-      const out = new Array<number>(barCount)
-      const stride = buf.length / barCount
-      for (let i = 0; i < barCount; i++) {
-        let peak = 0
-        for (let j = Math.floor(i * stride); j < Math.floor((i + 1) * stride); j++) {
-          const v = buf[j] ?? 0
-          if (v > peak) peak = v
-        }
-        out[i] = Math.min(1, (peak / 255) * 1.6)
-      }
-      liveBars = out
-      raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => {
-      cancelAnimationFrame(raf)
-      void ctx?.close()
-    }
+    return watchLevel(live, barCount, (out) => (liveBars = out))
   })
 
   const shown = $derived(live ? liveBars : bars)
@@ -96,6 +71,8 @@
   <div
     class={cn('sig-waveform', className)}
     data-playing={playing || live ? '' : undefined}
+    data-variant={variant}
+    data-size={size}
     role="slider"
     tabindex="0"
     aria-label={label}
@@ -103,7 +80,7 @@
     aria-valuemax={100}
     aria-valuenow={Math.round(progress * 100)}
     aria-valuetext="{Math.round(progress * 100)}%"
-    style="height: {height}px"
+    style:height={height ? `${height}px` : undefined}
     onclick={seek}
     onkeydown={keys}
     {...rest}
@@ -112,7 +89,9 @@
       <i
         class="sig-waveform-bar"
         data-played={i < played || undefined}
-        style="height: {Math.max(8, amp * 100)}%; animation-delay: {(i * 43) % 700}ms"
+        style="--amp: {amp}; {variant === 'dots'
+          ? ''
+          : `height: ${Math.max(8, amp * 100)}%;`} animation-delay: {(i * 43) % 700}ms"
       ></i>
     {/each}
   </div>
@@ -120,16 +99,20 @@
   <div
     class={cn('sig-waveform', className)}
     data-playing={playing || live ? '' : undefined}
+    data-variant={variant}
+    data-size={size}
     role="img"
     aria-label={label}
-    style="height: {height}px"
+    style:height={height ? `${height}px` : undefined}
     {...rest}
   >
     {#each shown as amp, i (i)}
       <i
         class="sig-waveform-bar"
         data-played={i < played || undefined}
-        style="height: {Math.max(8, amp * 100)}%; animation-delay: {(i * 43) % 700}ms"
+        style="--amp: {amp}; {variant === 'dots'
+          ? ''
+          : `height: ${Math.max(8, amp * 100)}%;`} animation-delay: {(i * 43) % 700}ms"
       ></i>
     {/each}
   </div>
@@ -141,6 +124,40 @@
     align-items: center;
     gap: 2px;
     width: 100%;
+    height: 3rem;
+  }
+
+  :global(.sig-waveform[data-size='sm']) {
+    height: 1.5rem;
+    gap: 1.5px;
+  }
+
+  :global(.sig-waveform[data-size='lg']) {
+    height: 4.5rem;
+    gap: 3px;
+  }
+
+  :global(.sig-waveform[data-variant='flat']) {
+    align-items: flex-end;
+  }
+
+  :global(.sig-waveform[data-variant='dots']) {
+    justify-content: space-between;
+  }
+
+  :global(.sig-waveform[data-variant='dots'] .sig-waveform-bar) {
+    flex: none;
+    width: 0.375rem;
+    height: 0.375rem;
+    transform: scale(calc(0.35 + var(--amp, 0) * 0.65));
+    transition:
+      background-color 120ms ease,
+      transform 80ms ease-out;
+  }
+
+  :global(.sig-waveform[data-size='sm'][data-variant='dots'] .sig-waveform-bar) {
+    width: 0.25rem;
+    height: 0.25rem;
   }
 
   :global(.sig-waveform[role='slider']) {
@@ -161,8 +178,21 @@
     background: var(--sig-accent, #4f46e5);
   }
 
-  :global(.sig-waveform[data-playing] .sig-waveform-bar) {
+  :global(.sig-waveform[data-playing]:not([data-variant='dots']) .sig-waveform-bar) {
     animation: sig-waveform-drift 1.4s ease-in-out infinite alternate;
+  }
+
+  :global(.sig-waveform[data-variant='dots'][data-playing] .sig-waveform-bar) {
+    animation: sig-waveform-dot 1.4s ease-in-out infinite alternate;
+  }
+
+  @keyframes sig-waveform-dot {
+    from {
+      opacity: 0.5;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   @keyframes sig-waveform-drift {

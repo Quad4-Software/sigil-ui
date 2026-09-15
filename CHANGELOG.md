@@ -16,6 +16,14 @@
 - `--sig-space-0` through `--sig-space-16` spacing tokens in the contract, mapped in the Tailwind, UnoCSS and Panda adapters
 - `cdn/` committed at build time: `sigil.min.css` (theme + base + components), individual sheets, the headless modules and `cdn/demo.html`, a kitchen-sink page proving the zero-install path
 - `sigil css --init` scaffolds `sigil.config.mjs` and prints next steps (the `init` positional works too)
+- `LevelMeter`: segmented VU-style meter with safe, warn and peak zones, a static `value` or live `MediaStream`/`AnalyserNode`, horizontal or vertical
+- `StreamingText`: smooth text reveal for AI chat responses with a caret while `streaming`, speed in chars/sec, instant under reduced motion
+- `Suggestion`: inline ghost-text completion, `interactive` renders a button that accepts on Tab, ArrowRight, Enter, Space or click and dismisses on Escape
+- `ComparisonTable`: feature-grid table rendering check icons for true cells, muted dashes for false and text otherwise, with a highlighted column
+- `Waveform` gains `variant` (bars, flat, dots) and `size` (sm, md, lg); dots scale fixed dots so live mode animates transforms only
+- base.css: `sig-sr-only` visually-hidden utility
+- bench: median of 5 runs, a change-rebuild metric (one file edited), peak build memory via /proc polling, config-line counts, and a composite score; `bench/browser.mjs` measures real Chromium page loads (requests, wire bytes, timings, JS heap) of the docs site and CDN demo
+- The site shows a short `ComparisonTable` against the other engines and a real page-load table
 - `sigil doctor --contrast` audits `--sig-*` text pairs in both theme scopes against WCAG AA
 - npm publish supports OIDC trusted publishing when `NPM_TOKEN` is unset, and GitHub releases attach the built stylesheets and `manifest.json`
 - The docs site serves `theme.css`, `base.css`, `components.min.css`, `manifest.json`, `llms.txt` and `llms-full.txt` at stable root paths
@@ -24,6 +32,9 @@
 
 - `sigil css` writes only files whose content changed and removes stale outputs instead of wiping outdir, so dev watchers stop reloading on no-op builds
 - Light-theme `--sig-muted`, `--sig-success` and `--sig-warning` darkened slightly so the guaranteed text pairs pass WCAG AA 4.5:1
+- Carousel prev/next buttons now center on the slide viewport instead of the whole carousel including the dots row
+- Marquee track runs on the compositor (will-change plus translate3d) so the loop no longer jitters at subpixel steps
+- Chart.Heatmap default cell is 17px (was 14) and cell fills transition on data change; Chart.Bar columns and Chart.Uptime pills transition height for live data
 
 ## 0.10.0
 

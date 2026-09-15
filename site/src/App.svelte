@@ -19,6 +19,7 @@
     CountUp,
     createTheme,
     Carousel,
+    ComparisonTable,
     DataTable,
     Dialog,
     DropdownMenu,
@@ -44,8 +45,11 @@
     Presence,
     Progress,
     Prose,
+    LevelMeter,
     LikeButton,
     Loader,
+    StreamingText,
+    Suggestion,
     Waveform,
     RadioGroup,
     Rating,
@@ -76,6 +80,7 @@
   import { flex, stack } from '../styled-system/patterns'
   import { chip } from '../styled-system/recipes'
   import { bench } from './bench'
+  import { pageLoad } from './browser'
   import { sizes, fmt } from './sizes'
   import AccentPicker from './AccentPicker.svelte'
   import Code from './Code.svelte'
@@ -133,6 +138,24 @@
   let clipProgress = $state(0.35)
   let clipPlaying = $state(false)
   let liked = $state(false)
+  let micLevel = $state(0.4)
+  const replyFull =
+    'Deploy finished in 42s. All 19 checks passed and the preview is live on the staging domain.'
+  let reply = $state(replyFull)
+  let replyStreaming = $state(false)
+  let prompt = $state('deploy to')
+
+  $effect(() => {
+    if (!replyStreaming) return
+    const id = setInterval(() => {
+      if (reply.length >= replyFull.length) {
+        replyStreaming = false
+        return
+      }
+      reply = replyFull.slice(0, reply.length + 3)
+    }, 60)
+    return () => clearInterval(id)
+  })
   const clipAmps = [
     0.3, 0.55, 0.8, 0.45, 0.9, 0.65, 1, 0.7, 0.5, 0.85, 0.4, 0.6, 0.95, 0.35, 0.75, 0.55, 0.25, 0.8,
     0.5, 0.7, 0.45, 0.9, 0.3, 0.6, 0.85, 0.4, 0.7, 0.55, 0.95, 0.35, 0.65, 0.5, 0.8, 0.4, 0.6, 0.3
@@ -186,11 +209,11 @@
     { id: 'site', label: 'site', children: [{ id: 'pages', label: 'pages' }] },
     { id: 'pkg', label: 'package.json' }
   ]
-  const heat = [
+  let heat = $state([
     [2, 5, 1, 8, 4, 0, 3],
     [6, 3, 9, 2, 7, 5, 1],
     [1, 8, 4, 6, 3, 9, 5]
-  ]
+  ])
   const heatDays = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
   const scatter = [
     { x: 1, y: 3 },
@@ -203,20 +226,46 @@
     { x: 8, y: 13 }
   ]
 
-  const traffic = [12, 18, 14, 22, 19, 28, 26, 34, 31, 42, 38, 47]
-  const latency = [220, 180, 240, 160, 190, 140, 170, 150, 165, 132]
-  const deploys = [
+  let traffic = $state([12, 18, 14, 22, 19, 28, 26, 34, 31, 42, 38, 47])
+  let latency = $state([220, 180, 240, 160, 190, 140, 170, 150, 165, 132])
+  let deploys = $state([
     { label: 'Mon', value: 4 },
     { label: 'Tue', value: 7 },
     { label: 'Wed', value: 3 },
     { label: 'Thu', value: 9 },
     { label: 'Fri', value: 6 }
-  ]
-  const share = [
+  ])
+  let share = $state([
     { label: 'api', value: 46 },
     { label: 'web', value: 34 },
     { label: 'workers', value: 20 }
-  ]
+  ])
+  let requests = $state(1284021)
+
+  const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n))
+  const jitter = (n: number, step: number, lo: number, hi: number) =>
+    clamp(Math.round(n + (Math.random() - 0.5) * 2 * step), lo, hi)
+  const jitterF = (n: number, step: number, lo: number, hi: number) =>
+    clamp(n + (Math.random() - 0.5) * 2 * step, lo, hi)
+
+  $effect(() => {
+    const id = setInterval(() => {
+      traffic = [...traffic.slice(1), jitter(traffic[traffic.length - 1] ?? 30, 6, 8, 60)]
+      latency = [...latency.slice(1), jitter(latency[latency.length - 1] ?? 150, 30, 90, 300)]
+      deploys = deploys.map((d) => ({ ...d, value: jitter(d.value, 2, 1, 12) }))
+      const a = jitter(share[0]?.value ?? 40, 4, 25, 60)
+      const b = jitter(share[1]?.value ?? 30, 4, 15, 100 - a - 10)
+      share = [
+        { label: 'api', value: a },
+        { label: 'web', value: b },
+        { label: 'workers', value: 100 - a - b }
+      ]
+      heat = heat.map((row) => row.map((v) => jitter(v, 2, 0, 9)))
+      micLevel = jitterF(micLevel, 0.15, 0.05, 1)
+      requests += Math.floor(Math.random() * 400) + 40
+    }, 2400)
+    return () => clearInterval(id)
+  })
   const services = [
     { name: 'api', status: 'up', uptime: '99.98%', requests: 1284021 },
     { name: 'web', status: 'up', uptime: '99.91%', requests: 842310 },
@@ -453,7 +502,7 @@
           })}
         >
           Accessible components for
-          <span class={css({ color: 'sig.accent' })}>Svelte 5 and vanilla JS</span>
+          <span class={css({ color: 'sig.accent' })}>Svelte 5 and any JS framework</span>
         </h1>
         <p
           class={css({
@@ -570,7 +619,7 @@
                         color: 'sig.fg'
                       })}
                     >
-                      <CountUp value={1284021} format={(n) => Math.round(n).toLocaleString()} />
+                      <CountUp value={requests} format={(n) => Math.round(n).toLocaleString()} />
                     </span>
                     <Badge tone="success">+12.5%</Badge>
                   </div>
@@ -1016,7 +1065,7 @@
         <Reveal
           ><Spec
             label="Feedback"
-            hint="Badge, Avatar, Tooltip, Alert, Skeleton, Toaster, Loader, Waveform, LikeButton"
+            hint="Badge, Avatar, Tooltip, Alert, Skeleton, Toaster, Loader, Waveform, LevelMeter, LikeButton, StreamingText, Suggestion"
             for={[
               'Badge',
               'Avatar',
@@ -1026,7 +1075,10 @@
               'Toaster',
               'Loader',
               'Waveform',
-              'LikeButton'
+              'LevelMeter',
+              'LikeButton',
+              'StreamingText',
+              'Suggestion'
             ]}
           >
             <div class={stack({ gap: '3' })}>
@@ -1090,6 +1142,59 @@
                       label="Voice note"
                     />
                   </div>
+                </div>
+                <div class={flex({ flexWrap: 'wrap', alignItems: 'end', gap: '4' })}>
+                  <div class={stack({ gap: '1' })}>
+                    <span class={css({ fontSize: 'xs', color: 'sig.muted' })}>dots · sm</span>
+                    <div class={css({ w: '48' })}>
+                      <Waveform bars={clipAmps} variant="dots" size="sm" label="Mini waveform" />
+                    </div>
+                  </div>
+                  <div class={stack({ gap: '1' })}>
+                    <span class={css({ fontSize: 'xs', color: 'sig.muted' })}>flat · sm</span>
+                    <div class={css({ w: '48' })}>
+                      <Waveform bars={clipAmps} variant="flat" size="sm" label="Flat waveform" />
+                    </div>
+                  </div>
+                  <div class={stack({ gap: '1' })}>
+                    <span class={css({ fontSize: 'xs', color: 'sig.muted' })}>
+                      LevelMeter · live mic level
+                    </span>
+                    <div class={flex({ alignItems: 'center', gap: '3' })}>
+                      <div class={css({ w: '48' })}>
+                        <LevelMeter value={micLevel} label="Input level" />
+                      </div>
+                      <LevelMeter value={micLevel} orientation="vertical" size="sm" label="Level" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class={stack({ gap: '2' })}>
+                <span class={css({ fontSize: 'xs', color: 'sig.muted' })}>
+                  StreamingText · AI chat reveal, and Suggestion ghost completion
+                </span>
+                <div class={css({ fontSize: 'sm', color: 'sig.fg', minH: '6' })}>
+                  <StreamingText text={reply} streaming={replyStreaming} />
+                </div>
+                <div class={flex({ alignItems: 'center', gap: '3' })}>
+                  <Button
+                    variant="secondary"
+                    onclick={() => {
+                      reply = ''
+                      replyStreaming = true
+                    }}
+                  >
+                    Replay stream
+                  </Button>
+                  <span class={css({ fontSize: 'sm', color: 'sig.fg' })}>
+                    <Suggestion
+                      value={prompt}
+                      suggestion=" production"
+                      interactive
+                      onaccept={(v) => (prompt = v)}
+                      ondismiss={() => (prompt = '')}
+                    />
+                  </span>
                 </div>
               </div>
             </div>
@@ -1551,10 +1656,11 @@
     <section id="benchmarks" class={section}>
       <h2 class={h2}>Build benchmark</h2>
       <p class={lead}>
-        Same workload through each engine's own CLI: 80 source files, 10 style blocks each. Cold
-        build wipes generated output and caches, warm build re-runs immediately, median of 3.
-        Install size sums every package in the tool's dependency tree. Numbers are regenerated by
-        bench/run.mjs in the repo.
+        Same workload through each engine's own CLI: 80 source files, 10 style blocks each, median
+        of 5 runs. Cold build wipes generated output and caches, warm re-runs immediately, change
+        rebuilds after one file edit. Peak memory polls the build process, install size sums every
+        package in the tool's dependency tree, and the score averages each metric's best-per-tool
+        share. Numbers are regenerated by bench/run.mjs in the repo.
       </p>
       <div class={css({ mt: '6', overflowX: 'auto' })}>
         <Table.Root>
@@ -1563,9 +1669,13 @@
               <Table.H scope="col">Engine</Table.H>
               <Table.H scope="col">Cold build</Table.H>
               <Table.H scope="col">Warm build</Table.H>
+              <Table.H scope="col">Change rebuild</Table.H>
               <Table.H scope="col">CSS output</Table.H>
+              <Table.H scope="col">Peak memory</Table.H>
+              <Table.H scope="col">Config lines</Table.H>
               <Table.H scope="col">npm dependencies</Table.H>
               <Table.H scope="col">Install size</Table.H>
+              <Table.H scope="col">Score</Table.H>
             </Table.Row>
           </Table.Head>
           <Table.Body>
@@ -1584,14 +1694,24 @@
                 </Table.Cell>
                 <Table.Cell>{row.coldBuildMs}ms</Table.Cell>
                 <Table.Cell>{row.warmBuildMs}ms</Table.Cell>
+                <Table.Cell>{row.changeBuildMs}ms</Table.Cell>
                 <Table.Cell>
                   {(row.cssBytes / 1024).toFixed(1)} kB
                   <span class={css({ color: 'sig.muted', fontSize: 'xs' })}>
                     ({(row.cssGzipBytes / 1024).toFixed(1)} kB gz)
                   </span>
                 </Table.Cell>
+                <Table.Cell>
+                  {row.peakRssBytes == null
+                    ? 'n/a'
+                    : `${(row.peakRssBytes / 1048576).toFixed(0)} MB`}
+                </Table.Cell>
+                <Table.Cell>{row.configLines}</Table.Cell>
                 <Table.Cell>{row.dependencies}</Table.Cell>
                 <Table.Cell>{((row.installBytes ?? 0) / 1048576).toFixed(1)} MB</Table.Cell>
+                <Table.Cell>
+                  <Badge tone={row.score >= 80 ? 'success' : 'neutral'}>{row.score}</Badge>
+                </Table.Cell>
               </Table.Row>
             {/each}
           </Table.Body>
@@ -1692,6 +1812,89 @@
             {/each}
           </div>
         </div>
+        <div>
+          <h3
+            class={css({
+              m: '0',
+              mb: '3',
+              fontSize: 'sm',
+              fontWeight: 'medium',
+              color: 'sig.muted'
+            })}
+          >
+            Overall score · higher is better
+          </h3>
+          <div class={stack({ gap: '2' })}>
+            {#each bench as row (row.tool)}
+              <div class={flex({ alignItems: 'center', gap: '3' })}>
+                <span class={benchLabel}
+                  ><img src={benchLogoUrl(row.tool)} alt="" class={benchLogo} />{row.tool}</span
+                >
+                <div class={benchTrack}>
+                  <div
+                    class={row.tool === 'sigil css' ? benchBarAccent : benchBar}
+                    style="width: {Math.max(2, row.score)}%"
+                  ></div>
+                </div>
+                <span class={benchValue}>{row.score}</span>
+              </div>
+            {/each}
+          </div>
+        </div>
+      </div>
+      <div class={css({ mt: '8', overflowX: 'auto' })}>
+        <h3
+          class={css({
+            m: '0',
+            mb: '3',
+            fontSize: 'sm',
+            fontWeight: 'medium',
+            color: 'sig.muted'
+          })}
+        >
+          Real page load · Chromium, median of 5
+        </h3>
+        <Table.Root>
+          <Table.Head>
+            <Table.Row>
+              <Table.H scope="col">Page</Table.H>
+              <Table.H scope="col">Requests</Table.H>
+              <Table.H scope="col">Transferred</Table.H>
+              <Table.H scope="col">DOMContentLoaded</Table.H>
+              <Table.H scope="col">Load</Table.H>
+              <Table.H scope="col">JS heap</Table.H>
+            </Table.Row>
+          </Table.Head>
+          <Table.Body>
+            {#each pageLoad as row (row.page)}
+              <Table.Row>
+                <Table.Cell>{row.page}</Table.Cell>
+                <Table.Cell>{row.requests}</Table.Cell>
+                <Table.Cell>{(row.transferBytes / 1024).toFixed(0)} kB</Table.Cell>
+                <Table.Cell>{row.domContentLoadedMs}ms</Table.Cell>
+                <Table.Cell>{row.loadMs}ms</Table.Cell>
+                <Table.Cell>
+                  {row.heapBytes == null ? 'n/a' : `${(row.heapBytes / 1048576).toFixed(1)} MB`}
+                </Table.Cell>
+              </Table.Row>
+            {/each}
+          </Table.Body>
+        </Table.Root>
+      </div>
+      <div class={css({ mt: '8', overflowX: 'auto' })}>
+        <ComparisonTable
+          columns={['sigil-ui', 'Tailwind v4', 'UnoCSS', 'Panda CSS']}
+          highlight={0}
+          label="Feature comparison"
+          rows={[
+            { label: 'Component library', cells: [true, false, false, false] },
+            { label: 'Headless vanilla JS', cells: [true, false, false, false] },
+            { label: 'Charts and dashboards', cells: [true, false, false, false] },
+            { label: 'Zero runtime dependencies', cells: [true, false, false, false] },
+            { label: 'Strict build checks', cells: [true, false, false, 'opt-in'] },
+            { label: 'Typed token engine', cells: [true, 'via CSS vars', true, true] }
+          ]}
+        />
       </div>
     </section>
 

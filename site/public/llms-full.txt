@@ -726,11 +726,13 @@ Props:
 - progress (number): Played fraction 0-1; played bars render in the accent color.
 - playing (boolean): Subtle amplitude drift animation.
 - onseek ((fraction: number) => void): Enables slider semantics and pointer or keyboard seeking.
+- variant ('bars' | 'flat' | 'dots', default 'bars'): bars center each bar, flat anchors to the baseline, dots scale fixed dots.
+- size ('sm' | 'md' | 'lg', default 'md'): Preset height and bar spacing.
 - label (string, default Audio waveform): Accessible name.
-- height (number, default 48): Rendered height in px.
+- height (number): Rendered height in px. Overrides size.
 - class (ClassValue): Merged with the base class. Pass framework utility classes here.
 CSS classes: sig-waveform, sig-waveform-bar
-Data attributes: data-playing, data-played
+Data attributes: data-playing, data-played, data-variant, data-size
 
 ```svelte
 <script>
@@ -786,6 +788,100 @@ Data attributes:
   <h1>Release notes</h1>
   <p>Long-form content.</p>
 </Prose>
+```
+
+### LevelMeter
+
+Segmented VU-style level meter. A static value prop or a live MediaStream/AnalyserNode sampled per frame; segments color safe, warn and peak zones. role=meter with aria-valuenow.
+
+Props:
+- value (number): Level 0-1.
+- live (MediaStream | AnalyserNode): Real-time source. Streams create and close their own AudioContext.
+- segments (number, default 20): Segment count.
+- orientation ('horizontal' | 'vertical', default 'horizontal'): Bar direction.
+- size ('sm' | 'md' | 'lg', default 'md'): Rendered size.
+- label (string, default Audio level): Accessible name.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-meter, sig-meter-seg
+Data attributes: data-orientation, data-size, data-zone, data-on
+
+```svelte
+<script>
+  import { LevelMeter } from 'sigil-ui'
+</script>
+
+<LevelMeter value={0.65} />
+<LevelMeter live={stream} orientation="vertical" />
+```
+
+### StreamingText
+
+Smooth text reveal for AI chat responses. Pass the full text received so far; the component catches up at speed chars per second with a blinking caret while streaming. Honors prefers-reduced-motion by rendering instantly.
+
+Props:
+- text (string): Text received so far. Append as tokens arrive.
+- streaming (boolean): Animate the reveal and show a caret.
+- speed (number, default 360): Characters per second.
+- oncomplete (() => void): Called once when the reveal catches up after streaming ends.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-stream, sig-stream-caret
+Data attributes: data-streaming
+
+```svelte
+<script>
+  import { StreamingText } from 'sigil-ui'
+  let reply = $state('')
+</script>
+
+<StreamingText text={reply} streaming />
+```
+
+### Suggestion
+
+Inline ghost-text completion. The suggestion renders muted after the typed value with a screen-reader announcement; interactive adds focus, a tab hint, and Tab, ArrowRight or Enter to accept.
+
+Props:
+- value (string): Text the user has typed.
+- suggestion (string): Ghost completion suffix.
+- interactive (boolean): Focusable; Tab, ArrowRight or Enter accepts, Escape dismisses.
+- onaccept ((suggestion: string) => void): Called with value plus suggestion on accept.
+- ondismiss (() => void): Called on Escape.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-suggestion, sig-suggestion-value, sig-suggestion-ghost, sig-suggestion-key
+Data attributes: 
+
+```svelte
+<script>
+  import { Suggestion } from 'sigil-ui'
+  let q = $state('deploy to')
+</script>
+
+<Suggestion value={q} suggestion=" production" interactive onaccept={(v) => (q = v)} />
+```
+
+### ComparisonTable
+
+Feature comparison grid. Rows pair a feature label with one cell per column: true renders a check icon, false a muted dash, text passes through. highlight accents one column. A real table with row and column headers plus screen-reader yes and no text.
+
+Props:
+- columns (string[]): Column headers.
+- rows (ComparisonRow[]): { label, cells } per feature; cells are boolean or text.
+- highlight (number): Column index given the accent tint.
+- label (string): Accessible caption. Visually hidden, still announced.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-compare, sig-compare-feature, sig-compare-yes, sig-compare-no
+Data attributes: data-highlight
+
+```svelte
+<script>
+  import { ComparisonTable } from 'sigil-ui'
+  const rows = [
+    { label: 'Zero dependencies', cells: [true, false, false] },
+    { label: 'Typed tokens', cells: [true, 'partial', true] }
+  ]
+</script>
+
+<ComparisonTable columns={['sigil', 'A', 'B']} {rows} highlight={0} label="Comparison" />
 ```
 
 ### Field

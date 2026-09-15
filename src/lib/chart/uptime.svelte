@@ -88,7 +88,9 @@
     min-width: 3px;
     border-radius: var(--sig-radius-full, 9999px);
     background: var(--sig-success, #16a34a);
-    transition: transform 120ms ease;
+    transition:
+      transform 120ms ease,
+      height 500ms ease;
   }
   :global(.sig-uptime-bar:hover) {
     transform: scaleY(1.06);
@@ -115,5 +117,10 @@
   }
   :global(.sig-uptime-pct[data-status='down']) {
     color: var(--sig-danger, #dc2626);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.sig-uptime-bar) {
+      transition: none;
+    }
   }
 </style>
