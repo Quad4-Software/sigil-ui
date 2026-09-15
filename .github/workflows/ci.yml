@@ -40,6 +40,10 @@ jobs:
       - name: package
         run: pnpm build
 
+      # styled-system/ is gitignored; generate it so site type imports resolve.
+      - name: panda codegen
+        run: pnpm -F sigil-site codegen
+
       - name: typecheck
         run: pnpm check
 
