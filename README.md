@@ -1,11 +1,11 @@
 # sigil-ui
 
-A component library for Svelte 5 and plain HTML. Svelte parts are
-built on runes with zero runtime dependencies; the same designs work
-without a framework through stable sig-* classes and headless
-controllers. Everything consumes a --sig-* CSS variable contract, so
-Tailwind v4, UnoCSS, Panda CSS, the bundled sigil css engine, or
-plain CSS all theme the same components.
+A component library for Svelte 5 and any JS framework. Svelte parts
+are built on runes with zero runtime dependencies; the same designs
+work in React, Vue, Solid or plain HTML through stable sig-* classes
+and framework-free headless controllers. Everything consumes a
+--sig-* CSS variable contract, so Tailwind v4, UnoCSS, Panda CSS, the
+bundled sigil css engine, or plain CSS all theme the same components.
 
 ## Install
 
@@ -82,7 +82,9 @@ sigil-ui/headless ships framework-free controllers that wire behavior
 to the same markup: tabs, accordions, radios, checkboxes, switches,
 toggles, sliders, tags, file uploads, pagination, trees, number and
 pin inputs, ratings, editables, carousels, panes, tooltips, hover
-cards, overlays, popovers, menus and toasts.
+cards, overlays, popovers, menus and toasts. The controllers are
+plain DOM JavaScript, so they run in React, Vue, Solid or a static
+page.
 
 ```html
 <link rel="stylesheet" href="sigil-ui/theme.css" />

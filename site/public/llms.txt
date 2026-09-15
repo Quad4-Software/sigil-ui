@@ -2,8 +2,10 @@
 
 > Svelte 5 (runes) component library. CSS framework agnostic: every component
 > consumes the --sig-* CSS variable contract and merges a class prop, so
-> Tailwind v4, UnoCSS, Panda CSS or plain CSS can theme it. Zero runtime
-> component dependencies. Machine-readable metadata: /manifest.json.
+> Tailwind v4, UnoCSS, Panda CSS or plain CSS can theme it. JS framework
+> agnostic: sigil-ui/headless ships framework-free controllers that wire the
+> same markup in React, Vue, Solid or plain JS. Zero runtime component
+> dependencies. Machine-readable metadata: /manifest.json.
 
 ## Docs
 

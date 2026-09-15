@@ -10,7 +10,7 @@
 // Re-run to refresh the numbers. The fixture is deterministic.
 
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { lstatSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { gzipSync } from 'node:zlib'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -179,14 +179,14 @@ function sizeOf(path) {
 }
 
 // Count each tool's installed dependency footprint by walking the pnpm
-// dependency tree reported for the bench package.
-function depCounts() {
+// dependency tree reported for the bench package, then sum the on-disk
+// size of every package in the closure under node_modules/.pnpm.
+function depStats() {
   const raw = execFileSync('pnpm', ['ls', '--depth', 'Infinity', '--json'], {
     cwd: BENCH,
     maxBuffer: 64 * 1024 * 1024
   }).toString()
   const trees = JSON.parse(raw)
-  const counts = {}
   const roots = {
     'sigil css': [],
     'Tailwind CSS v4': ['tailwindcss', '@tailwindcss/cli'],
@@ -201,31 +201,72 @@ function depCounts() {
       walk(info.dependencies, seen)
     }
   }
+  const dirSize = (dir) => {
+    let total = 0
+    let entries
+    try {
+      entries = readdirSync(dir, { withFileTypes: true })
+    } catch {
+      return 0
+    }
+    for (const e of entries) {
+      const p = join(dir, e.name)
+      if (e.isDirectory()) total += dirSize(p)
+      else if (e.isFile() || e.isSymbolicLink()) {
+        try {
+          total += lstatSync(p).size
+        } catch {
+          // broken symlink
+        }
+      }
+    }
+    return total
+  }
+  const store = join(REPO, 'node_modules', '.pnpm')
+  const storeDirs = readdirSync(store)
+  const stats = {}
   for (const [label, pkgs] of Object.entries(roots)) {
     const seen = new Set()
     for (const tree of trees) {
       const deps = { ...(tree.dependencies ?? {}), ...(tree.devDependencies ?? {}) }
       for (const pkg of pkgs) {
         const node = deps[pkg]
-        if (node) walk(node.dependencies, seen)
+        if (node) {
+          seen.add(`${pkg}@${node.version}`)
+          walk(node.dependencies, seen)
+        }
       }
     }
-    counts[label] = seen.size
+    let bytes = 0
+    for (const key of seen) {
+      // .pnpm dir names flatten the scope slash to + and may append peer
+      // suffixes like name@version_peer@x.y
+      const flat = key.replace('/', '+')
+      const at = key.lastIndexOf('@')
+      const name = key.slice(0, at)
+      const match = storeDirs.find(
+        (d) => d === flat || d.startsWith(flat + '_') || d.startsWith(flat + '(')
+      )
+      if (match) bytes += dirSize(join(store, match, 'node_modules', name))
+    }
+    stats[label] = { count: seen.size, bytes }
   }
-  return counts
+  return stats
 }
 
 const RUNS = 3
 
-function benchTool(label, measure) {
-  const times = []
-  let out
+// cold = median of runs with output and caches removed each time.
+// warm = median of immediate re-runs over the generated output.
+function benchTool(label, { build, clean, out }) {
+  const cold = []
   for (let i = 0; i < RUNS; i++) {
-    const r = measure()
-    times.push(r.ms)
-    out = r.out
+    clean()
+    cold.push(build())
   }
-  return { label, coldMs: Math.round(median(times)), css: out }
+  const warm = []
+  for (let i = 0; i < RUNS; i++) warm.push(build())
+  return { label, coldMs: Math.round(median(cold)), warmMs: Math.round(median(warm)), css: out() }
 }
 
 function main() {
@@ -234,13 +275,12 @@ function main() {
 
   // sigil css
   results.push(
-    benchTool('sigil css', () => {
-      const ms = run(
-        process.execPath,
-        [join(REPO, 'bin/sigil.mjs'), 'css'],
-        join(FIXTURE, 'sigil-app')
-      )
-      return { ms, out: sizeOf(join(FIXTURE, 'sigil-app', 'styled-system', 'styles.css')) }
+    benchTool('sigil css', {
+      build: () =>
+        run(process.execPath, [join(REPO, 'bin/sigil.mjs'), 'css'], join(FIXTURE, 'sigil-app')),
+      clean: () =>
+        rmSync(join(FIXTURE, 'sigil-app', 'styled-system'), { recursive: true, force: true }),
+      out: () => sizeOf(join(FIXTURE, 'sigil-app', 'styled-system', 'styles.css'))
     })
   )
   // in-process compile (no Node startup) for context
@@ -262,48 +302,64 @@ console.log(((performance.now() - t0) / 10).toFixed(2))
 
   // tailwind v4
   results.push(
-    benchTool('Tailwind CSS v4', () => {
-      const ms = run(
-        join(BENCH, 'node_modules', '.bin', 'tailwindcss'),
-        ['-i', 'input.css', '-o', 'dist/out.css'],
-        join(FIXTURE, 'tailwind-app')
-      )
-      return { ms, out: sizeOf(join(FIXTURE, 'tailwind-app', 'dist', 'out.css')) }
+    benchTool('Tailwind CSS v4', {
+      build: () =>
+        run(
+          join(BENCH, 'node_modules', '.bin', 'tailwindcss'),
+          ['-i', 'input.css', '-o', 'dist/out.css'],
+          join(FIXTURE, 'tailwind-app')
+        ),
+      clean: () => rmSync(join(FIXTURE, 'tailwind-app', 'dist'), { recursive: true, force: true }),
+      out: () => sizeOf(join(FIXTURE, 'tailwind-app', 'dist', 'out.css'))
     })
   )
 
   // unocss
   results.push(
-    benchTool('UnoCSS', () => {
-      const ms = run(
-        join(BENCH, 'node_modules', '.bin', 'unocss'),
-        ['src/**/*.tsx', '-o', 'dist/uno.css', '-c', 'uno.config.mjs'],
-        join(FIXTURE, 'uno-app')
-      )
-      return { ms, out: sizeOf(join(FIXTURE, 'uno-app', 'dist', 'uno.css')) }
+    benchTool('UnoCSS', {
+      build: () =>
+        run(
+          join(BENCH, 'node_modules', '.bin', 'unocss'),
+          ['src/**/*.tsx', '-o', 'dist/uno.css', '-c', 'uno.config.mjs'],
+          join(FIXTURE, 'uno-app')
+        ),
+      clean: () => {
+        rmSync(join(FIXTURE, 'uno-app', 'dist'), { recursive: true, force: true })
+        rmSync(join(FIXTURE, 'uno-app', 'node_modules', '.cache'), { recursive: true, force: true })
+      },
+      out: () => sizeOf(join(FIXTURE, 'uno-app', 'dist', 'uno.css'))
     })
   )
 
   // panda: codegen (runtime) + cssgen (stylesheet) is the full build path
   results.push(
-    benchTool('Panda CSS', () => {
-      const bin = join(BENCH, 'node_modules', '.bin', 'panda')
-      const cwd = join(FIXTURE, 'panda-app')
-      const ms =
-        run(bin, ['codegen', '--silent'], cwd) +
-        run(bin, ['cssgen', 'src/**/*.ts', '-o', 'dist/panda.css'], cwd)
-      return { ms, out: sizeOf(join(FIXTURE, 'panda-app', 'dist', 'panda.css')) }
+    benchTool('Panda CSS', {
+      build: () => {
+        const bin = join(BENCH, 'node_modules', '.bin', 'panda')
+        const cwd = join(FIXTURE, 'panda-app')
+        return (
+          run(bin, ['codegen', '--silent'], cwd) +
+          run(bin, ['cssgen', 'src/**/*.ts', '-o', 'dist/panda.css'], cwd)
+        )
+      },
+      clean: () => {
+        rmSync(join(FIXTURE, 'panda-app', 'styled-system'), { recursive: true, force: true })
+        rmSync(join(FIXTURE, 'panda-app', 'dist'), { recursive: true, force: true })
+      },
+      out: () => sizeOf(join(FIXTURE, 'panda-app', 'dist', 'panda.css'))
     })
   )
 
-  const deps = depCounts()
+  const deps = depStats()
   const report = results.map((r) => ({
     tool: r.label,
     coldBuildMs: r.coldMs,
+    warmBuildMs: r.warmMs,
     compileMs: r.compileMs ?? null,
     cssBytes: r.css.bytes,
     cssGzipBytes: r.css.gzip,
-    dependencies: deps[r.label] ?? null
+    dependencies: deps[r.label]?.count ?? null,
+    installBytes: deps[r.label]?.bytes ?? null
   }))
 
   writeFileSync(join(BENCH, 'results.json'), JSON.stringify(report, null, 2) + '\n')
@@ -313,10 +369,12 @@ console.log(((performance.now() - t0) / 10).toFixed(2))
       `  ${JSON.stringify({
         tool: r.tool,
         coldBuildMs: r.coldBuildMs,
+        warmBuildMs: r.warmBuildMs,
         compileMs: r.compileMs,
         cssBytes: r.cssBytes,
         cssGzipBytes: r.cssGzipBytes,
-        dependencies: r.dependencies
+        dependencies: r.dependencies,
+        installBytes: r.installBytes
       })}`
   )
   writeFileSync(
@@ -332,9 +390,11 @@ ${rows.join(',\n')}
   for (const r of report) {
     console.log(
       `${r.tool.padEnd(16)} cold=${String(r.coldBuildMs).padStart(6)}ms` +
+        ` warm=${String(r.warmBuildMs).padStart(6)}ms` +
         (r.compileMs != null ? ` compile=${r.compileMs}ms` : '') +
         ` css=${(r.cssBytes / 1024).toFixed(1)}KB (gz ${(r.cssGzipBytes / 1024).toFixed(1)}KB)` +
-        ` deps=${r.dependencies}`
+        ` deps=${r.dependencies}` +
+        (r.installBytes != null ? ` install=${(r.installBytes / 1048576).toFixed(1)}MB` : '')
     )
   }
 }
