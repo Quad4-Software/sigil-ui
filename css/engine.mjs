@@ -378,15 +378,6 @@ function resolveAtoms(prop, raw, flat, vars, varPrefix) {
     else if (category === 'sizes' && flat.spacing && value in flat.spacing) {
       hit = flat.spacing[value]
       hitCat = 'spacing'
-    } else if (!category) {
-      // unmapped props fall back to scanning every token table
-      for (const [cat, t] of Object.entries(flat)) {
-        if (value in t) {
-          hit = t[value]
-          hitCat = cat
-          break
-        }
-      }
     }
     if (hit != null) {
       const varName = `--${varPrefix}-${hitCat}-${dashName(value)}`
@@ -618,6 +609,7 @@ export function extractCalls(src, names = FN_NAMES) {
 const PREFLIGHT = `*,*::before,*::after{box-sizing:border-box}
 html{line-height:1.5;-webkit-text-size-adjust:100%}
 body{margin:0}
+figure,fieldset,blockquote,dl,dd,h1,h2,h3,h4,h5,h6,p,pre{margin:0}
 img,svg,video,canvas{display:block;max-width:100%}
 button,input,select,textarea{font:inherit;color:inherit}
 `

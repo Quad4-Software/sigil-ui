@@ -124,6 +124,15 @@
     borderColor: 'sig.border',
     py: '14'
   })
+  const kicker = css({
+    fontFamily: 'mono',
+    fontSize: 'xs',
+    fontWeight: 'medium',
+    letterSpacing: 'wider',
+    textTransform: 'uppercase',
+    color: 'sig.accent',
+    mb: '2'
+  })
   const h2 = css({ fontSize: '2xl', fontWeight: 'semibold', letterSpacing: 'tight' })
   const lead = css({ mt: '2', color: 'sig.muted' })
   const link = css({ color: 'sig.muted', _hover: { color: 'sig.fg' } })
@@ -234,37 +243,84 @@
 </header>
 
 <main id="top" class={css({ mx: 'auto', maxW: '6xl', px: '4', pb: '24' })}>
-  <section class={css({ pt: '10', pb: '16' })}>
-    <h1
-      class={css({
-        mt: '4',
-        fontSize: { base: '4xl', sm: '5xl', lg: '6xl' },
-        maxW: '3xl',
-        fontWeight: 'bold',
-        letterSpacing: 'tight',
-        lineHeight: 'tight'
-      })}
+  <section class={css({ position: 'relative', pt: '14', pb: '16' })}>
+    <div
+      aria-hidden="true"
+      class={css({ position: 'absolute', inset: '0', overflow: 'hidden', pointerEvents: 'none' })}
     >
-      Components that do not care about your CSS framework
-    </h1>
-    <p
-      class={css({
-        mt: '4',
-        maxW: '2xl',
-        fontSize: 'lg',
-        color: 'sig.muted',
-        lineHeight: 'relaxed'
-      })}
-    >
-      sigil-ui ships runes-native components styled through a
-      <code>--sig-*</code> token contract. Tailwind v4, UnoCSS, Panda CSS or plain CSS all theme the same
-      components. Zero runtime dependencies. Focus traps, keyboard navigation and aria wiring are built
-      in.
-    </p>
-    <div class={flex({ mt: '6', flexWrap: 'wrap', gap: '2' })}>
-      {#each stats as stat (stat)}
-        <span class={chip({ tone: stat === '0 runtime deps' ? 'accent' : undefined })}>{stat}</span>
-      {/each}
+      <div
+        class={css({
+          position: 'absolute',
+          inset: '0',
+          background:
+            'radial-gradient(60rem 26rem at 50% -6rem, color-mix(in oklab, var(--sig-accent) 14%, transparent), transparent 70%)'
+        })}
+      ></div>
+      <div
+        class={css({
+          position: 'absolute',
+          inset: '0',
+          backgroundImage:
+            'radial-gradient(circle, color-mix(in oklab, var(--sig-fg) 10%, transparent) 1px, transparent 1px)',
+          backgroundSize: '22px 22px',
+          maskImage: 'radial-gradient(52rem 26rem at 50% 0%, black 30%, transparent 80%)'
+        })}
+      ></div>
+    </div>
+    <div class={css({ position: 'relative' })}>
+      <p class={kicker}>Svelte 5 runes, zero dependencies, any CSS</p>
+      <h1
+        class={css({
+          mt: '2',
+          fontSize: { base: '4xl', sm: '5xl', lg: '6xl' },
+          maxW: '3xl',
+          fontWeight: 'bold',
+          letterSpacing: 'tight',
+          lineHeight: 'tight',
+          textWrap: 'balance'
+        })}
+      >
+        Components that do not care about
+        <span class={css({ color: 'sig.accent' })}>your CSS framework</span>
+      </h1>
+      <p
+        class={css({
+          mt: '4',
+          maxW: '2xl',
+          fontSize: 'lg',
+          color: 'sig.muted',
+          lineHeight: 'relaxed'
+        })}
+      >
+        sigil-ui ships runes-native components styled through a
+        <code>--sig-*</code> token contract. Tailwind v4, UnoCSS, Panda CSS or plain CSS all theme the
+        same components. Zero runtime dependencies. Focus traps, keyboard navigation and aria wiring are
+        built in.
+      </p>
+      <div class={flex({ mt: '6', flexWrap: 'wrap', gap: '3' })}>
+        <a
+          href="#components"
+          class={`sig-btn ${css({ textDecoration: 'none' })}`}
+          data-variant="primary"
+        >
+          Browse components
+        </a>
+        <a
+          href="https://github.com/Quad4-Software/sigil-ui"
+          rel="noopener"
+          class={`sig-btn ${css({ textDecoration: 'none' })}`}
+          data-variant="secondary"
+        >
+          <ExternalLink size={15} /> GitHub
+        </a>
+      </div>
+      <div class={flex({ mt: '6', flexWrap: 'wrap', gap: '2' })}>
+        {#each stats as stat (stat)}
+          <span class={chip({ tone: stat === '0 runtime deps' ? 'accent' : undefined })}
+            >{stat}</span
+          >
+        {/each}
+      </div>
     </div>
     <div
       class={css({
@@ -280,6 +336,7 @@
   </section>
 
   <section id="components" class={section}>
+    <p class={kicker}>{manifest.components.length} parts, one styling contract</p>
     <h2 class={h2}>Components</h2>
     <p class={lead}>Live. Every class and data attribute below is a public styling hook.</p>
 
@@ -843,6 +900,7 @@
   </section>
 
   <section id="adapters" class={section}>
+    <p class={kicker}>Five ways to theme</p>
     <h2 class={h2}>Adapters</h2>
     <p class={lead}>
       One token contract, five ways to consume it. sigil css is the bundled build-time atomic
@@ -865,6 +923,7 @@
   </section>
 
   <section id="agents" class={section}>
+    <p class={kicker}>Manifest, CLI, llms.txt</p>
     <h2 class={h2}>Built for agents</h2>
     <p class={lead}>
       The library describes itself so tools and coding agents do not have to guess.
@@ -900,6 +959,7 @@
   </section>
 
   <section id="vanilla" class={section}>
+    <p class={kicker}>Plain HTML, plain JS</p>
     <h2 class={h2}>Without a framework</h2>
     <p class={lead}>
       The component styles are stable sig-* classes over --sig-* tokens, so plain HTML can consume
@@ -926,6 +986,7 @@
   </section>
 
   <section id="tokens" class={section}>
+    <p class={kicker}>{manifest.tokens.length} CSS variables</p>
     <h2 class={h2}>Token contract</h2>
     <p class={lead}>Override any of these to retheme every component at once.</p>
     <div
@@ -983,14 +1044,31 @@
   </section>
 
   <section id="api" class={section}>
+    <p class={kicker}>Generated from the manifest</p>
     <h2 class={h2}>API reference</h2>
     <p class={lead}>
       Every component, prop and styling hook, generated from the same manifest agents consume.
     </p>
-    <div class={stack({ mt: '8', gap: '3' })}>
+    <div
+      class={css({
+        display: 'grid',
+        mt: '8',
+        gap: '3',
+        alignItems: 'start',
+        gridTemplateColumns: { base: '1fr', lg: 'repeat(2, 1fr)' }
+      })}
+    >
       {#each manifest.components as component (component.name)}
         <details
-          class={css({ rounded: 'sig', border: '1px solid', borderColor: 'sig.border', p: '4' })}
+          class={css({
+            rounded: 'sig',
+            border: '1px solid',
+            borderColor: 'sig.border',
+            p: '4',
+            transition: 'border-color 150ms',
+            _hover: { borderColor: 'sig.accent' },
+            _open: { bg: 'sig.surface' }
+          })}
         >
           <summary class={css({ cursor: 'pointer', fontWeight: 'medium' })}>
             {component.name}

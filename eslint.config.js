@@ -14,7 +14,9 @@ export default defineConfig([
       'coverage/',
       '**/styled-system/',
       '.svelte-check/',
-      '.svelte-kit/'
+      '.svelte-kit/',
+      '.cache/',
+      'test-results/'
     ]
   },
   js.configs.recommended,

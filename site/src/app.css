@@ -7,9 +7,20 @@ body {
   background: var(--sig-bg, #fff);
   color: var(--sig-fg, #18181b);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 code,
 pre {
   font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+::selection {
+  background: var(--sig-accent, #4f46e5);
+  color: var(--sig-accent-fg, #fff);
+}
+
+:focus-visible {
+  outline: 2px solid var(--sig-ring, #4f46e5);
+  outline-offset: 2px;
 }

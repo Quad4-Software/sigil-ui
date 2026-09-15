@@ -9,52 +9,52 @@ implemented in-house on runes; there are zero runtime dependencies.
 ## Commands
 
 - `pnpm install`
-- `pnpm dev` — demo playground (src/demo, plain Vite app)
-- `pnpm build` — svelte-package src/lib to dist plus dist/manifest.json
-- `pnpm check` — svelte-check, fails on warnings (authoritative gate)
-- `pnpm check:tsgo` — svelte-check on the TypeScript 7 native sidecar
+- `pnpm dev`: demo playground (src/demo, plain Vite app)
+- `pnpm build`: svelte-package src/lib to dist plus dist/manifest.json
+- `pnpm check`: svelte-check, fails on warnings (authoritative gate)
+- `pnpm check:tsgo`: svelte-check on the TypeScript 7 native sidecar
 - `pnpm lint` / `pnpm format` / `pnpm format:check`
-- `pnpm test` — vitest + testing-library on jsdom
-- `pnpm test:coverage` — same with v8 thresholds on src/lib
-- `pnpm pack:check` — publint on the packed artifact
-- `pnpm llms` — regenerate site/public/llms.txt and llms-full.txt from the
+- `pnpm test`: vitest + testing-library on jsdom
+- `pnpm test:coverage`: same with v8 thresholds on src/lib
+- `pnpm pack:check`: publint on the packed artifact
+- `pnpm llms`: regenerate site/public/llms.txt and llms-full.txt from the
   manifest (requires `pnpm build` first)
-- `pnpm -F sigil-site build` — build the docs/showcase site to site/dist
-- `node bin/sigil.mjs <cmd>` — the CLI (list, docs, tokens, adapters,
+- `pnpm -F sigil-site build`: build the docs/showcase site to site/dist
+- `node bin/sigil.mjs <cmd>`: the CLI (list, docs, tokens, adapters,
   manifest, doctor); needs `pnpm build` first
 
 ## Layout
 
-- `src/lib/<component>/` — one dir per component: `*.svelte` plus an
+- `src/lib/<component>/`: one dir per component: `*.svelte` plus an
   `index.ts` barrel
-- `src/lib/manifest.ts` — single source of truth for component, token and
+- `src/lib/manifest.ts`: single source of truth for component, token and
   adapter metadata. The CLI, llms.txt and dist/manifest.json all derive
   from it, and tests enforce that it stays in sync with the source
-- `src/lib/theme/sigil.css` — default `--sig-*` values, light and dark
-- `src/lib/theme/tailwind.css` — Tailwind v4 `@theme inline` bridge
-- `src/lib/uno.ts`, `src/lib/panda.ts` — adapter presets, exported as
+- `src/lib/theme/sigil.css`: default `--sig-*` values, light and dark
+- `src/lib/theme/tailwind.css`: Tailwind v4 `@theme inline` bridge
+- `src/lib/uno.ts`, `src/lib/panda.ts`: adapter presets, exported as
   `sigil-ui/uno` and `sigil-ui/panda`
-- `css/engine.mjs` — the bundled build-time atomic CSS engine, exported
+- `css/engine.mjs`: the bundled build-time atomic CSS engine, exported
   as `sigil-ui/css` and driven by `sigil-ui css`. It scans source files
   for style calls, resolves config tokens to `--s-*` custom properties,
   and emits styled-system/ (styles.css plus a typed self-contained
   css() runtime, patterns, and recipe/slot-recipe functions). The
   generated runtime embeds the same resolver functions the compiler
   uses so emitted classes and runtime classes always match
-- `src/lib/theme/theme.svelte.ts` — `createTheme()` rune store
-- `src/lib/toast/toast.svelte.ts` — global toast store plus the `toast` API
-- `src/lib/pane/` — resizable split panes: pane-group, pane, pane-resizer,
+- `src/lib/theme/theme.svelte.ts`: `createTheme()` rune store
+- `src/lib/toast/toast.svelte.ts`: global toast store plus the `toast` API
+- `src/lib/pane/`: resizable split panes: pane-group, pane, pane-resizer,
   shared context in ctx.ts
-- `src/lib/utils/focus.ts` — focus trap helpers used by Dialog
-- `src/lib/utils/inspect.ts` — layout inspection: findOverflows, measure,
+- `src/lib/utils/focus.ts`: focus trap helpers used by Dialog
+- `src/lib/utils/inspect.ts`: layout inspection: findOverflows, measure,
   tagOverflows, consumed by Measure and GridOverlay
-- `src/lib/utils/cn.ts` — class merging (clsx-compatible ClassValue)
-- `src/lib/utils/persisted.svelte.ts` — localStorage-backed reactive
+- `src/lib/utils/cn.ts`: class merging (clsx-compatible ClassValue)
+- `src/lib/utils/persisted.svelte.ts`: localStorage-backed reactive
   state with cross-tab storage-event sync
-- `src/tests/` — vitest suites; shared component harnesses live in
+- `src/tests/`: vitest suites; shared component harnesses live in
   `src/tests/fixtures/`
-- `bin/sigil.mjs` — zero-dependency CLI shipped in the package
-- `site/` — docs and showcase site, deployed to GitHub Pages. It is
+- `bin/sigil.mjs`: zero-dependency CLI shipped in the package
+- `site/`: docs and showcase site, deployed to GitHub Pages. It is
   styled by the bundled engine via site/sigil.config.mjs; the generated
   `styled-system/` is gitignored and rebuilt by `pnpm -C site codegen`
 

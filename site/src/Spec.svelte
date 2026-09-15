@@ -16,7 +16,9 @@
     rounded: 'sig',
     border: '1px solid',
     borderColor: 'sig.border',
-    bg: 'sig.bg'
+    bg: 'sig.bg',
+    transition: 'transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease',
+    _hover: { transform: 'translateY(-2px)', boxShadow: 'md', borderColor: 'sig.accent' }
   })}${className ? ` ${className}` : ''}`}
 >
   <figcaption

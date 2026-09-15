@@ -90,6 +90,16 @@ describe('compile', () => {
     expect(css).toContain('font-size:2rem')
   })
 
+  it('does not hijack raw values that match a token name in another category', () => {
+    rmSync(join(cwd, 'src'), { recursive: true, force: true })
+    write('raw.ts', "css({ display: 'none', content: 'sm', order: '4' })")
+    const { css } = compile(defineConfig(config), cwd)
+    expect(css).toContain('display:none')
+    expect(css).toContain('content:sm')
+    expect(css).toContain('order:4')
+    expect(css).not.toContain('display:var(')
+  })
+
   it('dedupes identical declarations across files and aliases', () => {
     rmSync(join(cwd, 'src'), { recursive: true, force: true })
     write('d.ts', "css({ p: '4' })\ncss({ paddingTop: '4' })\ncss({ pt: '4' })")
