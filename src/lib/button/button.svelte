@@ -7,13 +7,30 @@
 
   interface Props extends HTMLButtonAttributes {
     variant?: Variant
+    loading?: boolean
     children?: Snippet
   }
 
-  let { variant = 'primary', class: className, children, ...rest }: Props = $props()
+  let {
+    variant = 'primary',
+    loading = false,
+    disabled,
+    class: className,
+    children,
+    ...rest
+  }: Props = $props()
 </script>
 
-<button class={cn('sig-btn', className)} data-variant={variant} {...rest}>
+<button
+  class={cn('sig-btn', className)}
+  data-variant={variant}
+  aria-busy={loading || undefined}
+  disabled={disabled || loading}
+  {...rest}
+>
+  {#if loading}
+    <span class="sig-btn-spinner" aria-hidden="true"></span>
+  {/if}
   {@render children?.()}
 </button>
 
@@ -45,6 +62,27 @@
   :global(.sig-btn:disabled) {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  :global(.sig-btn-spinner) {
+    width: 0.875rem;
+    height: 0.875rem;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 999px;
+    animation: sig-btn-spin 0.7s linear infinite;
+  }
+
+  @keyframes sig-btn-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.sig-btn-spinner) {
+      animation-duration: 2s;
+    }
   }
 
   :global(.sig-btn[data-variant='primary']) {

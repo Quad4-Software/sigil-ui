@@ -11,44 +11,87 @@
 //   toast.success('Saved')
 
 import { attachAccordion } from './accordion.js'
+import { attachCarousel } from './carousel.js'
+import { attachCheckbox } from './checkbox.js'
 import { destroyAll } from './dom.js'
+import { attachEditable } from './editable.js'
+import { attachFileUpload } from './file-upload.js'
+import { createHoverCard } from './hover-card.js'
+import { attachNumberInput } from './number-input.js'
+import { attachPagination } from './pagination.js'
 import { attachPaneGroup } from './panes.js'
+import { attachPinInput } from './pin-input.js'
 import { attachRadioGroup } from './radio.js'
+import { attachRating } from './rating.js'
+import { attachSlider } from './slider.js'
 import { attachSwitch } from './switch.js'
 import { attachTabs } from './tabs.js'
+import { attachTagsInput } from './tags-input.js'
+import { attachToggle, attachToggleGroup } from './toggle.js'
 import { attachTooltip } from './tooltip.js'
+import { attachTree } from './tree.js'
 
 export { attachAccordion } from './accordion.js'
 export type { AccordionController, AccordionOptions } from './accordion.js'
+export { attachCarousel } from './carousel.js'
+export type { CarouselController, CarouselOptions } from './carousel.js'
+export { attachCheckbox } from './checkbox.js'
+export type { CheckboxController, CheckboxOptions } from './checkbox.js'
 export { destroyAll, isDisabled, nextId, on } from './dom.js'
+export { attachEditable } from './editable.js'
+export type { EditableController, EditableOptions } from './editable.js'
+export { attachFileUpload } from './file-upload.js'
+export type { FileUploadController, FileUploadOptions } from './file-upload.js'
+export { createHoverCard } from './hover-card.js'
+export type { HoverCardController, HoverCardOptions } from './hover-card.js'
 export { createMenu } from './menu.js'
 export type { MenuController, MenuOptions } from './menu.js'
+export { attachNumberInput } from './number-input.js'
+export type { NumberInputController, NumberInputOptions } from './number-input.js'
 export { createOverlay } from './overlay.js'
 export type { OverlayController, OverlayOptions } from './overlay.js'
+export { attachPagination } from './pagination.js'
+export type { PaginationController, PaginationOptions } from './pagination.js'
 export { attachPaneGroup } from './panes.js'
 export type { PaneGroupController } from './panes.js'
+export { attachPinInput } from './pin-input.js'
+export type { PinInputController, PinInputOptions } from './pin-input.js'
 export { persistedValue } from './persisted.js'
 export type { PersistedValue } from './persisted.js'
 export { createPopover } from './popover.js'
 export type { PopoverController, PopoverOptions } from './popover.js'
 export { attachRadioGroup } from './radio.js'
 export type { RadioGroupController, RadioGroupOptions } from './radio.js'
+export { attachRating } from './rating.js'
+export type { RatingController, RatingOptions } from './rating.js'
+export { attachSlider } from './slider.js'
+export type { SliderController } from './slider.js'
 export { attachSwitch } from './switch.js'
 export type { SwitchController } from './switch.js'
 export { attachTabs } from './tabs.js'
 export type { TabsController, TabsOptions } from './tabs.js'
+export { attachTagsInput } from './tags-input.js'
+export type { TagsInputController, TagsInputOptions } from './tags-input.js'
 export { createTheme } from './theme.js'
 export type { ResolvedTheme, ThemeController, ThemeMode } from './theme.js'
 export { createToastApi, createToaster, toast, toaster, ToastStore } from './toaster.js'
 export type { Toast, ToastAction, ToastInput, ToastTone, ToasterPosition } from './toaster.js'
+export { attachToggle, attachToggleGroup } from './toggle.js'
+export type { ToggleController, ToggleGroupController, ToggleGroupOptions } from './toggle.js'
 export { attachTooltip } from './tooltip.js'
 export type { TooltipController } from './tooltip.js'
+export { attachTree } from './tree.js'
+export type { TreeController } from './tree.js'
 
 // Wires every recognized component under root and returns one destroy.
-// Recognizes .sig-tabs, .sig-accordion, .sig-radio-group, .sig-pane-group,
-// button[role=switch] and .sig-tip-wrap pairs. Overlays (dialog, sheet,
-// popover, menu) need explicit wiring via createOverlay/createPopover/
-// createMenu since they involve trigger + portaled content pairs.
+// Recognizes .sig-tabs, .sig-accordion, .sig-radio-group, .sig-toggle-group,
+// .sig-pane-group, .sig-tree, .sig-pagination (data-total), .sig-carousel,
+// .sig-number-input, .sig-pin-input, .sig-rating, .sig-editable,
+// .sig-tags-input, .sig-file-upload, button[role=switch], .sig-slider,
+// input[type=checkbox].sig-checkbox, .sig-toggle, .sig-tip-wrap pairs and
+// .sig-hover-wrap pairs. Overlays (dialog, sheet, popover, menu) need
+// explicit wiring via createOverlay/createPopover/createMenu since they
+// involve trigger + portaled content pairs.
 export function attachAll(root: ParentNode = document): () => void {
   const cleanups: (() => void)[] = []
 
@@ -57,13 +100,39 @@ export function attachAll(root: ParentNode = document): () => void {
   for (const el of all<HTMLElement>('.sig-tabs')) cleanups.push(attachTabs(el).destroy)
   for (const el of all<HTMLElement>('.sig-accordion')) cleanups.push(attachAccordion(el).destroy)
   for (const el of all<HTMLElement>('.sig-radio-group')) cleanups.push(attachRadioGroup(el).destroy)
+  for (const el of all<HTMLElement>('.sig-toggle-group'))
+    cleanups.push(attachToggleGroup(el).destroy)
   for (const el of all<HTMLElement>('.sig-pane-group')) cleanups.push(attachPaneGroup(el).destroy)
+  for (const el of all<HTMLElement>('.sig-tree')) cleanups.push(attachTree(el).destroy)
+  for (const el of all<HTMLElement>('.sig-carousel')) cleanups.push(attachCarousel(el).destroy)
+  for (const el of all<HTMLElement>('.sig-number-input'))
+    cleanups.push(attachNumberInput(el).destroy)
+  for (const el of all<HTMLElement>('.sig-pin-input')) cleanups.push(attachPinInput(el).destroy)
+  for (const el of all<HTMLElement>('.sig-rating')) cleanups.push(attachRating(el).destroy)
+  for (const el of all<HTMLElement>('.sig-editable')) cleanups.push(attachEditable(el).destroy)
+  for (const el of all<HTMLElement>('.sig-tags-input')) cleanups.push(attachTagsInput(el).destroy)
+  for (const el of all<HTMLElement>('.sig-file-upload')) cleanups.push(attachFileUpload(el).destroy)
+  for (const el of all<HTMLElement>('.sig-slider')) cleanups.push(attachSlider(el).destroy)
+  for (const el of all<HTMLElement>('.sig-pagination')) {
+    const total = Number(el.dataset.total || el.querySelectorAll('.sig-page-btn').length || 1)
+    cleanups.push(attachPagination(el, { total }).destroy)
+  }
   for (const el of all<HTMLElement>('button[role="switch"], .sig-switch'))
     cleanups.push(attachSwitch(el).destroy)
+  for (const el of all<HTMLInputElement>('input[type="checkbox"].sig-checkbox'))
+    cleanups.push(attachCheckbox(el).destroy)
+  for (const el of all<HTMLElement>('.sig-toggle')) cleanups.push(attachToggle(el).destroy)
   for (const wrap of all<HTMLElement>('.sig-tip-wrap')) {
     const trigger = wrap.querySelector<HTMLElement>(':scope > :first-child')
     const tip = wrap.querySelector<HTMLElement>('.sig-tip')
     if (trigger && tip) cleanups.push(attachTooltip(trigger, tip).destroy)
+  }
+  for (const wrap of all<HTMLElement>('.sig-hover-wrap')) {
+    try {
+      cleanups.push(createHoverCard(wrap).destroy)
+    } catch {
+      // incomplete markup, skip
+    }
   }
 
   return destroyAll(...cleanups.map((c) => () => c()))

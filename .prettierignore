@@ -7,3 +7,4 @@ coverage/
 .cache/
 test-results/
 pnpm-lock.yaml
+bench/.fixture/

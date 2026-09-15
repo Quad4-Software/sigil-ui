@@ -1,0 +1,17 @@
+{
+  "name": "sigil-bench",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "bench": "node run.mjs"
+  },
+  "devDependencies": {
+    "@pandacss/dev": "1.12.1",
+    "@tailwindcss/cli": "4.3.3",
+    "@unocss/cli": "66.10.0",
+    "sigil-ui": "workspace:*",
+    "tailwindcss": "4.3.3",
+    "unocss": "66.10.0"
+  }
+}

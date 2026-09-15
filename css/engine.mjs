@@ -166,7 +166,9 @@ const PROPS = {
     false
   ],
   borderTopColor: [['border-top-color'], 'colors', false],
+  borderRightColor: [['border-right-color'], 'colors', false],
   borderBottomColor: [['border-bottom-color'], 'colors', false],
+  borderLeftColor: [['border-left-color'], 'colors', false],
   borderXColor: [['border-left-color', 'border-right-color'], 'colors', false],
   borderYColor: [['border-top-color', 'border-bottom-color'], 'colors', false],
   outlineColor: [['outline-color'], 'colors', false],
@@ -234,6 +236,8 @@ scroll-padding-top scroll-padding-right scroll-padding-bottom scroll-padding-lef
 background-clip background-origin border-style border-top-style border-right-style
 border-bottom-style border-left-style border-inline-style border-block-style
 border-top border-right border-bottom border-left border-inline border-block
+border-color border-top-color border-right-color border-bottom-color border-left-color
+border-width border-top-width border-right-width border-bottom-width border-left-width
 border border-radius outline outline-style outline-width outline-offset
 text-align text-decoration text-decoration-line text-decoration-style text-decoration-thickness
 text-transform text-overflow text-wrap text-wrap-mode text-wrap-style white-space word-break

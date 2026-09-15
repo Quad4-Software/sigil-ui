@@ -60,6 +60,11 @@
 - ToggleGroup: ToggleGroup namespace: Root (bindable value, type single or multiple, roving tabindex arrow keys) and Item (aria-pressed).
 - HoverCard: HoverCard namespace: Root (bindable open, openDelay, closeDelay), Trigger and Content.
 - TagsInput: Tag editor with bindable tags.
+- NumberInput: Numeric input with stepper buttons.
+- PinInput: One-time-code input across per-digit cells.
+- Rating: Star rating as a radiogroup.
+- Editable: Click-to-edit text.
+- Carousel: Slide carousel with prev/next controls and dot indicators.
 - AspectRatio: Fixed-ratio box using the aspect-ratio property.
 - AvatarGroup: Overlapping avatar stack.
 - Tree: Tree view with role=tree, expandable groups, aria-selected and full arrow key navigation.

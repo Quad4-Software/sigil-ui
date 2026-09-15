@@ -52,7 +52,8 @@
     "./tailwind.css": "./dist/theme/tailwind.css",
     "./manifest.json": "./dist/manifest.json",
     "./package.json": "./package.json",
-    "./themes/*": "./dist/theme/themes/*"
+    "./themes/*": "./dist/theme/themes/*",
+    "./base.css": "./dist/theme/base.css"
   },
   "bin": {
     "sigil-ui": "./bin/sigil.mjs"

@@ -33,13 +33,14 @@ Primitives: Button, Badge, Switch, Toggle, Input, Textarea, Select,
 Checkbox, RadioGroup, Slider, Avatar, Progress, Skeleton, Spinner,
 Separator, Tooltip, Alert, Stat, Kbd, Empty, Breadcrumb, Field,
 ScrollArea, Pagination, CountUp, CopyButton, Reveal, AspectRatio,
-AvatarGroup, TagsInput, FileUpload, Tree, Presence, Marquee.
+AvatarGroup, TagsInput, FileUpload, Tree, Presence, Marquee,
+NumberInput, PinInput, Rating, Editable.
 
 Compound namespaces, each shipping Root plus named parts: Dialog,
 AlertDialog, Sheet, Card, Tabs, Accordion, Popover, HoverCard,
 DropdownMenu, ContextMenu, Menubar, Table, Command, Combobox,
-ToggleGroup, Timeline, Stepper. Command.Dialog is a Cmd+K palette
-out of the box.
+ToggleGroup, Timeline, Stepper, Carousel. Command.Dialog is a Cmd+K
+palette out of the box.
 
 Charts (Chart.Line/Bar/Area/Scatter/Radar/Heatmap/Sparkline/Donut/
 Gauge) are pure SVG with role=img and native tooltips. Chart.Uptime
@@ -74,13 +75,18 @@ required, wire aria relationships, and honor reduced motion.
 
 ## Without Svelte
 
-components.css ships every component's styles as plain classes, and
+components.css ships every component's styles as plain classes,
+base.css adds optional bare-element resets (nav, pre, code, details,
+links, role=button, role=group, aria-busy spinners), and
 sigil-ui/headless ships framework-free controllers that wire behavior
-to the same markup: tabs, accordions, radios, switches, overlays,
-popovers, menus, tooltips, panes and toasts.
+to the same markup: tabs, accordions, radios, checkboxes, switches,
+toggles, sliders, tags, file uploads, pagination, trees, number and
+pin inputs, ratings, editables, carousels, panes, tooltips, hover
+cards, overlays, popovers, menus and toasts.
 
 ```html
 <link rel="stylesheet" href="sigil-ui/theme.css" />
+<link rel="stylesheet" href="sigil-ui/base.css" />
 <link rel="stylesheet" href="sigil-ui/components.min.css" />
 <script type="module">
   import { attachAll } from 'sigil-ui/headless'

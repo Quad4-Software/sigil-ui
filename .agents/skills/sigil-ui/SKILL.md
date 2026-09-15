@@ -90,19 +90,29 @@ Provide your own `--sig-*` values to theme.
 
 ## Vanilla usage, no framework
 
-Two entry points cover plain HTML and JavaScript:
+Three entry points cover plain HTML and JavaScript:
 
 - `sigil-ui/components.css` (or the minified `components.min.css`) is
   every component's stylesheet extracted to flat classes. Write the
   documented markup
   (`<button class="sig-btn" data-variant="primary">`) and it looks
   identical to the Svelte output.
+- `sigil-ui/base.css` is optional bare-element styling: box-sizing
+  reset, body tokens, nav lists, pre/code/kbd/samp, details/summary,
+  links, `role="button"`, `role="group"`, fieldset/legend, and an
+  `aria-busy="true"` spinner. Everything reads the `--sig-*` contract.
 - `sigil-ui/headless` is the behavior layer: attachTabs,
-  attachAccordion, attachRadioGroup, attachSwitch, attachPaneGroup,
-  attachTooltip, createOverlay, createPopover, createMenu,
-  createToaster, createTheme, and attachAll(root) which wires every
-  recognized structure under a node. The controllers produce the same
-  roles, aria attributes and data-state values as the Svelte parts.
+  attachAccordion, attachRadioGroup, attachCheckbox, attachSwitch,
+  attachToggle, attachToggleGroup, attachSlider, attachTagsInput,
+  attachFileUpload, attachPagination, attachTree, attachNumberInput,
+  attachPinInput, attachRating, attachEditable, attachCarousel,
+  attachPaneGroup, attachTooltip, createHoverCard, createOverlay,
+  createPopover, createMenu, createToaster, createTheme, and
+  attachAll(root) which wires every recognized structure under a
+  node. Overlays (dialog, sheet, popover, menu) need explicit
+  create calls since they pair a trigger with portaled content. The
+  controllers produce the same roles, aria attributes and data-state
+  values as the Svelte parts.
 
 ## Theming by framework
 

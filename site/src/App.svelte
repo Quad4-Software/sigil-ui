@@ -18,9 +18,11 @@
     CopyButton,
     CountUp,
     createTheme,
+    Carousel,
     DataTable,
     Dialog,
     DropdownMenu,
+    Editable,
     Empty,
     Field,
     FileUpload,
@@ -32,7 +34,9 @@
     Marquee,
     Measure,
     Menubar,
+    NumberInput,
     Pagination,
+    PinInput,
     Pane,
     PaneGroup,
     PaneResizer,
@@ -40,6 +44,7 @@
     Presence,
     Progress,
     RadioGroup,
+    Rating,
     Reveal,
     ScrollArea,
     Select,
@@ -66,6 +71,7 @@
   import { css } from '../styled-system/css'
   import { flex, stack } from '../styled-system/patterns'
   import { chip } from '../styled-system/recipes'
+  import { bench } from './bench'
   import { sizes, fmt } from './sizes'
   import Code from './Code.svelte'
   import GithubIcon from './GithubIcon.svelte'
@@ -88,6 +94,8 @@
   let sheetOpen = $state(false)
   let servicePage = $state(1)
   let paletteOpen = $state(false)
+  const isMac = typeof navigator !== 'undefined' && /mac/i.test(navigator.platform)
+  const paletteHint = isMac ? '⌘K' : 'Ctrl K'
   let pickedFruit = $state('')
   let align = $state('left')
   let formats = $state<string[]>(['bold'])
@@ -97,23 +105,84 @@
   let cardShown = $state(true)
   let confirmOpen = $state(false)
   let apiFilter = $state('')
+  let apiSelected = $state('Button')
+  const benchMaxMs = Math.max(...bench.map((r) => r.coldBuildMs))
+  const benchMaxDeps = Math.max(...bench.map((r) => r.dependencies))
+  const apiVisible = $derived(
+    manifest.components.filter((c) => {
+      const q = apiFilter.trim().toLowerCase()
+      return !q || c.name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q)
+    })
+  )
+  const apiCurrent = $derived(
+    apiVisible.find((c) => c.name === apiSelected) ?? apiVisible[0] ?? manifest.components[0]
+  )
+  let qty = $state(2)
+  let pin = $state('')
+  let stars = $state(3)
+  let editName = $state('Quarterly report')
+  let slide = $state(0)
 
-  let pgComponent = $state<'Button' | 'Badge' | 'Alert'>('Button')
+  const pgComponents = ['Button', 'Badge', 'Alert', 'Switch', 'Slider', 'Progress'] as const
+  let pgComponent = $state<(typeof pgComponents)[number]>('Button')
   let pgVariant = $state<'primary' | 'secondary' | 'ghost' | 'danger'>('primary')
+  let pgLoading = $state(false)
   let pgBadgeTone = $state<'neutral' | 'accent' | 'danger' | 'success' | 'warning' | 'info'>(
     'accent'
   )
   let pgAlertTone = $state<'default' | 'success' | 'warning' | 'danger' | 'info'>('info')
   let pgDisabled = $state(false)
   let pgText = $state('Save changes')
+  let pgSwitchOn = $state(true)
+  let pgSliderVal = $state(40)
+  let pgProgressVal = $state(64)
+  let pgIndeterminate = $state(false)
+  let pgCodeTab = $state<'svelte' | 'html'>('svelte')
+  let pgAccent = $state('#4f46e5')
+
+  $effect(() => {
+    theme.accent = pgAccent
+  })
 
   const pgCode = $derived.by(() => {
-    if (pgComponent === 'Badge') return `<Badge tone="${pgBadgeTone}">${pgText}</Badge>`
-    if (pgComponent === 'Alert')
-      return `<Alert tone="${pgAlertTone}" title="${pgText}">\n  Supporting description goes here.\n</Alert>`
-    const variant = pgVariant === 'primary' ? '' : ` variant="${pgVariant}"`
     const disabled = pgDisabled ? ' disabled' : ''
-    return `<Button${variant}${disabled}>${pgText}</Button>`
+    const busyAttr = pgLoading ? ' aria-busy="true" disabled' : disabled
+    const spinner = pgLoading ? '<span class="sig-btn-spinner" aria-hidden="true"></span>' : ''
+    switch (pgComponent) {
+      case 'Badge':
+        return {
+          svelte: `<Badge tone="${pgBadgeTone}">${pgText}</Badge>`,
+          html: `<span class="sig-badge" data-tone="${pgBadgeTone}">${pgText}</span>`
+        }
+      case 'Alert':
+        return {
+          svelte: `<Alert tone="${pgAlertTone}" title="${pgText}">\n  Supporting description goes here.\n</Alert>`,
+          html: `<div role="status" data-tone="${pgAlertTone}" class="sig-alert">\n  <p class="sig-alert-title">${pgText}</p>\n  <div class="sig-alert-body">Supporting description goes here.</div>\n</div>`
+        }
+      case 'Switch':
+        return {
+          svelte: `<Switch checked={${pgSwitchOn}}${disabled} aria-label="Notifications" />`,
+          html: `<button type="button" class="sig-switch" role="switch" aria-checked="${pgSwitchOn}" data-state="${pgSwitchOn ? 'checked' : 'unchecked'}"${disabled}>\n  <span class="sig-switch-thumb"></span>\n</button>`
+        }
+      case 'Slider':
+        return {
+          svelte: `<Slider value={${pgSliderVal}} label="Volume"${disabled} />`,
+          html: `<span class="sig-slider">\n  <input type="range" min="0" max="100" value="${pgSliderVal}" aria-label="Volume" style="--sig-slider-pct: ${pgSliderVal}%"${disabled} />\n</span>`
+        }
+      case 'Progress':
+        return {
+          svelte: `<Progress ${pgIndeterminate ? '' : `value={${pgProgressVal}} `}label="Upload" />`,
+          html: `<div class="sig-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100"${pgIndeterminate ? ' data-indeterminate' : ` aria-valuenow="${pgProgressVal}"`}>\n  <div class="sig-progress-bar"${pgIndeterminate ? '' : ` style="width: ${pgProgressVal}%"`}></div>\n</div>`
+        }
+      default: {
+        const variant = pgVariant === 'primary' ? '' : ` variant="${pgVariant}"`
+        const loading = pgLoading ? ' loading' : ''
+        return {
+          svelte: `<Button${variant}${loading}${disabled}>${pgText}</Button>`,
+          html: `<button class="sig-btn" data-variant="${pgVariant}"${busyAttr}>${spinner}${pgText}</button>`
+        }
+      }
+    }
   })
 
   const ping = [
@@ -214,15 +283,6 @@
     borderColor: 'color-mix(in oklab, var(--sig-fg) 8%, transparent)',
     py: '10'
   })
-  const kicker = css({
-    fontFamily: 'mono',
-    fontSize: 'xs',
-    fontWeight: 'medium',
-    letterSpacing: 'wider',
-    textTransform: 'uppercase',
-    color: 'sig.accent',
-    mb: '2'
-  })
   const h2 = css({ fontSize: '2xl', fontWeight: 'semibold', letterSpacing: 'tight' })
   const lead = css({ mt: '2', color: 'sig.muted' })
   const link = css({ color: 'sig.muted', _hover: { color: 'sig.fg' } })
@@ -312,6 +372,7 @@
         <a class={navLink} href="#playground">playground</a>
         <a class={navLink} href="#components">components</a>
         <a class={navLink} href="#adapters">adapters</a>
+        <a class={navLink} href="#benchmarks">benchmarks</a>
         <a class={navLink} href="#vanilla">vanilla</a>
         <a class={navLink} href="#tokens">tokens</a>
         <a class={navLink} href="#api">api</a>
@@ -321,7 +382,7 @@
         aria-label="Open command palette"
         onclick={() => (paletteOpen = true)}
       >
-        <Kbd>⌘K</Kbd>
+        <Kbd>{paletteHint}</Kbd>
       </button>
       <a
         class={iconBtn}
@@ -341,6 +402,15 @@
     </nav>
   </div>
 </header>
+
+<svelte:window
+  onkeydown={(e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault()
+      paletteOpen = !paletteOpen
+    }
+  }}
+/>
 
 <main id="top" class={css({ mx: 'auto', maxW: '6xl', px: '4', pb: '24' })}>
   <section class={css({ position: 'relative', pt: '10', pb: '12' })}>
@@ -436,7 +506,6 @@
   </section>
 
   <section id="playground" class={section}>
-    <p class={kicker}>Live props, generated markup</p>
     <h2 class={h2}>Playground</h2>
     <p class={lead}>
       Flip the props, watch the component react, copy the generated code. The panes are the
@@ -459,10 +528,14 @@
             <span class={css({ fontSize: 'xs', fontWeight: 'medium', color: 'sig.muted' })}>
               Component
             </span>
-            <ToggleGroup.Root bind:value={pgComponent} aria-label="Playground component">
-              <ToggleGroup.Item value="Button">Button</ToggleGroup.Item>
-              <ToggleGroup.Item value="Badge">Badge</ToggleGroup.Item>
-              <ToggleGroup.Item value="Alert">Alert</ToggleGroup.Item>
+            <ToggleGroup.Root
+              bind:value={pgComponent}
+              aria-label="Playground component"
+              class={css({ flexWrap: 'wrap' })}
+            >
+              {#each pgComponents as name (name)}
+                <ToggleGroup.Item value={name}>{name}</ToggleGroup.Item>
+              {/each}
             </ToggleGroup.Root>
           </div>
           {#if pgComponent === 'Button'}
@@ -477,7 +550,7 @@
               {/snippet}
             </Field>
             <label class={flex({ alignItems: 'center', gap: '2', fontSize: 'sm' })}>
-              <Switch bind:checked={pgDisabled} aria-label="Disabled" /> Disabled
+              <Switch bind:checked={pgLoading} aria-label="Loading" /> Loading
             </label>
           {:else if pgComponent === 'Badge'}
             <Field label="Tone">
@@ -492,7 +565,7 @@
                 </Select>
               {/snippet}
             </Field>
-          {:else}
+          {:else if pgComponent === 'Alert'}
             <Field label="Tone">
               {#snippet children(props)}
                 <Select {...props} bind:value={pgAlertTone}>
@@ -504,10 +577,51 @@
                 </Select>
               {/snippet}
             </Field>
+          {:else if pgComponent === 'Slider'}
+            <Field label="Value">
+              {#snippet children(props)}
+                <Slider {...props} bind:value={pgSliderVal} />
+              {/snippet}
+            </Field>
+          {:else if pgComponent === 'Progress'}
+            <Field label="Value">
+              {#snippet children(props)}
+                <Slider {...props} bind:value={pgProgressVal} disabled={pgIndeterminate} />
+              {/snippet}
+            </Field>
+            <label class={flex({ alignItems: 'center', gap: '2', fontSize: 'sm' })}>
+              <Switch bind:checked={pgIndeterminate} aria-label="Indeterminate" /> Indeterminate
+            </label>
           {/if}
-          <Field label={pgComponent === 'Alert' ? 'Title' : 'Label'}>
+          {#if pgComponent === 'Button' || pgComponent === 'Switch' || pgComponent === 'Slider'}
+            <label class={flex({ alignItems: 'center', gap: '2', fontSize: 'sm' })}>
+              <Switch bind:checked={pgDisabled} aria-label="Disabled" /> Disabled
+            </label>
+          {/if}
+          {#if pgComponent === 'Button' || pgComponent === 'Badge' || pgComponent === 'Alert'}
+            <Field label={pgComponent === 'Alert' ? 'Title' : 'Label'}>
+              {#snippet children(props)}
+                <Input {...props} bind:value={pgText} />
+              {/snippet}
+            </Field>
+          {/if}
+          <Field label="Accent" hint="Rethemes every component live">
             {#snippet children(props)}
-              <Input {...props} bind:value={pgText} />
+              <input
+                {...props}
+                type="color"
+                bind:value={pgAccent}
+                class={css({
+                  w: '10',
+                  h: '8',
+                  p: '0',
+                  border: '1px solid',
+                  borderColor: 'sig.border',
+                  rounded: 'sig',
+                  bg: 'transparent',
+                  cursor: 'pointer'
+                })}
+              />
             {/snippet}
           </Field>
         </div>
@@ -529,22 +643,69 @@
                 <Badge tone={pgBadgeTone}>{pgText}</Badge>
               {:else if pgComponent === 'Alert'}
                 <Alert tone={pgAlertTone} title={pgText}>Supporting description goes here.</Alert>
+              {:else if pgComponent === 'Switch'}
+                <Switch
+                  bind:checked={pgSwitchOn}
+                  disabled={pgDisabled}
+                  aria-label="Notifications"
+                />
+              {:else if pgComponent === 'Slider'}
+                <div class={css({ w: '48' })}>
+                  <Slider bind:value={pgSliderVal} label="Volume" disabled={pgDisabled} />
+                </div>
+              {:else if pgComponent === 'Progress'}
+                <div class={css({ w: '48' })}>
+                  {#if pgIndeterminate}
+                    <Progress label="Upload" />
+                  {:else}
+                    <Progress value={pgProgressVal} label="Upload" />
+                  {/if}
+                </div>
               {:else}
-                <Button variant={pgVariant} disabled={pgDisabled}>{pgText}</Button>
+                <Button variant={pgVariant} loading={pgLoading} disabled={pgDisabled}>
+                  {pgText}
+                </Button>
               {/if}
             </div>
           </Pane>
           <PaneResizer />
           <Pane defaultSize={38} minSize={20}>
-            <div class={css({ flex: '1', overflowY: 'auto', bg: 'sig.surface' })}>
+            <div class={stack({ flex: '1', bg: 'sig.surface', minH: '0' })}>
+              <div
+                class={flex({
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  px: '3',
+                  py: '2',
+                  borderBottom: '1px solid',
+                  borderColor: 'color-mix(in oklab, var(--sig-fg) 9%, transparent)'
+                })}
+              >
+                <ToggleGroup.Root
+                  bind:value={pgCodeTab}
+                  aria-label="Code language"
+                  class={css({ transform: 'scale(0.9)', transformOrigin: 'left center' })}
+                >
+                  <ToggleGroup.Item value="svelte">Svelte</ToggleGroup.Item>
+                  <ToggleGroup.Item value="html">Vanilla HTML</ToggleGroup.Item>
+                </ToggleGroup.Root>
+                <CopyButton text={pgCode[pgCodeTab]} aria-label="Copy code">
+                  {#snippet children({ copied })}
+                    {#if copied}<Check size={14} />{:else}<Copy size={14} />{/if}
+                  {/snippet}
+                </CopyButton>
+              </div>
               <pre
                 class={css({
+                  flex: '1',
+                  overflowY: 'auto',
                   p: '4',
                   fontFamily: 'mono',
                   fontSize: 'sm',
                   color: 'sig.fg',
-                  whiteSpace: 'pre-wrap'
-                })}>{pgCode}</pre>
+                  whiteSpace: 'pre-wrap',
+                  m: '0'
+                })}>{pgCode[pgCodeTab]}</pre>
             </div>
           </Pane>
         </PaneGroup>
@@ -553,7 +714,6 @@
   </section>
 
   <section id="components" class={section}>
-    <p class={kicker}>{manifest.components.length} parts, one styling contract</p>
     <h2 class={h2}>Components</h2>
     <p class={lead}>Live. Every class and data attribute below is a public styling hook.</p>
 
@@ -842,7 +1002,11 @@
       >
 
       <Reveal class={wide}
-        ><Spec label="Data entry" hint="TagsInput, FileUpload" for={['TagsInput', 'FileUpload']}>
+        ><Spec
+          label="Data entry"
+          hint="TagsInput, NumberInput, PinInput, Rating, Editable, FileUpload"
+          for={['TagsInput', 'NumberInput', 'PinInput', 'Rating', 'Editable', 'FileUpload']}
+        >
           <div
             class={css({
               display: 'grid',
@@ -857,6 +1021,32 @@
               <TagsInput bind:tags max={6} placeholder="Add a keyword" />
             </div>
             <FileUpload bind:files multiple hint="Drop to attach, click to browse" />
+            <div class={stack({ gap: '3' })}>
+              <Field label="Quantity">
+                {#snippet children(props)}
+                  <NumberInput {...props} bind:value={qty} min={0} max={10} />
+                {/snippet}
+              </Field>
+              <Field label="One-time code" hint={pin ? `${pin.length}/6 entered` : 'Paste works'}>
+                {#snippet children(props)}
+                  <PinInput {...props} bind:value={pin} length={6} />
+                {/snippet}
+              </Field>
+            </div>
+            <div class={stack({ gap: '3' })}>
+              <Field label="Rating">
+                {#snippet children(props)}
+                  <Rating {...props} bind:value={stars} />
+                {/snippet}
+              </Field>
+              <Field label="Report name" hint="Click the text to edit">
+                {#snippet children(props)}
+                  <div {...props}>
+                    <Editable bind:value={editName} />
+                  </div>
+                {/snippet}
+              </Field>
+            </div>
           </div>
         </Spec></Reveal
       >
@@ -868,6 +1058,7 @@
             <Button variant="secondary">Secondary</Button>
             <Button variant="ghost">Ghost</Button>
             <Button variant="danger">Danger</Button>
+            <Button loading>Saving</Button>
             <Button disabled>Disabled</Button>
             <Button class={css({ rounded: 'full' })}>rounded via class</Button>
           </div>
@@ -1294,8 +1485,8 @@
       <Reveal class={wide}
         ><Spec
           label="Media and motion"
-          hint="AspectRatio, AvatarGroup, Presence, Marquee"
-          for={['AspectRatio', 'AvatarGroup', 'Presence', 'Marquee']}
+          hint="AspectRatio, AvatarGroup, Presence, Marquee, Carousel"
+          for={['AspectRatio', 'AvatarGroup', 'Presence', 'Marquee', 'Carousel']}
         >
           <div
             class={css({
@@ -1353,6 +1544,24 @@
                   <span class={css({ px: '4', fontSize: 'sm', color: 'sig.muted' })}>{word}</span>
                 {/each}
               </Marquee>
+              <Carousel.Root bind:index={slide}>
+                {#each ['Deploys this week', 'Error rate 0.02%', 'Uptime 99.98%'] as caption, i (i)}
+                  <Carousel.Item>
+                    <div
+                      class={css({
+                        h: '28',
+                        display: 'grid',
+                        placeItems: 'center',
+                        bg: 'sig.surface',
+                        color: 'sig.fg',
+                        fontSize: 'sm'
+                      })}
+                    >
+                      {caption}
+                    </div>
+                  </Carousel.Item>
+                {/each}
+              </Carousel.Root>
             </div>
           </div>
         </Spec></Reveal
@@ -1391,7 +1600,6 @@
   </section>
 
   <section id="adapters" class={section}>
-    <p class={kicker}>Five ways to theme</p>
     <h2 class={h2}>Adapters</h2>
     <p class={lead}>
       One token contract, five ways to consume it. sigil css is the bundled build-time atomic
@@ -1413,8 +1621,130 @@
     </div>
   </section>
 
+  <section id="benchmarks" class={section}>
+    <h2 class={h2}>Build benchmark</h2>
+    <p class={lead}>
+      Same workload through each engine's own CLI: 80 source files, 10 style blocks each, cold
+      build, median of 3 runs. Numbers are regenerated by bench/run.mjs in the repo.
+    </p>
+    <div class={css({ mt: '6', overflowX: 'auto' })}>
+      <Table.Root>
+        <Table.Head>
+          <Table.Row>
+            <Table.H scope="col">Engine</Table.H>
+            <Table.H scope="col">Cold build</Table.H>
+            <Table.H scope="col">CSS output</Table.H>
+            <Table.H scope="col">npm dependencies</Table.H>
+          </Table.Row>
+        </Table.Head>
+        <Table.Body>
+          {#each bench as row (row.tool)}
+            <Table.Row>
+              <Table.Cell>
+                {row.tool}
+                {#if row.tool === 'sigil css'}
+                  <span class={css({ color: 'sig.muted', fontSize: 'xs' })}>
+                    ({row.compileMs}ms in-process)
+                  </span>
+                {/if}
+              </Table.Cell>
+              <Table.Cell>{row.coldBuildMs}ms</Table.Cell>
+              <Table.Cell>
+                {(row.cssBytes / 1024).toFixed(1)} kB
+                <span class={css({ color: 'sig.muted', fontSize: 'xs' })}>
+                  ({(row.cssGzipBytes / 1024).toFixed(1)} kB gz)
+                </span>
+              </Table.Cell>
+              <Table.Cell>{row.dependencies}</Table.Cell>
+            </Table.Row>
+          {/each}
+        </Table.Body>
+      </Table.Root>
+    </div>
+    <div
+      class={css({
+        display: 'grid',
+        mt: '6',
+        gap: '6',
+        gridTemplateColumns: { base: '1fr', md: 'repeat(2, 1fr)' }
+      })}
+    >
+      <div>
+        <h3
+          class={css({ m: '0', mb: '3', fontSize: 'sm', fontWeight: 'medium', color: 'sig.muted' })}
+        >
+          Cold build time
+        </h3>
+        <div class={stack({ gap: '2' })}>
+          {#each bench as row (row.tool)}
+            <div class={flex({ alignItems: 'center', gap: '3' })}>
+              <span
+                class={css({
+                  w: '32',
+                  fontSize: 'xs',
+                  color: 'sig.muted',
+                  flexShrink: '0',
+                  whiteSpace: 'nowrap'
+                })}
+              >
+                {row.tool}
+              </span>
+              <div
+                class={css({
+                  h: '4',
+                  rounded: 'sig',
+                  bg: row.tool === 'sigil css' ? 'sig.accent' : 'sig.surface-hover',
+                  minW: '1'
+                })}
+                style="width: {Math.max(2, (row.coldBuildMs / benchMaxMs) * 100)}%"
+              ></div>
+              <span class={css({ fontSize: 'xs', color: 'sig.fg', whiteSpace: 'nowrap' })}>
+                {row.coldBuildMs}ms
+              </span>
+            </div>
+          {/each}
+        </div>
+      </div>
+      <div>
+        <h3
+          class={css({ m: '0', mb: '3', fontSize: 'sm', fontWeight: 'medium', color: 'sig.muted' })}
+        >
+          Installed packages
+        </h3>
+        <div class={stack({ gap: '2' })}>
+          {#each bench as row (row.tool)}
+            <div class={flex({ alignItems: 'center', gap: '3' })}>
+              <span
+                class={css({
+                  w: '32',
+                  fontSize: 'xs',
+                  color: 'sig.muted',
+                  flexShrink: '0',
+                  whiteSpace: 'nowrap'
+                })}
+              >
+                {row.tool}
+              </span>
+              <div
+                class={css({
+                  h: '4',
+                  rounded: 'sig',
+                  bg: row.tool === 'sigil css' ? 'sig.accent' : 'sig.surface-hover',
+                  minW: '1'
+                })}
+                style="width: {Math.max(2, (row.dependencies / benchMaxDeps) * 100)}%"
+              ></div>
+              <span class={css({ fontSize: 'xs', color: 'sig.fg', whiteSpace: 'nowrap' })}>
+                {row.dependencies}
+              </span>
+            </div>
+          {/each}
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section id="agents" class={section}>
-    <p class={kicker}>Manifest, CLI, llms.txt</p>
     <h2 class={h2}>Built for agents</h2>
     <p class={lead}>
       The library describes itself so tools and coding agents do not have to guess.
@@ -1454,7 +1784,6 @@
   </section>
 
   <section id="vanilla" class={section}>
-    <p class={kicker}>Plain HTML, plain JS</p>
     <h2 class={h2}>Without a framework</h2>
     <p class={lead}>
       The component styles are stable sig-* classes over --sig-* tokens, so plain HTML can consume
@@ -1474,14 +1803,15 @@
       <Code title="headless behavior">{vanillaJsCode}</Code>
     </div>
     <p class={css({ mt: '4', fontSize: 'sm', color: 'sig.muted' })}>
-      attachAll wires every sig-* structure it finds: tabs, accordions, radios, switches, overlays,
-      popovers, menus, tooltips, panes and toasts. Individual attach and create functions cover
-      one-off wiring.
+      attachAll wires every interactive sig-* structure it finds: tabs, accordions, radios,
+      checkboxes, switches, toggles, sliders, selects of tags, file uploads, pagination, trees,
+      number and pin inputs, ratings, editables, carousels, panes, tooltips, hover cards and toasts.
+      Overlays, popovers and menus wire explicitly through create functions since they pair a
+      trigger with portaled content.
     </p>
   </section>
 
   <section id="tokens" class={section}>
-    <p class={kicker}>{manifest.tokens.length} CSS variables</p>
     <h2 class={h2}>Token contract</h2>
     <p class={lead}>Override any of these to retheme every component at once.</p>
     <div
@@ -1539,10 +1869,9 @@
   </section>
 
   <section id="api" class={section}>
-    <p class={kicker}>Generated from the manifest</p>
     <h2 class={h2}>API reference</h2>
     <p class={lead}>
-      Every component, prop and styling hook, generated from the same manifest agents consume.
+      Every prop and styling hook, generated from the same manifest agents consume.
     </p>
     <div class={css({ mt: '6', maxW: 'sm' })}>
       <Input
@@ -1555,37 +1884,75 @@
       class={css({
         display: 'grid',
         mt: '4',
-        gap: '3',
+        gap: '4',
         alignItems: 'start',
-        gridTemplateColumns: { base: '1fr', lg: 'repeat(2, 1fr)' }
+        gridTemplateColumns: { base: '1fr', lg: '16rem 1fr' }
       })}
     >
-      {#each manifest.components.filter((c) => {
-        const q = apiFilter.trim().toLowerCase()
-        return !q || c.name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q)
-      }) as component (component.name)}
-        <details
+      <div
+        role="listbox"
+        aria-label="Components"
+        class={css({
+          display: 'flex',
+          flexDirection: 'column',
+          rounded: 'sig',
+          border: '1px solid',
+          borderColor: 'color-mix(in oklab, var(--sig-fg) 9%, transparent)',
+          overflowY: 'auto',
+          maxH: '32rem'
+        })}
+      >
+        {#each apiVisible as component (component.name)}
+          <button
+            type="button"
+            role="option"
+            aria-selected={component.name === apiCurrent?.name}
+            data-active={component.name === apiCurrent?.name ? '' : undefined}
+            class={css({
+              textAlign: 'left',
+              px: '3',
+              py: '2',
+              font: 'inherit',
+              fontSize: 'sm',
+              color: 'sig.fg',
+              bg: 'transparent',
+              border: 'none',
+              borderLeft: '2px solid transparent',
+              cursor: 'pointer',
+              _hover: { bg: 'sig.surface' },
+              '&[data-active]': {
+                borderLeftColor: 'sig.accent',
+                bg: 'sig.surface',
+                fontWeight: 'medium'
+              }
+            })}
+            onclick={() => (apiSelected = component.name)}
+          >
+            {component.name}
+          </button>
+        {:else}
+          <p class={css({ p: '3', fontSize: 'sm', color: 'sig.muted', m: '0' })}>No matches.</p>
+        {/each}
+      </div>
+      {#if apiCurrent}
+        <div
           class={css({
             rounded: 'sig',
             border: '1px solid',
             borderColor: 'color-mix(in oklab, var(--sig-fg) 9%, transparent)',
             p: '4',
-            transition: 'border-color 150ms',
-            _hover: { borderColor: 'sig.accent' },
-            _open: { bg: 'sig.surface' }
+            minW: '0'
           })}
         >
-          <summary class={css({ cursor: 'pointer', fontWeight: 'medium' })}>
-            {component.name}
-            <span class={css({ fontWeight: 'normal', color: 'sig.muted', fontSize: 'sm' })}>
-              {component.description}
-            </span>
-          </summary>
-          <div class={css({ mt: '3' })}>
-            <ManifestPanel for={component.name} />
-          </div>
-        </details>
-      {/each}
+          <h3 class={css({ m: '0', mb: '1', fontSize: 'lg', fontWeight: 'semibold' })}>
+            {apiCurrent.name}
+          </h3>
+          <p class={css({ m: '0', mb: '4', fontSize: 'sm', color: 'sig.muted' })}>
+            {apiCurrent.description}
+          </p>
+          <ManifestPanel for={apiCurrent.name} />
+        </div>
+      {/if}
     </div>
   </section>
 </main>
@@ -1597,6 +1964,7 @@
     <Command.Item value="playground" onSelect={jump('#playground')}>Playground</Command.Item>
     <Command.Item value="components" onSelect={jump('#components')}>Components</Command.Item>
     <Command.Item value="adapters" onSelect={jump('#adapters')}>Adapters</Command.Item>
+    <Command.Item value="benchmarks" onSelect={jump('#benchmarks')}>Benchmarks</Command.Item>
     <Command.Item value="vanilla" onSelect={jump('#vanilla')}>Vanilla usage</Command.Item>
     <Command.Item value="tokens" onSelect={jump('#tokens')}>Token contract</Command.Item>
     <Command.Item value="api" onSelect={jump('#api')}>API reference</Command.Item>

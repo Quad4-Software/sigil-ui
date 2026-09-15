@@ -16,7 +16,8 @@ export default defineConfig([
       '.svelte-check/',
       '.svelte-kit/',
       '.cache/',
-      'test-results/'
+      'test-results/',
+      'bench/.fixture/'
     ]
   },
   js.configs.recommended,

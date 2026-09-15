@@ -1,0 +1,247 @@
+/* sigil-ui base: optional element resets and bare-element styling.
+   Import after theme.css. Everything reads the --sig-* contract so the
+   resets theme with the library.
+
+     import 'sigil-ui/theme.css'
+     import 'sigil-ui/base.css' */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--sig-bg, #fff);
+  color: var(--sig-fg, #18181b);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled='true'] {
+  cursor: not-allowed;
+}
+
+a {
+  color: var(--sig-accent, #4f46e5);
+  text-underline-offset: 0.15em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--sig-ring, currentColor);
+  outline-offset: 2px;
+}
+
+/* nav: landmark gets no list styling assumptions */
+
+nav ul,
+nav ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* code, pre, kbd, samp: monospace contract */
+
+code,
+kbd,
+samp,
+pre {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.875em;
+}
+
+code:not(pre code) {
+  background: var(--sig-surface, #f4f4f5);
+  border: 1px solid var(--sig-border, #d4d4d8);
+  border-radius: 0.25rem;
+  padding: 0.1em 0.35em;
+}
+
+pre {
+  background: var(--sig-surface, #f4f4f5);
+  border: 1px solid var(--sig-border, #d4d4d8);
+  border-radius: var(--sig-radius, 0.375rem);
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  line-height: 1.6;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+kbd {
+  background: var(--sig-surface, #f4f4f5);
+  border: 1px solid var(--sig-border, #d4d4d8);
+  border-bottom-width: 2px;
+  border-radius: 0.25rem;
+  padding: 0.05em 0.4em;
+}
+
+/* details and summary: styled disclosure */
+
+details {
+  border: 1px solid var(--sig-border, #d4d4d8);
+  border-radius: var(--sig-radius, 0.375rem);
+  padding: 0.5rem 0.75rem;
+}
+
+details[open] {
+  background: var(--sig-surface, #f4f4f5);
+}
+
+summary {
+  cursor: pointer;
+  font-weight: 500;
+  list-style: none;
+}
+
+summary::-webkit-details-marker {
+  display: none;
+}
+
+summary::before {
+  content: '';
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-right: 0.5rem;
+  border-right: 2px solid var(--sig-muted, #71717a);
+  border-bottom: 2px solid var(--sig-muted, #71717a);
+  transform: rotate(-45deg) translateY(-0.1rem);
+  transition: transform 150ms;
+}
+
+details[open] > summary::before {
+  transform: rotate(45deg) translateY(-0.1rem);
+}
+
+/* role=button on non-button elements (links, spans): button affordance */
+
+[role='button']:not(button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  border: 1px solid var(--sig-border, #d4d4d8);
+  border-radius: var(--sig-radius, 0.375rem);
+  background: var(--sig-surface, #f4f4f5);
+  color: var(--sig-fg, #18181b);
+  cursor: pointer;
+  user-select: none;
+  text-decoration: none;
+}
+
+[role='button']:not(button):hover {
+  background: var(--sig-surface-hover, #e4e4e7);
+}
+
+[role='button'][aria-disabled='true'] {
+  opacity: 0.5;
+}
+
+/* role=group: neutral container, no fieldset chrome */
+
+[role='group'] {
+  border: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+/* aria-busy: pending state. Elements get a progress cursor; elements
+   marked busy that have no visible children get an inline spinner. */
+
+[aria-busy='true'] {
+  cursor: progress;
+}
+
+[aria-busy='true']:empty::after,
+[aria-busy='true'] > [data-busy-spinner]::after {
+  content: '';
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--sig-muted, #71717a);
+  border-right-color: transparent;
+  border-radius: 999px;
+  animation: sig-busy-spin 0.7s linear infinite;
+  vertical-align: -0.15em;
+}
+
+@keyframes sig-busy-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [aria-busy='true']:empty::after {
+    animation-duration: 2s;
+  }
+}
+
+/* fieldset and legend resets */
+
+fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+legend {
+  padding: 0;
+}
+
+/* tables and media defaults */
+
+hr {
+  border: none;
+  border-top: 1px solid var(--sig-border, #d4d4d8);
+  margin: 1rem 0;
+}
+
+small {
+  font-size: 0.875em;
+}
+
+::selection {
+  background: var(
+    --sig-accent-muted,
+    color-mix(in srgb, var(--sig-accent, #4f46e5) 20%, transparent)
+  );
+}

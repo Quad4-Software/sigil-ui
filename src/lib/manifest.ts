@@ -1263,6 +1263,175 @@ export const manifest: SigilManifest = {
       example: `<script>\n  import { TagsInput } from 'sigil-ui'\n  let tags = $state(['svelte'])\n</script>\n\n<TagsInput bind:tags max={5} />`
     },
     {
+      name: 'NumberInput',
+      path: 'number-input',
+      description:
+        'Numeric input with stepper buttons. Arrow keys adjust, min/max/step clamp, spinbutton role.',
+      props: [
+        {
+          name: 'value',
+          type: 'number',
+          default: '0',
+          bindable: true,
+          description: 'Bindable numeric value.'
+        },
+        { name: 'min', type: 'number', description: 'Lower clamp bound.' },
+        { name: 'max', type: 'number', description: 'Upper clamp bound.' },
+        { name: 'step', type: 'number', default: '1', description: 'Increment per step.' },
+        { name: 'disabled', type: 'boolean', default: 'false', description: 'Disable input.' },
+        { name: 'label', type: 'string', description: 'aria-label for the spinbutton.' },
+        {
+          name: 'onChange',
+          type: '(value: number) => void',
+          description: 'Called after commit or step.'
+        },
+        classProp
+      ],
+      classes: ['sig-number-input', 'sig-number-field', 'sig-number-btn'],
+      dataAttributes: ['data-disabled'],
+      example: `<script>\n  import { NumberInput } from 'sigil-ui'\n  let qty = $state(1)\n</script>\n\n<NumberInput bind:value={qty} min={0} max={10} />`
+    },
+    {
+      name: 'PinInput',
+      path: 'pin-input',
+      description:
+        'One-time-code input across per-digit cells. Digits auto-advance, Backspace steps back, paste fills, optional masking.',
+      props: [
+        {
+          name: 'value',
+          type: 'string',
+          default: "''",
+          bindable: true,
+          description: 'Bindable joined digits.'
+        },
+        { name: 'length', type: 'number', default: '6', description: 'Cell count.' },
+        {
+          name: 'masked',
+          type: 'boolean',
+          default: 'false',
+          description: 'Render cells as password inputs.'
+        },
+        { name: 'disabled', type: 'boolean', default: 'false', description: 'Disable all cells.' },
+        { name: 'label', type: 'string', default: "'One-time code'", description: 'Group label.' },
+        {
+          name: 'onComplete',
+          type: '(value: string) => void',
+          description: 'Fires when every cell is filled.'
+        },
+        classProp
+      ],
+      classes: ['sig-pin-input', 'sig-pin-cell'],
+      dataAttributes: [],
+      example: `<script>\n  import { PinInput } from 'sigil-ui'\n  let code = $state('')\n</script>\n\n<PinInput bind:value={code} length={6} onComplete={verify} />`
+    },
+    {
+      name: 'Rating',
+      path: 'rating',
+      description:
+        'Star rating as a radiogroup. Click sets, click again clears, arrows adjust, hover previews.',
+      props: [
+        {
+          name: 'value',
+          type: 'number',
+          default: '0',
+          bindable: true,
+          description: 'Bindable rating.'
+        },
+        { name: 'max', type: 'number', default: '5', description: 'Star count.' },
+        {
+          name: 'readonly',
+          type: 'boolean',
+          default: 'false',
+          description: 'Display only.'
+        },
+        { name: 'disabled', type: 'boolean', default: 'false', description: 'Disable stars.' },
+        { name: 'label', type: 'string', default: "'Rating'", description: 'Group label.' },
+        classProp
+      ],
+      classes: ['sig-rating', 'sig-rating-star'],
+      dataAttributes: ['data-filled', 'data-readonly'],
+      example: `<script>\n  import { Rating } from 'sigil-ui'\n  let stars = $state(3)\n</script>\n\n<Rating bind:value={stars} />`
+    },
+    {
+      name: 'Editable',
+      path: 'editable',
+      description:
+        'Click-to-edit text. Preview swaps for an input, Enter commits, Escape cancels, blur submits.',
+      props: [
+        {
+          name: 'value',
+          type: 'string',
+          default: "''",
+          bindable: true,
+          description: 'Bindable text.'
+        },
+        {
+          name: 'placeholder',
+          type: 'string',
+          default: "'Click to edit'",
+          description: 'Shown when value is empty.'
+        },
+        {
+          name: 'submitOnBlur',
+          type: 'boolean',
+          default: 'true',
+          description: 'Blur commits instead of cancelling.'
+        },
+        {
+          name: 'onSubmit',
+          type: '(value: string) => void',
+          description: 'Called on every submit.'
+        },
+        classProp
+      ],
+      classes: ['sig-editable', 'sig-editable-preview', 'sig-editable-input'],
+      dataAttributes: ['data-editing', 'data-empty'],
+      example: `<script>\n  import { Editable } from 'sigil-ui'\n  let name = $state('Untitled')\n</script>\n\n<Editable bind:value={name} />`
+    },
+    {
+      name: 'Carousel',
+      path: 'carousel',
+      description:
+        'Slide carousel with prev/next controls and dot indicators. Track translates by index, loops by default.',
+      props: [
+        {
+          name: 'index',
+          type: 'number',
+          default: '0',
+          bindable: true,
+          description: 'Bindable active slide.'
+        },
+        { name: 'loop', type: 'boolean', default: 'true', description: 'Wrap at both ends.' },
+        {
+          name: 'controls',
+          type: 'boolean',
+          default: 'true',
+          description: 'Show prev/next buttons.'
+        },
+        {
+          name: 'indicators',
+          type: 'boolean',
+          default: 'true',
+          description: 'Show dot indicators.'
+        },
+        { name: 'label', type: 'string', default: "'Carousel'", description: 'Region label.' },
+        classProp
+      ],
+      classes: [
+        'sig-carousel',
+        'sig-carousel-viewport',
+        'sig-carousel-track',
+        'sig-carousel-item',
+        'sig-carousel-btn',
+        'sig-carousel-prev',
+        'sig-carousel-next',
+        'sig-carousel-dots',
+        'sig-carousel-dot'
+      ],
+      dataAttributes: [],
+      example: `<Carousel.Root bind:index loop>\n  <Carousel.Item>Slide one</Carousel.Item>\n  <Carousel.Item>Slide two</Carousel.Item>\n</Carousel.Root>`
+    },
+    {
       name: 'AspectRatio',
       path: 'aspect-ratio',
       description:

@@ -40,8 +40,16 @@
 - `--sig-accent-muted` accent tint token derived from `--sig-accent`
 - `createTheme({ accent, accentFg })` sets the accent and derives hover, ring and chart-1; `theme.accent` is settable at runtime
 - `Stat` renders a neutral `data-dir="flat"` delta for zero changes
+- `NumberInput` (`bind:value`, min/max/step, hold-to-repeat buttons), `PinInput` (`bind:value`, per-cell boxes, paste, `mask`), `Rating` (`bind:value`, arrow keys, `readOnly`) and `Editable` (`bind:value`, click to edit, Enter commits, Escape reverts) primitives
+- `Carousel` namespace: Root (`bind:index`, `loop`, arrow keys) and Item slides
+- `Button` `loading` prop: `aria-busy`, a spinner and disabled interaction
+- `sigil-ui/base.css`: optional bare-element resets and semantic styling for nav lists, pre/code/kbd/samp, details/summary, links, `role="button"`, `role="group"`, fieldset/legend, and an `aria-busy="true"` spinner
+- headless controllers for checkbox, toggle, toggle-group, slider, tags-input, file-upload, pagination, tree, hover-card, number-input, pin-input, rating, editable and carousel, all wired into `attachAll`
+- `bench/` workspace: cross-framework build benchmark (sigil css vs Tailwind v4, UnoCSS, Panda CSS) measuring cold build, CSS output and transitive dependency counts; results feed the site comparison table
 
 ### Fixed
+
+- sigil css: `borderLeftColor` and `borderRightColor` were missing from the prop table and the strict-mode allowlist
 
 - `Timeline` rail no longer stops short of the next dot; the connector is now a dashed line spanning the item gap
 - `sig-pane` is a column flex container so nested `PaneGroup`s fill correctly

@@ -1088,6 +1088,121 @@ Data attributes: data-disabled
 <TagsInput bind:tags max={5} />
 ```
 
+### NumberInput
+
+Numeric input with stepper buttons. Arrow keys adjust, min/max/step clamp, spinbutton role.
+
+Props:
+- value (number, bindable, default 0): Bindable numeric value.
+- min (number): Lower clamp bound.
+- max (number): Upper clamp bound.
+- step (number, default 1): Increment per step.
+- disabled (boolean, default false): Disable input.
+- label (string): aria-label for the spinbutton.
+- onChange ((value: number) => void): Called after commit or step.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-number-input, sig-number-field, sig-number-btn
+Data attributes: data-disabled
+
+```svelte
+<script>
+  import { NumberInput } from 'sigil-ui'
+  let qty = $state(1)
+</script>
+
+<NumberInput bind:value={qty} min={0} max={10} />
+```
+
+### PinInput
+
+One-time-code input across per-digit cells. Digits auto-advance, Backspace steps back, paste fills, optional masking.
+
+Props:
+- value (string, bindable, default ''): Bindable joined digits.
+- length (number, default 6): Cell count.
+- masked (boolean, default false): Render cells as password inputs.
+- disabled (boolean, default false): Disable all cells.
+- label (string, default 'One-time code'): Group label.
+- onComplete ((value: string) => void): Fires when every cell is filled.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-pin-input, sig-pin-cell
+Data attributes: 
+
+```svelte
+<script>
+  import { PinInput } from 'sigil-ui'
+  let code = $state('')
+</script>
+
+<PinInput bind:value={code} length={6} onComplete={verify} />
+```
+
+### Rating
+
+Star rating as a radiogroup. Click sets, click again clears, arrows adjust, hover previews.
+
+Props:
+- value (number, bindable, default 0): Bindable rating.
+- max (number, default 5): Star count.
+- readonly (boolean, default false): Display only.
+- disabled (boolean, default false): Disable stars.
+- label (string, default 'Rating'): Group label.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-rating, sig-rating-star
+Data attributes: data-filled, data-readonly
+
+```svelte
+<script>
+  import { Rating } from 'sigil-ui'
+  let stars = $state(3)
+</script>
+
+<Rating bind:value={stars} />
+```
+
+### Editable
+
+Click-to-edit text. Preview swaps for an input, Enter commits, Escape cancels, blur submits.
+
+Props:
+- value (string, bindable, default ''): Bindable text.
+- placeholder (string, default 'Click to edit'): Shown when value is empty.
+- submitOnBlur (boolean, default true): Blur commits instead of cancelling.
+- onSubmit ((value: string) => void): Called on every submit.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-editable, sig-editable-preview, sig-editable-input
+Data attributes: data-editing, data-empty
+
+```svelte
+<script>
+  import { Editable } from 'sigil-ui'
+  let name = $state('Untitled')
+</script>
+
+<Editable bind:value={name} />
+```
+
+### Carousel
+
+Slide carousel with prev/next controls and dot indicators. Track translates by index, loops by default.
+
+Props:
+- index (number, bindable, default 0): Bindable active slide.
+- loop (boolean, default true): Wrap at both ends.
+- controls (boolean, default true): Show prev/next buttons.
+- indicators (boolean, default true): Show dot indicators.
+- label (string, default 'Carousel'): Region label.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-carousel, sig-carousel-viewport, sig-carousel-track, sig-carousel-item, sig-carousel-btn, sig-carousel-prev, sig-carousel-next, sig-carousel-dots, sig-carousel-dot
+Data attributes: 
+
+```svelte
+<Carousel.Root bind:index loop>
+  <Carousel.Item>Slide one</Carousel.Item>
+  <Carousel.Item>Slide two</Carousel.Item>
+</Carousel.Root>
+```
+
 ### AspectRatio
 
 Fixed-ratio box using the aspect-ratio property. Children are stretched to cover the frame.
