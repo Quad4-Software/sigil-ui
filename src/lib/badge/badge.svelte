@@ -3,10 +3,10 @@
   import type { HTMLAttributes } from 'svelte/elements'
   import { cn } from '../utils/cn.js'
 
-  type Tone = 'neutral' | 'accent' | 'danger'
+  export type BadgeTone = 'neutral' | 'accent' | 'danger' | 'success' | 'warning' | 'info'
 
   interface Props extends HTMLAttributes<HTMLSpanElement> {
-    tone?: Tone
+    tone?: BadgeTone
     children?: Snippet
   }
 
@@ -42,5 +42,23 @@
     border-color: transparent;
     background: var(--sig-danger, #dc2626);
     color: var(--sig-danger-fg, #fff);
+  }
+
+  :global(.sig-badge[data-tone='success']) {
+    border-color: transparent;
+    background: var(--sig-success, #16a34a);
+    color: var(--sig-success-fg, #fff);
+  }
+
+  :global(.sig-badge[data-tone='warning']) {
+    border-color: transparent;
+    background: var(--sig-warning, #d97706);
+    color: var(--sig-warning-fg, #fff);
+  }
+
+  :global(.sig-badge[data-tone='info']) {
+    border-color: transparent;
+    background: var(--sig-info, #2563eb);
+    color: var(--sig-info-fg, #fff);
   }
 </style>

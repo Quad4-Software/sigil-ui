@@ -1,4 +1,4 @@
-import { PersistedState } from 'runed'
+import { persisted } from '../utils/persisted.svelte.js'
 
 export type ThemeMode = 'light' | 'dark' | 'system'
 
@@ -13,10 +13,7 @@ export type ThemeMode = 'light' | 'dark' | 'system'
 export function createTheme(options: { key?: string; defaultMode?: ThemeMode } = {}) {
   const { key = 'sig-theme', defaultMode = 'system' } = options
 
-  const mode = new PersistedState<ThemeMode>(key, defaultMode, {
-    storage: 'local',
-    syncTabs: true
-  })
+  const mode = persisted<ThemeMode>(key, defaultMode)
   let systemDark = $state(false)
 
   $effect(() => {

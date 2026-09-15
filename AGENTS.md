@@ -4,8 +4,7 @@ sigil-ui is a Svelte 5 (runes) component library. It is CSS framework
 agnostic: components apply stable `sig-*` classes, consume the `--sig-*`
 CSS variable contract, and merge a `class` prop, so Tailwind v4, UnoCSS,
 Panda CSS or plain CSS can all theme the same components. All behavior is
-implemented in-house on runes; the only runtime dependencies are runed and
-clsx.
+implemented in-house on runes; there are zero runtime dependencies.
 
 ## Commands
 
@@ -42,7 +41,9 @@ clsx.
 - `src/lib/utils/focus.ts` — focus trap helpers used by Dialog
 - `src/lib/utils/inspect.ts` — layout inspection: findOverflows, measure,
   tagOverflows, consumed by Measure and GridOverlay
-- `src/lib/utils/cn.ts` — clsx re-export for class merging
+- `src/lib/utils/cn.ts` — class merging (clsx-compatible ClassValue)
+- `src/lib/utils/persisted.svelte.ts` — localStorage-backed reactive
+  state with cross-tab storage-event sync
 - `src/tests/` — vitest suites; shared component harnesses live in
   `src/tests/fixtures/`
 - `bin/sigil.mjs` — zero-dependency CLI shipped in the package
@@ -61,9 +62,10 @@ clsx.
 - A new component means: new dir under src/lib, barrel export in
   src/lib/index.ts, manifest entry, tests, and a demo section. The
   manifest test fails if classes or tokens are undocumented.
-- `svelte` stays a peer dependency. runed and clsx are the only runtime
-  dependencies. Do not add a primitive library; implement behavior with
-  runes, DOM APIs and shared context like dialog/ctx.ts or pane/ctx.ts.
+- `svelte` stays a peer dependency and the only one. There are zero
+  runtime dependencies. Do not add a primitive or utility library;
+  implement behavior with runes, DOM APIs and shared context like
+  dialog/ctx.ts or pane/ctx.ts.
 - typescript stays on 6.x for svelte-check and typescript-eslint;
   @typescript/native is the sidecar only.
 - Dependencies are pinned exactly and must be at least 7 days old

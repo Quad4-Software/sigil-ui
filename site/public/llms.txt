@@ -43,6 +43,10 @@
 - Empty: Empty state block with dashed border, optional icon snippet, title, description, and action slot.
 - Measure: Dev tool: wraps content, shows a live pixel size badge driven by ResizeObserver, and passes width/height to children snippet props.
 - GridOverlay: Dev tool: fixed overlay that draws a spacing grid and can outline elements whose content leaks or clips.
+- Spinner: Loading indicator with role=status and an aria-label.
+- Field: Form field wrapper: label, control, hint and error with generated id, aria-describedby and aria-invalid wiring.
+- Table: Table namespace: Root (scroll wrapper + table), Head, Body, Row, H, Cell, Caption.
+- Sheet: Sheet namespace: Root (bind:open), Trigger, Portal, Overlay, Content (side: left/right/top/bottom), Title, Description, Close.
 
 ## Adapters
 

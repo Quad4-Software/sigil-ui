@@ -3,8 +3,8 @@
 Svelte 5 (runes) components that do not care about your CSS framework.
 Every component applies stable sig-* classes, consumes a --sig-* CSS
 variable contract, and merges a class prop. Tailwind v4, UnoCSS, Panda
-CSS and plain CSS all theme the same components. Runtime deps are runed
-and clsx, nothing else.
+CSS and plain CSS all theme the same components. Zero runtime
+dependencies; svelte is the only peer.
 
 ## Install
 
@@ -22,12 +22,12 @@ Override any --sig-* variable to retheme at once. Dark mode follows
 ## Components
 
 Primitives: Button, Badge, Switch, Toggle, Input, Textarea, Select,
-Checkbox, RadioGroup, Slider, Avatar, Progress, Skeleton, Separator,
-Tooltip, Alert, Stat, Kbd, Empty, Breadcrumb.
+Checkbox, RadioGroup, Slider, Avatar, Progress, Skeleton, Spinner,
+Separator, Tooltip, Alert, Stat, Kbd, Empty, Breadcrumb, Field.
 
-Namespaces: Dialog, Card, Tabs, Accordion, Popover, DropdownMenu. Each
-ships Root plus named parts (Dialog.Root, Card.Header, Tabs.Trigger,
-Accordion.Item, ...).
+Namespaces: Dialog, Sheet, Card, Tabs, Accordion, Popover, DropdownMenu,
+Table. Each ships Root plus named parts (Dialog.Root, Sheet.Content,
+Card.Header, Tabs.Trigger, Table.Row, ...).
 
 Toasts: mount Toaster once, then call toast.success('Saved') and friends
 from anywhere.

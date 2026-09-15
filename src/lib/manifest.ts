@@ -84,7 +84,7 @@ export const manifest: SigilManifest = {
       props: [
         {
           name: 'tone',
-          type: "'neutral' | 'accent' | 'danger'",
+          type: "'neutral' | 'accent' | 'danger' | 'success' | 'warning' | 'info'",
           default: "'neutral'",
           description: 'Color tone, rendered as data-tone on the element.'
         },
@@ -779,6 +779,94 @@ export const manifest: SigilManifest = {
       classes: ['sig-grid-overlay'],
       dataAttributes: ['data-overflow', 'data-sig-overflow'],
       example: `<script>\n  import { GridOverlay } from 'sigil-ui'\n  let debug = $state(true)\n</script>\n\n{#if debug}\n  <GridOverlay size={8} overflow interval={1000} />\n{/if}`
+    },
+    {
+      name: 'Spinner',
+      path: 'spinner',
+      description:
+        'Loading indicator with role=status and an aria-label. Respects prefers-reduced-motion.',
+      props: [
+        { name: 'label', type: 'string', default: 'Loading', description: 'Accessible name.' },
+        classProp
+      ],
+      classes: ['sig-spinner'],
+      dataAttributes: [],
+      example: `<script>\n  import { Spinner } from 'sigil-ui'\n</script>\n\n<Spinner />`
+    },
+    {
+      name: 'Field',
+      path: 'field',
+      description:
+        'Form field wrapper: label, control, hint and error with generated id, aria-describedby and aria-invalid wiring. The children snippet receives the props to spread on the control.',
+      props: [
+        {
+          name: 'label',
+          type: 'string',
+          description: 'Label text, bound to the control via for/id.'
+        },
+        { name: 'hint', type: 'string', description: 'Help text under the control.' },
+        {
+          name: 'error',
+          type: 'string',
+          description: 'Error text; replaces the hint and sets role=alert plus aria-invalid.'
+        },
+        {
+          name: 'labelProps',
+          type: 'HTMLLabelAttributes',
+          description: 'Extra props for the label.'
+        },
+        classProp,
+        childrenProp
+      ],
+      classes: ['sig-field', 'sig-field-label', 'sig-field-hint', 'sig-field-error'],
+      dataAttributes: [],
+      example: `<script>\n  import { Field, Input } from 'sigil-ui'\n</script>\n\n<Field label="Email" hint="We never share it." error={err}>\n  {#snippet children({ props })}\n    <Input {...props} type="email" />\n  {/snippet}\n</Field>`
+    },
+    {
+      name: 'Table',
+      path: 'table',
+      description:
+        'Table namespace: Root (scroll wrapper + table), Head, Body, Row, H, Cell, Caption. Semantic table markup with token-driven borders and hover fill.',
+      props: [classProp, childrenProp],
+      classes: [
+        'sig-table-wrap',
+        'sig-table',
+        'sig-table-head',
+        'sig-table-body',
+        'sig-table-row',
+        'sig-table-h',
+        'sig-table-cell',
+        'sig-table-caption'
+      ],
+      dataAttributes: [],
+      example: `<script>\n  import { Table } from 'sigil-ui'\n</script>\n\n<Table.Root>\n  <Table.Head>\n    <Table.Row><Table.H>Name</Table.H><Table.H>Status</Table.H></Table.Row>\n  </Table.Head>\n  <Table.Body>\n    <Table.Row><Table.Cell>api</Table.Cell><Table.Cell>up</Table.Cell></Table.Row>\n  </Table.Body>\n</Table.Root>`
+    },
+    {
+      name: 'Sheet',
+      path: 'sheet',
+      description:
+        'Sheet namespace: Root (bind:open), Trigger, Portal, Overlay, Content (side: left/right/top/bottom), Title, Description, Close. Edge-anchored dialog with focus trap, scroll lock, Escape and overlay dismissal, focus restore.',
+      props: [
+        { name: 'open', type: 'boolean', bindable: true, description: 'Sheet.Root open state.' },
+        {
+          name: 'side',
+          type: "'left' | 'right' | 'top' | 'bottom'",
+          default: 'right',
+          description: 'Edge the Sheet.Content slides in from.'
+        },
+        classProp,
+        childrenProp
+      ],
+      classes: [
+        'sig-sheet',
+        'sig-sheet-trigger',
+        'sig-sheet-overlay',
+        'sig-sheet-title',
+        'sig-sheet-description',
+        'sig-sheet-close'
+      ],
+      dataAttributes: ['data-side'],
+      example: `<script>\n  import { Sheet, Button } from 'sigil-ui'\n</script>\n\n<Sheet.Root>\n  <Sheet.Trigger class="sig-btn">Open</Sheet.Trigger>\n  <Sheet.Portal>\n    <Sheet.Overlay />\n    <Sheet.Content side="right">\n      <Sheet.Title>Details</Sheet.Title>\n      <Sheet.Description>Panel content.</Sheet.Description>\n      <Sheet.Close class="sig-btn">Close</Sheet.Close>\n    </Sheet.Content>\n  </Sheet.Portal>\n</Sheet.Root>`
     }
   ],
   tokens: [

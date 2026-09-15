@@ -12,6 +12,7 @@
     Dialog,
     DropdownMenu,
     Empty,
+    Field,
     GridOverlay,
     Input,
     Kbd,
@@ -24,10 +25,13 @@
     Progress,
     RadioGroup,
     Select,
+    Sheet,
     Skeleton,
     Slider,
+    Spinner,
     Stat,
     Switch,
+    Table,
     Tabs,
     Textarea,
     toast,
@@ -35,6 +39,7 @@
     Toggle,
     Tooltip
   } from 'sigil-ui'
+  import { Moon, Sun } from '@lucide/svelte'
   import { css } from '../styled-system/css'
   import { flex, stack } from '../styled-system/patterns'
   import Code from './Code.svelte'
@@ -50,10 +55,11 @@
   let volume = $state(40)
   let bold = $state(false)
   let debug = $state(false)
+  let sheetOpen = $state(false)
 
   const stats = [
     `${manifest.components.length} components`,
-    '2 runtime deps',
+    '0 runtime deps',
     '0 primitive libs',
     '4 styling adapters'
   ]
@@ -115,39 +121,30 @@
       <a class={link} href="https://github.com/Quad4-Software/sigil-ui" rel="noopener">github</a>
       <button
         class={css({
+          display: 'inline-flex',
+          alignItems: 'center',
           cursor: 'pointer',
-          rounded: 'sig',
-          border: '1px solid',
-          borderColor: 'sig.border',
-          px: '2.5',
-          py: '1',
-          fontSize: 'xs',
-          _hover: { bg: 'sig.surface' }
+          bg: 'transparent',
+          border: 'none',
+          p: '0',
+          color: 'sig.muted',
+          _hover: { color: 'sig.fg' }
         })}
+        aria-label="Toggle theme"
         onclick={() => theme.toggle()}
       >
-        {theme.resolved === 'dark' ? 'light' : 'dark'}
+        {#if theme.resolved === 'dark'}
+          <Sun size={16} />
+        {:else}
+          <Moon size={16} />
+        {/if}
       </button>
     </nav>
   </div>
 </header>
 
 <main class={css({ mx: 'auto', maxW: '6xl', px: '4', pb: '24' })}>
-  <section
-    class={css({
-      position: 'relative',
-      py: '24',
-      _before: {
-        content: '""',
-        position: 'absolute',
-        inset: '0',
-        background: 'radial-gradient(32rem 16rem at 20% 0%, var(--sig-accent) 0%, transparent 70%)',
-        opacity: '0.08',
-        pointerEvents: 'none'
-      }
-    })}
-  >
-    <Badge tone="accent">svelte 5, runes only</Badge>
+  <section class={css({ py: '24' })}>
     <h1
       class={css({
         mt: '4',
@@ -171,8 +168,8 @@
     >
       sigil-ui ships runes-native components styled through a
       <code>--sig-*</code> token contract. Tailwind v4, UnoCSS, Panda CSS or plain CSS all theme the same
-      components. Zero runtime dependencies beyond runed and clsx. Focus traps, keyboard navigation and
-      aria wiring are built in.
+      components. Zero runtime dependencies. Focus traps, keyboard navigation and aria wiring are built
+      in.
     </p>
     <div class={flex({ mt: '6', flexWrap: 'wrap', gap: '2' })}>
       {#each stats as stat (stat)}
@@ -255,7 +252,7 @@
         <PaneGroup
           direction="horizontal"
           class={css({
-            h: '48',
+            h: '80',
             overflow: 'hidden',
             rounded: 'sig',
             border: '1px solid',
@@ -263,16 +260,19 @@
           })}
         >
           <Pane defaultSize={30} minSize={15}>
-            <div
-              class={css({
-                display: 'grid',
-                flex: '1',
-                placeContent: 'center',
-                fontSize: 'sm',
-                color: 'sig.muted'
-              })}
-            >
-              Sidebar
+            <div class={stack({ flex: '1', gap: '1', bg: 'sig.surface', p: '3' })}>
+              {#each ['dashboard', 'analytics', 'settings'] as item (item)}
+                <span
+                  class={css({
+                    rounded: 'sig',
+                    px: '2',
+                    py: '1.5',
+                    fontSize: 'xs',
+                    color: 'sig.muted',
+                    _first: { bg: 'sig.bg', color: 'sig.fg' }
+                  })}>{item}</span
+                >
+              {/each}
             </div>
           </Pane>
           <PaneResizer />
@@ -280,29 +280,42 @@
             <PaneGroup direction="vertical">
               <Pane minSize={30}>
                 <div
-                  class={css({
-                    display: 'grid',
+                  class={stack({
                     flex: '1',
-                    placeContent: 'center',
-                    fontSize: 'sm',
-                    color: 'sig.muted'
+                    gap: '1.5',
+                    p: '4',
+                    fontFamily: 'mono',
+                    fontSize: 'xs'
                   })}
                 >
-                  Editor
+                  <span class={css({ color: 'sig.muted' })}>// App.svelte</span>
+                  <span
+                    ><span class={css({ color: 'sig.accent' })}>import</span>
+                    {'{ PaneGroup, Pane }'}
+                    from 'sigil-ui'</span
+                  >
+                  <span class={css({ color: 'sig.muted' })}>&nbsp;</span>
+                  <span
+                    ><span class={css({ color: 'sig.accent' })}>&lt;PaneGroup</span>
+                    direction="horizontal"&gt;</span
+                  >
                 </div>
               </Pane>
               <PaneResizer />
               <Pane defaultSize={30} minSize={15}>
                 <div
-                  class={css({
-                    display: 'grid',
+                  class={stack({
                     flex: '1',
-                    placeContent: 'center',
-                    fontSize: 'sm',
+                    gap: '1',
+                    bg: 'sig.surface',
+                    p: '3',
+                    fontFamily: 'mono',
+                    fontSize: 'xs',
                     color: 'sig.muted'
                   })}
                 >
-                  Console
+                  <span>$ pnpm dev</span>
+                  <span class={css({ color: 'sig.success' })}>ready in 240ms</span>
                 </div>
               </Pane>
             </PaneGroup>
@@ -323,7 +336,11 @@
           })}
         >
           <div class={stack({ gap: '3' })}>
-            <Input placeholder="Project name" aria-label="Project name" />
+            <Field label="Project name" hint="Shown on the dashboard.">
+              {#snippet children(props)}
+                <Input {...props} placeholder="sigil-ui" />
+              {/snippet}
+            </Field>
             <Textarea placeholder="Description" aria-label="Description" />
             <Select bind:value={plan} aria-label="Plan">
               <option value="free">Free</option>
@@ -402,6 +419,21 @@
               </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu.Root>
+
+          <Sheet.Root bind:open={sheetOpen}>
+            <Sheet.Trigger class="sig-btn" data-variant="secondary">Sheet</Sheet.Trigger>
+            <Sheet.Portal>
+              <Sheet.Overlay />
+              <Sheet.Content side="right">
+                <Sheet.Title>sigil-ui sheet</Sheet.Title>
+                <Sheet.Description>
+                  Edge-anchored panel with the same focus trap, Escape and overlay dismissal as
+                  Dialog.
+                </Sheet.Description>
+                <Sheet.Close class="sig-btn" data-variant="primary">Close</Sheet.Close>
+              </Sheet.Content>
+            </Sheet.Portal>
+          </Sheet.Root>
         </div>
       </Spec>
 
@@ -412,6 +444,7 @@
             <Badge tone="accent">accent</Badge>
             <Badge tone="danger">danger</Badge>
             <Avatar fallback="Ada Lovelace" alt="Ada Lovelace" />
+            <Spinner />
             <Tooltip text="Pure CSS, aria-describedby wired">
               {#snippet children({ props })}
                 <Button variant="secondary" {...props}>Tooltip</Button>
@@ -438,10 +471,33 @@
         </div>
       </Spec>
 
-      <Spec label="Empty" hint="dashed empty state with actions">
-        <Empty title="No deployments yet" description="Push to main to trigger the first build.">
-          <Button variant="secondary">Read the docs</Button>
-        </Empty>
+      <Spec label="Table" hint="semantic markup, token borders, row hover">
+        <Table.Root>
+          <Table.Head>
+            <Table.Row>
+              <Table.H scope="col">Service</Table.H>
+              <Table.H scope="col">Status</Table.H>
+              <Table.H scope="col">Uptime</Table.H>
+            </Table.Row>
+          </Table.Head>
+          <Table.Body>
+            <Table.Row>
+              <Table.Cell>api</Table.Cell>
+              <Table.Cell><Badge tone="success">up</Badge></Table.Cell>
+              <Table.Cell>99.98%</Table.Cell>
+            </Table.Row>
+            <Table.Row>
+              <Table.Cell>web</Table.Cell>
+              <Table.Cell><Badge tone="warning">degraded</Badge></Table.Cell>
+              <Table.Cell>98.41%</Table.Cell>
+            </Table.Row>
+            <Table.Row>
+              <Table.Cell>workers</Table.Cell>
+              <Table.Cell><Badge tone="success">up</Badge></Table.Cell>
+              <Table.Cell>100%</Table.Cell>
+            </Table.Row>
+          </Table.Body>
+        </Table.Root>
       </Spec>
 
       <Spec
@@ -490,11 +546,13 @@
         </div>
       </Spec>
 
-      <Spec
-        label="Dev tools"
-        hint="Measure, GridOverlay, findOverflows"
-        class={css({ gridColumn: '1 / -1' })}
-      >
+      <Spec label="Empty" hint="dashed empty state with actions">
+        <Empty title="No deployments yet" description="Push to main to trigger the first build.">
+          <Button variant="secondary">Read the docs</Button>
+        </Empty>
+      </Spec>
+
+      <Spec label="Dev tools" hint="Measure, GridOverlay, findOverflows">
         <div class={stack({ gap: '4' })}>
           <Measure>
             <div class={css({ rounded: 'sig', bg: 'sig.surface', p: '4', fontSize: 'sm' })}>

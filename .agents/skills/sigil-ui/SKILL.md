@@ -7,8 +7,8 @@ description: Consume sigil-ui components in a Svelte 5 project. Use when install
 
 sigil-ui is a Svelte 5 runes component library that is CSS framework
 agnostic. Every component applies stable `sig-*` classes, consumes the
-`--sig-*` CSS variable contract, and merges a `class` prop. The only
-runtime dependencies are runed and clsx.
+`--sig-*` CSS variable contract, and merges a `class` prop. Zero runtime
+dependencies; svelte is the only peer.
 
 ## Install
 
@@ -22,14 +22,17 @@ Provide your own `--sig-*` values to theme.
 ## Components
 
 - Primitives: Button, Badge, Switch, Toggle, Input, Textarea, Select,
-  Checkbox, Slider, Avatar, Progress, Skeleton, Separator, Tooltip,
-  Alert, Stat, Kbd, Empty.
+  Checkbox, Slider, Avatar, Progress, Skeleton, Spinner, Separator,
+  Tooltip, Alert, Stat, Kbd, Empty, Field (label + hint + error wiring,
+  children snippet receives control props).
 - Namespaces: Dialog (Root, Trigger, Portal, Overlay, Content, Title,
-  Description, Close), Card (Root, Header, Title, Description, Content,
-  Footer), Tabs (Root, List, Trigger, Content), Accordion (Root, Item,
-  Trigger, Content), RadioGroup (Root, Item), Breadcrumb (Root, Item),
-  Popover (Root, Trigger, Content), DropdownMenu (Root, Trigger,
-  Content, Item, Separator).
+  Description, Close), Sheet (same parts, Content takes
+  side: left/right/top/bottom), Card (Root, Header, Title, Description,
+  Content, Footer), Tabs (Root, List, Trigger, Content), Accordion
+  (Root, Item, Trigger, Content), RadioGroup (Root, Item), Breadcrumb
+  (Root, Item), Popover (Root, Trigger, Content), DropdownMenu (Root,
+  Trigger, Content, Item, Separator), Table (Root, Head, Body, Row, H,
+  Cell, Caption).
 - Overlays: Toaster plus the `toast` API
   (`toast(title, opts)`, `toast.success/info/warning/danger`, action
   buttons, `duration`, `toast.dismiss(id)`).

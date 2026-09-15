@@ -17,6 +17,8 @@
 
 <figure
   class={css({
+    display: 'flex',
+    flexDirection: 'column',
     overflow: 'hidden',
     rounded: 'sig',
     border: '1px solid',
@@ -50,6 +52,7 @@
   <pre
     bind:this={root}
     class={css({
+      flex: '1',
       overflowX: 'auto',
       bg: 'sig.surface',
       p: '4',

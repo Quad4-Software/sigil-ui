@@ -29,7 +29,7 @@ Data attributes: data-variant
 Inline status label. Tone is rendered as data-tone so any CSS framework can restyle it.
 
 Props:
-- tone ('neutral' | 'accent' | 'danger', default 'neutral'): Color tone, rendered as data-tone on the element.
+- tone ('neutral' | 'accent' | 'danger' | 'success' | 'warning' | 'info', default 'neutral'): Color tone, rendered as data-tone on the element.
 - class (ClassValue): Merged with the base class. Pass framework utility classes here.
 - children (Snippet): Content rendered inside the element.
 CSS classes: sig-badge
@@ -674,6 +674,105 @@ Data attributes: data-overflow, data-sig-overflow
 {#if debug}
   <GridOverlay size={8} overflow interval={1000} />
 {/if}
+```
+
+### Spinner
+
+Loading indicator with role=status and an aria-label. Respects prefers-reduced-motion.
+
+Props:
+- label (string, default Loading): Accessible name.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-spinner
+Data attributes: 
+
+```svelte
+<script>
+  import { Spinner } from 'sigil-ui'
+</script>
+
+<Spinner />
+```
+
+### Field
+
+Form field wrapper: label, control, hint and error with generated id, aria-describedby and aria-invalid wiring. The children snippet receives the props to spread on the control.
+
+Props:
+- label (string): Label text, bound to the control via for/id.
+- hint (string): Help text under the control.
+- error (string): Error text; replaces the hint and sets role=alert plus aria-invalid.
+- labelProps (HTMLLabelAttributes): Extra props for the label.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-field, sig-field-label, sig-field-hint, sig-field-error
+Data attributes: 
+
+```svelte
+<script>
+  import { Field, Input } from 'sigil-ui'
+</script>
+
+<Field label="Email" hint="We never share it." error={err}>
+  {#snippet children({ props })}
+    <Input {...props} type="email" />
+  {/snippet}
+</Field>
+```
+
+### Table
+
+Table namespace: Root (scroll wrapper + table), Head, Body, Row, H, Cell, Caption. Semantic table markup with token-driven borders and hover fill.
+
+Props:
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-table-wrap, sig-table, sig-table-head, sig-table-body, sig-table-row, sig-table-h, sig-table-cell, sig-table-caption
+Data attributes: 
+
+```svelte
+<script>
+  import { Table } from 'sigil-ui'
+</script>
+
+<Table.Root>
+  <Table.Head>
+    <Table.Row><Table.H>Name</Table.H><Table.H>Status</Table.H></Table.Row>
+  </Table.Head>
+  <Table.Body>
+    <Table.Row><Table.Cell>api</Table.Cell><Table.Cell>up</Table.Cell></Table.Row>
+  </Table.Body>
+</Table.Root>
+```
+
+### Sheet
+
+Sheet namespace: Root (bind:open), Trigger, Portal, Overlay, Content (side: left/right/top/bottom), Title, Description, Close. Edge-anchored dialog with focus trap, scroll lock, Escape and overlay dismissal, focus restore.
+
+Props:
+- open (boolean, bindable): Sheet.Root open state.
+- side ('left' | 'right' | 'top' | 'bottom', default right): Edge the Sheet.Content slides in from.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-sheet, sig-sheet-trigger, sig-sheet-overlay, sig-sheet-title, sig-sheet-description, sig-sheet-close
+Data attributes: data-side
+
+```svelte
+<script>
+  import { Sheet, Button } from 'sigil-ui'
+</script>
+
+<Sheet.Root>
+  <Sheet.Trigger class="sig-btn">Open</Sheet.Trigger>
+  <Sheet.Portal>
+    <Sheet.Overlay />
+    <Sheet.Content side="right">
+      <Sheet.Title>Details</Sheet.Title>
+      <Sheet.Description>Panel content.</Sheet.Description>
+      <Sheet.Close class="sig-btn">Close</Sheet.Close>
+    </Sheet.Content>
+  </Sheet.Portal>
+</Sheet.Root>
 ```
 
 ## Tokens

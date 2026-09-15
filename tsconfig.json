@@ -22,7 +22,8 @@
       "sigil-ui/uno": ["./src/lib/uno.ts"],
       "sigil-ui/panda": ["./src/lib/panda.ts"],
       "sigil-ui/theme.css": ["./src/lib/theme/sigil.css"],
-      "sigil-ui/tailwind.css": ["./src/lib/theme/tailwind.css"]
+      "sigil-ui/tailwind.css": ["./src/lib/theme/tailwind.css"],
+      "@lucide/svelte": ["./site/node_modules/@lucide/svelte/dist/lucide-svelte.d.ts"]
     }
   },
   "include": [

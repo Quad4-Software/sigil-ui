@@ -12,13 +12,6 @@ overrides:
 importers:
 
   .:
-    dependencies:
-      clsx:
-        specifier: 2.1.1
-        version: 2.1.1
-      runed:
-        specifier: 0.37.1
-        version: 0.37.1(svelte@5.57.0(@typescript-eslint/types@8.70.0))(zod@4.5.4)
     devDependencies:
       '@eslint/js':
         specifier: 10.0.1
@@ -90,6 +83,9 @@ importers:
         specifier: workspace:*
         version: link:..
     devDependencies:
+      '@lucide/svelte':
+        specifier: 1.42.0
+        version: 1.42.0(svelte@5.57.0(@typescript-eslint/types@8.70.0))
       '@pandacss/dev':
         specifier: 1.12.1
         version: 1.12.1(jsdom@30.0.1)(typescript@6.0.3)
@@ -459,6 +455,11 @@ packages:
 
   '@keyv/serialize@1.1.1':
     resolution: {integrity: sha512-dXn3FZhPv0US+7dtJsIi2R+c7qWYiReoEh5zUntWCf4oSpMNib8FDhSoed6m3QyZdx5hK7iLFkYk3rNxwt8vTA==}
+
+  '@lucide/svelte@1.42.0':
+    resolution: {integrity: sha512-9vOi3EdzJht5aD7F5OraoxrK2GyyL1Y+kVXEtIg4+IAdKmDBrwYK2d/x7akC89uA+cvkfjcw+IuzH0vfd/TuzA==}
+    peerDependencies:
+      svelte: ^5
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -1891,18 +1892,6 @@ packages:
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
 
-  runed@0.37.1:
-    resolution: {integrity: sha512-MeFY73xBW8IueWBm012nNFIGy19WUGPLtknavyUPMpnyt350M47PhGSGrGoSLbidwn+Zlt/O0cp8/OZE3LASWA==}
-    peerDependencies:
-      '@sveltejs/kit': ^2.21.0
-      svelte: ^5.7.0
-      zod: ^4.1.0
-    peerDependenciesMeta:
-      '@sveltejs/kit':
-        optional: true
-      zod:
-        optional: true
-
   sade@1.8.1:
     resolution: {integrity: sha512-xal3CZX1Xlo/k4ApwCFrHVACi9fBqJ7V+mwhBsuf/1IOKbBy098Fex+Wa/5QMubw09pSZ/u8EY8PWgevJsXp1A==}
     engines: {node: '>=6'}
@@ -2255,9 +2244,6 @@ packages:
   zimmerframe@1.1.5:
     resolution: {integrity: sha512-msJxIvYDYcoNL+PJsu+7qmpDWsYmAxTY+2TNYXXF0hzBzBk0BMecOqDOG/EckUoKCuKwObfbugIl8QpqHDXeFA==}
 
-  zod@4.5.4:
-    resolution: {integrity: sha512-sC95tT5iHHH9gtpj6A81kh+NEaRAUFN+qlUPDUbRfOMvNf5QCBqsb3WgvnpVtK5Y+4UfA6KqufotuTvMGiTlsA==}
-
 snapshots:
 
   '@adobe/css-tools@4.5.0': {}
@@ -2518,6 +2504,10 @@ snapshots:
       keyv: 5.6.0
 
   '@keyv/serialize@1.1.1': {}
+
+  '@lucide/svelte@1.42.0(svelte@5.57.0(@typescript-eslint/types@8.70.0))':
+    dependencies:
+      svelte: 5.57.0(@typescript-eslint/types@8.70.0)
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -3911,15 +3901,6 @@ snapshots:
     dependencies:
       queue-microtask: 1.2.3
 
-  runed@0.37.1(svelte@5.57.0(@typescript-eslint/types@8.70.0))(zod@4.5.4):
-    dependencies:
-      dequal: 2.0.3
-      esm-env: 1.2.2
-      lz-string: 1.5.0
-      svelte: 5.57.0(@typescript-eslint/types@8.70.0)
-    optionalDependencies:
-      zod: 4.5.4
-
   sade@1.8.1:
     dependencies:
       mri: 1.2.0
@@ -4228,6 +4209,3 @@ snapshots:
   yocto-queue@1.2.2: {}
 
   zimmerframe@1.1.5: {}
-
-  zod@4.5.4:
-    optional: true

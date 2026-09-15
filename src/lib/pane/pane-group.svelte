@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { PersistedState } from 'runed'
+  import { persisted } from '../utils/persisted.svelte.js'
   import type { Snippet } from 'svelte'
   import type { HTMLAttributes } from 'svelte/elements'
   import { cn } from '../utils/cn.js'
@@ -35,9 +35,7 @@
   let sizes = $state<number[]>([])
 
   const getSaveId = () => autoSaveId
-  const persisted = getSaveId()
-    ? new PersistedState<number[]>(`sigil-panes-${getSaveId()}`, [])
-    : null
+  const store = getSaveId() ? persisted<number[]>(`sigil-panes-${getSaveId()}`, []) : null
 
   const ctx: PaneGroupContext = {
     get direction() {
@@ -88,7 +86,7 @@
     },
     layoutChanged() {
       onLayout?.([...sizes])
-      if (persisted) persisted.current = [...sizes]
+      if (store) store.current = [...sizes]
     }
   }
   setPaneGroupContext(ctx)
@@ -97,7 +95,7 @@
     const n = panes.length
     if (n === 0 || sizes.length === n) return
 
-    const saved = persisted?.current
+    const saved = store?.current
     if (saved && saved.length === n && saved.every((s) => s > 0)) {
       sizes = [...saved]
       return

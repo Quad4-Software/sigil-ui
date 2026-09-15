@@ -12,6 +12,7 @@
     Dialog,
     DropdownMenu,
     Empty,
+    Field,
     GridOverlay,
     Input,
     Kbd,
@@ -24,10 +25,13 @@
     RadioGroup,
     Select,
     Separator,
+    Sheet,
     Skeleton,
     Slider,
+    Spinner,
     Stat,
     Switch,
+    Table,
     Tabs,
     Textarea,
     toast,
@@ -40,6 +44,7 @@
   const theme = createTheme()
   let switched = $state(false)
   let dialogOpen = $state(false)
+  let sheetOpen = $state(false)
   let checked = $state(true)
   let name = $state('')
   let plan = $state('pro')
@@ -104,7 +109,11 @@
   <section>
     <h2>Inputs</h2>
     <div class="grid">
-      <Input bind:value={name} placeholder="Your name" aria-label="name" />
+      <Field label="Name" hint="Wires label, hint and error to the control.">
+        {#snippet children(props)}
+          <Input {...props} bind:value={name} placeholder="Your name" />
+        {/snippet}
+      </Field>
       <Textarea placeholder="Notes" aria-label="notes" />
       <Select bind:value={plan} aria-label="plan">
         <option value="free">Free</option>
@@ -157,6 +166,7 @@
       <Badge tone="accent">Accent</Badge>
       <Badge tone="danger">Danger</Badge>
       <Avatar fallback="Ada Lovelace" alt="Ada Lovelace" />
+      <Spinner />
       <Tooltip text="Hover or focus me">
         {#snippet children({ props })}
           <Button variant="ghost" {...props}>Tooltip</Button>
@@ -166,6 +176,28 @@
     <Separator style="margin: 1rem 0" />
     <Alert tone="warning" title="Heads up">This is a warning alert.</Alert>
     <Skeleton style="margin-top: 1rem" />
+  </section>
+
+  <section>
+    <h2>Table</h2>
+    <Table.Root>
+      <Table.Head>
+        <Table.Row>
+          <Table.H scope="col">Service</Table.H>
+          <Table.H scope="col">Status</Table.H>
+        </Table.Row>
+      </Table.Head>
+      <Table.Body>
+        <Table.Row>
+          <Table.Cell>api</Table.Cell>
+          <Table.Cell><Badge tone="success">up</Badge></Table.Cell>
+        </Table.Row>
+        <Table.Row>
+          <Table.Cell>web</Table.Cell>
+          <Table.Cell><Badge tone="warning">degraded</Badge></Table.Cell>
+        </Table.Row>
+      </Table.Body>
+    </Table.Root>
   </section>
 
   <section>
@@ -217,6 +249,17 @@
           <DropdownMenu.Item onSelect={() => toast.danger('Deleted')}>Delete</DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Root>
+      <Sheet.Root bind:open={sheetOpen}>
+        <Sheet.Trigger class="sig-btn" data-variant="secondary">Sheet</Sheet.Trigger>
+        <Sheet.Portal>
+          <Sheet.Overlay />
+          <Sheet.Content side="right">
+            <Sheet.Title>Details</Sheet.Title>
+            <Sheet.Description>Edge-anchored panel.</Sheet.Description>
+            <Sheet.Close class="sig-btn" data-variant="primary">Close</Sheet.Close>
+          </Sheet.Content>
+        </Sheet.Portal>
+      </Sheet.Root>
       <Button variant="secondary" onclick={() => toast.success('Saved to disk')}>Toast</Button>
       <Button
         variant="secondary"
