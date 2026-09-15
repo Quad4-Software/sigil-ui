@@ -1,0 +1,10 @@
+{
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "sigil-ui",
+      "description": "Use sigil-ui components in a Svelte 5 app, or develop the library itself.",
+      "skills": ["sigil-ui", "sigil-ui-dev"]
+    }
+  ]
+}

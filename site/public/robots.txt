@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://quad4-software.github.io/sigil-ui/sitemap.xml

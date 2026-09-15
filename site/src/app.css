@@ -1,0 +1,22 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  background: var(--sig-bg, #fff);
+  color: var(--sig-fg, #18181b);
+  -webkit-font-smoothing: antialiased;
+}
+
+code,
+pre {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+}

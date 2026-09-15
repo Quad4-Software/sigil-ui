@@ -1,0 +1,493 @@
+# sigil-ui full reference
+
+package: sigil-ui (svelte peer ^5.0.0)
+theme entry: sigil-ui/theme.css
+
+## Components
+
+### Button
+
+Button with variant styling driven by data-variant and the --sig-* token contract. Forwards all native button attributes and events.
+
+Props:
+- variant ('primary' | 'secondary' | 'ghost' | 'danger', default 'primary'): Visual variant, rendered as data-variant on the element.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-btn
+Data attributes: data-variant
+
+```svelte
+<script>
+  import { Button } from 'sigil-ui'
+</script>
+
+<Button variant="secondary" onclick={save}>Save</Button>
+```
+
+### Badge
+
+Inline status label. Tone is rendered as data-tone so any CSS framework can restyle it.
+
+Props:
+- tone ('neutral' | 'accent' | 'danger', default 'neutral'): Color tone, rendered as data-tone on the element.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-badge
+Data attributes: data-tone
+
+```svelte
+<script>
+  import { Badge } from 'sigil-ui'
+</script>
+
+<Badge tone="accent">beta</Badge>
+```
+
+### Switch
+
+Toggle using role=switch and aria-checked. checked is bindable. Render state is exposed as data-state checked/unchecked.
+
+Props:
+- checked (boolean, bindable, default false): Bindable on/off state.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet<[{ checked: boolean }]>): Custom content replacing the default thumb.
+CSS classes: sig-switch, sig-switch-thumb
+Data attributes: data-state, data-disabled
+
+```svelte
+<script>
+  import { Switch } from 'sigil-ui'
+  let on = $state(false)
+</script>
+
+<Switch bind:checked={on} aria-label="notifications" />
+```
+
+### Input
+
+Styled native text input. value is bindable. Set aria-invalid for error state. Forwards all native input attributes.
+
+Props:
+- value (string | number, bindable): Bindable input value.
+- type (string, default 'text'): Native input type.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-input
+Data attributes: 
+
+```svelte
+<script>
+  import { Input } from 'sigil-ui'
+  let name = $state('')
+</script>
+
+<Input bind:value={name} placeholder="Name" aria-label="Name" />
+```
+
+### Select
+
+Styled native select with a chevron affordance. value is bindable. Options are provided as children.
+
+Props:
+- value (string, bindable): Bindable selected value.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-select-wrap, sig-select
+Data attributes: 
+
+```svelte
+<script>
+  import { Select } from 'sigil-ui'
+  let plan = $state('free')
+</script>
+
+<Select bind:value={plan} aria-label="Plan">
+  <option value="free">Free</option>
+  <option value="pro">Pro</option>
+</Select>
+```
+
+### Checkbox
+
+Styled native checkbox. checked is bindable. Pair with a label element for an accessible name.
+
+Props:
+- checked (boolean, bindable, default false): Bindable checked state.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-checkbox
+Data attributes: 
+
+```svelte
+<script>
+  import { Checkbox } from 'sigil-ui'
+  let ok = $state(false)
+</script>
+
+<label><Checkbox bind:checked={ok} /> Accept terms</label>
+```
+
+### Avatar
+
+Round avatar with image and initials fallback. Falls back automatically when the image fails to load.
+
+Props:
+- src (string): Image URL.
+- alt (string): Accessible name for the avatar.
+- fallback (string): Name used to derive up to two initials when no image is shown.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-avatar, sig-avatar-img, sig-avatar-fallback
+Data attributes: 
+
+```svelte
+<script>
+  import { Avatar } from 'sigil-ui'
+</script>
+
+<Avatar src={user.avatar} alt={user.name} fallback={user.name} />
+```
+
+### Progress
+
+Progress bar with role=progressbar and aria value wiring. Omit value for an indeterminate loading state. Honors reduced motion.
+
+Props:
+- value (number): Current value. Omit for indeterminate.
+- max (number, default 100): Maximum value.
+- label (string): Accessible label via aria-label.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-progress, sig-progress-bar
+Data attributes: data-indeterminate
+
+```svelte
+<script>
+  import { Progress } from 'sigil-ui'
+</script>
+
+<Progress value={68} label="Upload progress" />
+```
+
+### Skeleton
+
+Loading placeholder block with a pulse animation. aria-hidden. Honors reduced motion. Size it with class or style.
+
+Props:
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-skeleton
+Data attributes: 
+
+```svelte
+<script>
+  import { Skeleton } from 'sigil-ui'
+</script>
+
+<Skeleton style="height: 2rem; width: 12rem" />
+```
+
+### Alert
+
+Inline message with tone colors. danger and warning use role=alert, other tones use role=status.
+
+Props:
+- tone ('default' | 'success' | 'warning' | 'danger' | 'info', default 'default'): Color tone and live region role.
+- title (string): Bold heading line.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-alert, sig-alert-title, sig-alert-body
+Data attributes: data-tone
+
+```svelte
+<script>
+  import { Alert } from 'sigil-ui'
+</script>
+
+<Alert tone="warning" title="Storage almost full">Free space is below 10%.</Alert>
+```
+
+### Separator
+
+Horizontal or vertical rule. Decorative by default (role=none). Set decorative={false} to expose role=separator.
+
+Props:
+- orientation ('horizontal' | 'vertical', default 'horizontal'): Line direction.
+- decorative (boolean, default true): When false, renders role=separator with aria-orientation.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-separator
+Data attributes: data-orientation
+
+```svelte
+<script>
+  import { Separator } from 'sigil-ui'
+</script>
+
+<Separator />
+```
+
+### Stat
+
+Dashboard metric: uppercase label, large value, optional signed delta colored by direction.
+
+Props:
+- label (string): Small uppercase label.
+- value (string | number): Primary metric value.
+- delta (number): Signed change. Positive renders up in success color, negative down in danger.
+- deltaLabel (string): Unit suffix after delta, e.g. "%".
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-stat, sig-stat-label, sig-stat-value, sig-stat-delta
+Data attributes: data-dir
+
+```svelte
+<script>
+  import { Stat } from 'sigil-ui'
+</script>
+
+<Stat label="Revenue" value="$48.2k" delta={12.5} deltaLabel="%" />
+```
+
+### Tooltip
+
+Hover and focus tooltip. The children snippet receives props to spread on the trigger so aria-describedby is wired. Pure CSS show/hide.
+
+Props:
+- text (string): Tooltip text.
+- side ('top' | 'bottom', default 'top'): Placement relative to the trigger.
+- children (Snippet<[{ props: Record<string, string> }]>): Trigger element. Spread props onto it for aria-describedby.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-tip-wrap, sig-tip
+Data attributes: data-side
+
+```svelte
+<script>
+  import { Tooltip, Button } from 'sigil-ui'
+</script>
+
+<Tooltip text="Save changes">
+  {#snippet children({ props })}
+    <Button {...props}>Save</Button>
+  {/snippet}
+</Tooltip>
+```
+
+### Card
+
+Surface namespace: Root, Header, Title, Description, Content, Footer. The base unit for dashboard layouts.
+
+Props:
+- class (ClassValue): Accepted on every part.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-card, sig-card-header, sig-card-title, sig-card-description, sig-card-content, sig-card-footer
+Data attributes: 
+
+```svelte
+<script>
+  import { Card, Stat } from 'sigil-ui'
+</script>
+
+<Card.Root>
+  <Card.Header>
+    <Card.Title>Traffic</Card.Title>
+    <Card.Description>Last 30 days</Card.Description>
+  </Card.Header>
+  <Card.Content>
+    <Stat label="Visits" value="128k" delta={8} deltaLabel="%" />
+  </Card.Content>
+</Card.Root>
+```
+
+### Tabs
+
+Tabs namespace: Root (bindable value), List, Trigger, Content. Full keyboard support: arrows, Home, End, roving tabindex, automatic activation.
+
+Props:
+- value (string, bindable): Bindable selected tab on Tabs.Root. Trigger and Content take a value prop.
+- class (ClassValue): Accepted on every part.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-tabs, sig-tablist, sig-tab, sig-tabpanel
+Data attributes: data-state
+
+```svelte
+<script>
+  import { Tabs } from 'sigil-ui'
+  let tab = $state('usage')
+</script>
+
+<Tabs.Root bind:value={tab}>
+  <Tabs.List>
+    <Tabs.Trigger value="usage">Usage</Tabs.Trigger>
+    <Tabs.Trigger value="billing">Billing</Tabs.Trigger>
+  </Tabs.List>
+  <Tabs.Content value="usage">Usage panel</Tabs.Content>
+  <Tabs.Content value="billing">Billing panel</Tabs.Content>
+</Tabs.Root>
+```
+
+### Accordion
+
+Accordion namespace: Root, Item (value), Trigger, Content. Buttons use aria-expanded and aria-controls, panels use role=region. Set multiple on Root to allow several open items.
+
+Props:
+- multiple (boolean, default false): Allow more than one open item on Accordion.Root.
+- value (string): Item identifier on Accordion.Item.
+- class (ClassValue): Accepted on every part.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-accordion, sig-acc-item, sig-acc-heading, sig-acc-trigger, sig-acc-chevron, sig-acc-content
+Data attributes: data-state
+
+```svelte
+<script>
+  import { Accordion } from 'sigil-ui'
+</script>
+
+<Accordion.Root>
+  <Accordion.Item value="a">
+    <Accordion.Trigger>Section A</Accordion.Trigger>
+    <Accordion.Content>Details for A.</Accordion.Content>
+  </Accordion.Item>
+</Accordion.Root>
+```
+
+### Dialog
+
+Modal dialog namespace: Root (bindable open), Trigger, Portal, Overlay, Content, Title, Description, Close. Focus trap, Escape to close, scroll lock, focus restore, aria-labelledby/aria-describedby wiring. No external primitive library.
+
+Props:
+- open (boolean, bindable, default false): Bindable open state on Dialog.Root.
+- class (ClassValue): Accepted on Trigger, Overlay, Content, Title, Description and Close.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-dialog-trigger, sig-dialog-overlay, sig-dialog, sig-dialog-title, sig-dialog-description, sig-dialog-close
+Data attributes: 
+
+```svelte
+<script>
+  import { Dialog, Button } from 'sigil-ui'
+  let open = $state(false)
+</script>
+
+<Dialog.Root bind:open>
+  <Dialog.Trigger>Open</Dialog.Trigger>
+  <Dialog.Portal>
+    <Dialog.Overlay />
+    <Dialog.Content>
+      <Dialog.Title>Delete project</Dialog.Title>
+      <Dialog.Description>This cannot be undone.</Dialog.Description>
+      <Dialog.Close>Cancel</Dialog.Close>
+    </Dialog.Content>
+  </Dialog.Portal>
+</Dialog.Root>
+```
+
+### Toaster
+
+Toast system. Mount Toaster once, call toast.success() and friends from anywhere. Timed dismissal with hover and focus pause, action buttons, danger and warning use role=alert.
+
+Props:
+- position ('bottom-right' | 'bottom-left' | 'top-right' | 'top-left', default 'bottom-right'): Screen corner for the toast stack.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-toaster, sig-toast, sig-toast-text, sig-toast-title, sig-toast-desc, sig-toast-action, sig-toast-close
+Data attributes: data-position, data-tone
+
+```svelte
+<script>
+  import { Toaster, toast, Button } from 'sigil-ui'
+</script>
+
+<Toaster />
+<Button onclick={() => toast.success('Saved')}>Save</Button>
+```
+
+### PaneGroup
+
+Resizable split panes (PaneGroup, Pane, PaneResizer). Pointer drag with pointer capture, keyboard resizing on the separator, min/max constraints, optional layout persistence via autoSaveId.
+
+Props:
+- direction ('horizontal' | 'vertical', default 'horizontal'): Split direction on PaneGroup.
+- autoSaveId (string): Persist sizes to localStorage under this key on PaneGroup.
+- keyboardStep (number, default 5): Percent moved per arrow key press on PaneGroup.
+- defaultSize (number): Initial percent on Pane.
+- minSize (number, default 0): Minimum percent on Pane.
+- maxSize (number, default 100): Maximum percent on Pane.
+- onLayout ((sizes: number[]) => void): Called on PaneGroup when a drag or key resize ends.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-pane-group, sig-pane, sig-pane-resizer, sig-pane-handle
+Data attributes: data-direction, data-state, data-index
+
+```svelte
+<script>
+  import { PaneGroup, Pane, PaneResizer } from 'sigil-ui'
+</script>
+
+<PaneGroup direction="horizontal" autoSaveId="dash" style="height: 24rem">
+  <Pane defaultSize={30} minSize={20}>Sidebar</Pane>
+  <PaneResizer />
+  <Pane>Main</Pane>
+</PaneGroup>
+```
+
+## Tokens
+
+- --sig-bg: light #ffffff, dark #09090b. Page and surface base
+- --sig-fg: light #18181b, dark #fafafa. Primary text
+- --sig-muted: light #71717a, dark #a1a1aa. Secondary text
+- --sig-surface: light #f4f4f5, dark #18181b. Raised fill
+- --sig-surface-hover: light #e4e4e7, dark #27272a. Raised fill on hover
+- --sig-border: light #d4d4d8, dark #3f3f46. Borders
+- --sig-accent: light #4f46e5, dark #818cf8. Primary accent
+- --sig-accent-hover: light #4338ca, dark #6366f1. Accent on hover
+- --sig-accent-fg: light #ffffff, dark #09090b. Text on accent
+- --sig-danger: light #dc2626, dark #ef4444. Destructive actions
+- --sig-danger-hover: light #b91c1c, dark #dc2626. Danger on hover
+- --sig-danger-fg: light #ffffff, dark #09090b. Text on danger
+- --sig-success: light #16a34a, dark #4ade80. Positive outcome
+- --sig-success-fg: light #ffffff, dark #09090b. Text on success
+- --sig-warning: light #d97706, dark #fbbf24. Caution state
+- --sig-warning-fg: light #ffffff, dark #09090b. Text on warning
+- --sig-info: light #2563eb, dark #60a5fa. Neutral information
+- --sig-info-fg: light #ffffff, dark #09090b. Text on info
+- --sig-ring: light #4f46e5, dark #818cf8. Focus ring
+- --sig-overlay: light rgb(0 0 0 / 0.5), dark rgb(0 0 0 / 0.7). Dialog scrim
+- --sig-radius: light 0.375rem, dark 0.375rem. Corner radius
+- --sig-shadow: light 0 10px 30px rgb(0 0 0 / 0.15), dark 0 10px 30px rgb(0 0 0 / 0.5). Overlay shadow
+
+## Adapters
+
+### Tailwind CSS v4 (sigil-ui/tailwind.css)
+
+```
+@import 'tailwindcss';
+@import 'sigil-ui/tailwind.css';
+
+/* utilities like bg-sig-accent, text-sig-fg, border-sig-border, rounded-sig */
+```
+
+### UnoCSS (sigil-ui/uno)
+
+```
+import { sigilPreset } from 'sigil-ui/uno'
+
+export default defineConfig({
+  presets: [presetWind4(), sigilPreset]
+})
+```
+
+### Panda CSS (sigil-ui/panda)
+
+```
+import { sigilPreset } from 'sigil-ui/panda'
+
+export default defineConfig({
+  presets: [sigilPreset]
+})
+```
+
+### No framework (sigil-ui/theme.css)
+
+```
+import 'sigil-ui/theme.css'
+
+/* or override any --sig-* var in your own stylesheet */
+```
+
+
+## CLI
+
+npx sigil-ui list | docs <name> | tokens | adapters | manifest | doctor

@@ -1,0 +1,37 @@
+packages:
+  - .
+  - site
+
+# Supply-chain safe defaults, same posture as Badinage/Wharfinger.
+
+# Reject dependency versions published less than 7 days ago (minutes).
+# Most compromised releases are caught and yanked inside this window.
+minimumReleaseAge: 10080
+minimumReleaseAgeStrict: true
+
+# Fail install when a dependency wants to run a build script that is not
+# allowlisted. pnpm adds unreviewed entries here automatically with a
+# placeholder so each one gets an explicit true/false decision.
+strictDepBuilds: true
+allowBuilds:
+  esbuild: true
+
+# Fail when a package loses trust evidence (trusted publisher or provenance)
+# compared to its earlier releases. Packages published over a year ago are
+# exempt so mature deps do not trip the check.
+trustPolicy: no-downgrade
+trustPolicyIgnoreAfter: 525600
+
+# Block transitive deps resolved from git URLs, tarballs, or other
+# non-registry sources.
+blockExoticSubdeps: true
+
+# Reinstall when node_modules is stale instead of running against it.
+verifyDepsBeforeRun: install
+
+# Keep the virtual store fully isolated, no hoisting to the root.
+hoistPattern: []
+publicHoistPattern: []
+
+# Exact pins, no semver ranges.
+savePrefix: ''

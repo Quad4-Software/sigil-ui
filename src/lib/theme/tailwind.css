@@ -1,0 +1,31 @@
+/* Tailwind CSS v4 bridge. Import after tailwindcss to get sig-* utilities
+   (bg-sig-accent, text-sig-fg, border-sig-border, rounded-sig, shadow-sig)
+   backed by the sigil-ui token contract. Includes the default theme values;
+   delete the sigil.css import if you define --sig-* tokens yourself. */
+
+@import './sigil.css';
+
+@theme inline {
+  --color-sig-bg: var(--sig-bg);
+  --color-sig-fg: var(--sig-fg);
+  --color-sig-muted: var(--sig-muted);
+  --color-sig-surface: var(--sig-surface);
+  --color-sig-surface-hover: var(--sig-surface-hover);
+  --color-sig-border: var(--sig-border);
+  --color-sig-accent: var(--sig-accent);
+  --color-sig-accent-hover: var(--sig-accent-hover);
+  --color-sig-accent-fg: var(--sig-accent-fg);
+  --color-sig-danger: var(--sig-danger);
+  --color-sig-danger-hover: var(--sig-danger-hover);
+  --color-sig-danger-fg: var(--sig-danger-fg);
+  --color-sig-success: var(--sig-success);
+  --color-sig-success-fg: var(--sig-success-fg);
+  --color-sig-warning: var(--sig-warning);
+  --color-sig-warning-fg: var(--sig-warning-fg);
+  --color-sig-info: var(--sig-info);
+  --color-sig-info-fg: var(--sig-info-fg);
+  --color-sig-ring: var(--sig-ring);
+  --color-sig-overlay: var(--sig-overlay);
+  --radius-sig: var(--sig-radius);
+  --shadow-sig: var(--sig-shadow);
+}

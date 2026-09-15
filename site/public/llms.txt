@@ -1,0 +1,49 @@
+# sigil-ui
+
+> Svelte 5 (runes) component library. CSS framework agnostic: every component
+> consumes the --sig-* CSS variable contract and merges a class prop, so
+> Tailwind v4, UnoCSS, Panda CSS or plain CSS can theme it. Zero runtime
+> component dependencies. Machine-readable metadata: /manifest.json.
+
+## Docs
+
+- [Full component docs](llms-full.txt): props, classes, data attributes, examples
+- [Token contract](#tokens): every --sig-* variable with light and dark defaults
+- [Component manifest](manifest.json): structured JSON for agents
+
+## Components
+
+- Button: Button with variant styling driven by data-variant and the --sig-* token contract.
+- Badge: Inline status label.
+- Switch: Toggle using role=switch and aria-checked.
+- Input: Styled native text input.
+- Select: Styled native select with a chevron affordance.
+- Checkbox: Styled native checkbox.
+- Avatar: Round avatar with image and initials fallback.
+- Progress: Progress bar with role=progressbar and aria value wiring.
+- Skeleton: Loading placeholder block with a pulse animation.
+- Alert: Inline message with tone colors.
+- Separator: Horizontal or vertical rule.
+- Stat: Dashboard metric: uppercase label, large value, optional signed delta colored by direction.
+- Tooltip: Hover and focus tooltip.
+- Card: Surface namespace: Root, Header, Title, Description, Content, Footer.
+- Tabs: Tabs namespace: Root (bindable value), List, Trigger, Content.
+- Accordion: Accordion namespace: Root, Item (value), Trigger, Content.
+- Dialog: Modal dialog namespace: Root (bindable open), Trigger, Portal, Overlay, Content, Title, Description, Close.
+- Toaster: Toast system.
+- PaneGroup: Resizable split panes (PaneGroup, Pane, PaneResizer).
+
+## Adapters
+
+- Tailwind CSS v4: sigil-ui/tailwind.css
+- UnoCSS: sigil-ui/uno
+- Panda CSS: sigil-ui/panda
+- No framework: sigil-ui/theme.css
+
+## Install
+
+```
+pnpm add sigil-ui
+import 'sigil-ui/theme.css'
+```
+

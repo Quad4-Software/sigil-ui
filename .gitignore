@@ -1,0 +1,15 @@
+node_modules/
+dist/
+demo-dist/
+.svelte-check/
+.svelte-kit/
+.vite/
+coverage/
+*.tsbuildinfo
+*.local
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+*.tgz

@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["vite/client", "node"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "allowJs": true,
+    "checkJs": true,
+    "paths": {
+      "$lib": ["./src/lib"],
+      "$lib/*": ["./src/lib/*"],
+      "sigil-ui": ["./src/lib/index.ts"],
+      "sigil-ui/uno": ["./src/lib/uno.ts"],
+      "sigil-ui/panda": ["./src/lib/panda.ts"],
+      "sigil-ui/theme.css": ["./src/lib/theme/sigil.css"],
+      "sigil-ui/tailwind.css": ["./src/lib/theme/tailwind.css"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.svelte",
+    "site/**/*.ts",
+    "site/**/*.svelte",
+    "vite.config.ts",
+    "site/vite.config.ts",
+    "site/uno.config.ts",
+    "svelte.config.js",
+    "eslint.config.js"
+  ]
+}
