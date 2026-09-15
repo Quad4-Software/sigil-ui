@@ -82,7 +82,7 @@
   <div
     class={flex({
       mx: 'auto',
-      maxW: '4xl',
+      maxW: '6xl',
       alignItems: 'center',
       justifyContent: 'space-between',
       px: '4',
@@ -127,11 +127,11 @@
   </div>
 </header>
 
-<main class={css({ mx: 'auto', maxW: '4xl', px: '4', pb: '24' })}>
+<main class={css({ mx: 'auto', maxW: '6xl', px: '4', pb: '24' })}>
   <section
     class={css({
       position: 'relative',
-      py: '20',
+      py: '24',
       _before: {
         content: '""',
         position: 'absolute',
@@ -146,7 +146,8 @@
     <h1
       class={css({
         mt: '4',
-        fontSize: { base: '4xl', sm: '5xl' },
+        fontSize: { base: '4xl', sm: '5xl', lg: '6xl' },
+        maxW: '3xl',
         fontWeight: 'bold',
         letterSpacing: 'tight',
         lineHeight: 'tight'
@@ -154,7 +155,7 @@
     >
       Components that do not care about your CSS framework
     </h1>
-    <p class={css({ mt: '4', maxW: '2xl', fontSize: 'lg', color: 'sig.muted', lineHeight: '7' })}>
+    <p class={css({ mt: '4', maxW: '2xl', fontSize: 'lg', color: 'sig.muted', lineHeight: 'relaxed' })}>
       sigil-ui ships runes-native components styled through a
       <code>--sig-*</code> token contract. Tailwind v4, UnoCSS, Panda CSS or plain CSS all theme the same
       components. Zero runtime dependencies beyond runed and clsx. Focus traps, keyboard navigation and
@@ -195,8 +196,15 @@
     <h2 class={h2}>Components</h2>
     <p class={lead}>Live. Every class and data attribute below is a public styling hook.</p>
 
-    <div class={stack({ mt: '8', gap: '6' })}>
-      <Spec label="Dashboard" hint="Card, Stat, Progress">
+    <div
+      class={css({
+        display: 'grid',
+        mt: '8',
+        gap: '6',
+        gridTemplateColumns: { base: '1fr', lg: 'repeat(2, 1fr)' }
+      })}
+    >
+      <Spec label="Dashboard" hint="Card, Stat, Progress" class={css({ gridColumn: '1 / -1' })}>
         <div
           class={css({
             display: 'grid',
@@ -226,7 +234,11 @@
         </div>
       </Spec>
 
-      <Spec label="Panes" hint="drag the separator or focus it and use arrow keys">
+      <Spec
+        label="Panes"
+        hint="drag the separator or focus it and use arrow keys"
+        class={css({ gridColumn: '1 / -1' })}
+      >
         <PaneGroup
           direction="horizontal"
           class={css({
@@ -288,6 +300,7 @@
       <Spec
         label="Forms"
         hint="Input, Textarea, Select, Checkbox, RadioGroup, Slider, Switch, Toggle"
+        class={css({ gridColumn: '1 / -1' })}
       >
         <div
           class={css({
@@ -412,7 +425,11 @@
         </div>
       </Spec>
 
-      <Spec label="Navigation" hint="Tabs, Accordion, Breadcrumb, Kbd">
+      <Spec
+        label="Navigation"
+        hint="Tabs, Accordion, Breadcrumb, Kbd"
+        class={css({ gridColumn: '1 / -1' })}
+      >
         <div class={stack({ gap: '5' })}>
           <Breadcrumb.Root>
             <Breadcrumb.Item><a href="#components">Home</a></Breadcrumb.Item>

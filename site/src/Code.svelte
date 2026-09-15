@@ -54,6 +54,6 @@
       bg: 'sig.surface',
       p: '4',
       fontSize: 'sm',
-      lineHeight: '6'
+      lineHeight: 'relaxed'
     })}>{@render children?.()}</pre>
 </figure>

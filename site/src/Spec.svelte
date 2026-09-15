@@ -2,17 +2,22 @@
   import type { Snippet } from 'svelte'
   import { css } from '../styled-system/css'
 
-  let { label, hint, children }: { label: string; hint?: string; children?: Snippet } = $props()
+  let {
+    label,
+    hint,
+    class: className,
+    children
+  }: { label: string; hint?: string; class?: string; children?: Snippet } = $props()
 </script>
 
 <figure
-  class={css({
+  class={`${css({
     overflow: 'hidden',
     rounded: 'sig',
     border: '1px solid',
     borderColor: 'sig.border',
     bg: 'sig.bg'
-  })}
+  })}${className ? ` ${className}` : ''}`}
 >
   <figcaption
     class={css({
