@@ -8,6 +8,9 @@ side is a styling contract (sig-* classes over --sig-* tokens) plus
 sigil css, a bundled build-time atomic engine. Tailwind v4, UnoCSS,
 Panda CSS and plain CSS all plug into the same contract.
 
+> [!WARNING]
+> This project is still alpha level framework/library and being actively worked on.
+
 ## Install
 
 ```

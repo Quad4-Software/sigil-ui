@@ -46,7 +46,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: build site
+        # sigil.quad4.io is a Pages custom domain, so assets resolve at /
         run: pnpm -F sigil-site build
+        env:
+          SITE_BASE: /
 
       - name: configure pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
