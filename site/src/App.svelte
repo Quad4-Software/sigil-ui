@@ -275,7 +275,7 @@
   const vanillaCssCode =
     '<link rel="stylesheet" href="sigil-ui/theme.css" />\n<link rel="stylesheet" href="sigil-ui/components.css" />\n\n<button class="sig-btn" data-variant="primary">Save</button>'
   const vanillaJsCode =
-    "import { attachTabs, createOverlay, attachAll, createTheme } from 'sigil-ui/headless'\n\nattachAll(document.body)\n// or wire one structure:\nattachTabs(document.querySelector('.sig-tabs'))\ncreateTheme()"
+    "import { attachAll, createTheme } from 'sigil-ui/headless'\n\nattachAll(document.body)\ncreateTheme()"
 
   const section = css({
     scrollMarginTop: '20',
@@ -296,6 +296,17 @@
     _hover: { color: 'sig.fg', textDecoration: 'underline' }
   })
   const wide = css({ gridColumn: '1 / -1' })
+  const benchBar = css({ h: '4', rounded: 'sig', bg: 'sig.surface-hover' })
+  const benchBarAccent = css({ h: '4', rounded: 'sig', bg: 'sig.accent' })
+  const benchTrack = css({ flex: '1', minW: '0', display: 'flex' })
+  const benchLabel = css({
+    w: '32',
+    fontSize: 'xs',
+    color: 'sig.muted',
+    flexShrink: '0',
+    whiteSpace: 'nowrap'
+  })
+  const benchValue = css({ fontSize: 'xs', color: 'sig.fg', whiteSpace: 'nowrap' })
   const iconBtn = css({
     display: 'inline-flex',
     alignItems: 'center',
@@ -515,7 +526,7 @@
       direction="horizontal"
       class={css({
         mt: '6',
-        h: '96',
+        h: '28rem',
         overflow: 'hidden',
         rounded: 'sig',
         border: '1px solid',
@@ -1678,29 +1689,14 @@
         <div class={stack({ gap: '2' })}>
           {#each bench as row (row.tool)}
             <div class={flex({ alignItems: 'center', gap: '3' })}>
-              <span
-                class={css({
-                  w: '32',
-                  fontSize: 'xs',
-                  color: 'sig.muted',
-                  flexShrink: '0',
-                  whiteSpace: 'nowrap'
-                })}
-              >
-                {row.tool}
-              </span>
-              <div
-                class={css({
-                  h: '4',
-                  rounded: 'sig',
-                  bg: row.tool === 'sigil css' ? 'sig.accent' : 'sig.surface-hover',
-                  minW: '1'
-                })}
-                style="width: {Math.max(2, (row.coldBuildMs / benchMaxMs) * 100)}%"
-              ></div>
-              <span class={css({ fontSize: 'xs', color: 'sig.fg', whiteSpace: 'nowrap' })}>
-                {row.coldBuildMs}ms
-              </span>
+              <span class={benchLabel}>{row.tool}</span>
+              <div class={benchTrack}>
+                <div
+                  class={row.tool === 'sigil css' ? benchBarAccent : benchBar}
+                  style="width: {Math.max(2, (row.coldBuildMs / benchMaxMs) * 100)}%"
+                ></div>
+              </div>
+              <span class={benchValue}>{row.coldBuildMs}ms</span>
             </div>
           {/each}
         </div>
@@ -1714,29 +1710,14 @@
         <div class={stack({ gap: '2' })}>
           {#each bench as row (row.tool)}
             <div class={flex({ alignItems: 'center', gap: '3' })}>
-              <span
-                class={css({
-                  w: '32',
-                  fontSize: 'xs',
-                  color: 'sig.muted',
-                  flexShrink: '0',
-                  whiteSpace: 'nowrap'
-                })}
-              >
-                {row.tool}
-              </span>
-              <div
-                class={css({
-                  h: '4',
-                  rounded: 'sig',
-                  bg: row.tool === 'sigil css' ? 'sig.accent' : 'sig.surface-hover',
-                  minW: '1'
-                })}
-                style="width: {Math.max(2, (row.dependencies / benchMaxDeps) * 100)}%"
-              ></div>
-              <span class={css({ fontSize: 'xs', color: 'sig.fg', whiteSpace: 'nowrap' })}>
-                {row.dependencies}
-              </span>
+              <span class={benchLabel}>{row.tool}</span>
+              <div class={benchTrack}>
+                <div
+                  class={row.tool === 'sigil css' ? benchBarAccent : benchBar}
+                  style="width: {Math.max(2, (row.dependencies / benchMaxDeps) * 100)}%"
+                ></div>
+              </div>
+              <span class={benchValue}>{row.dependencies}</span>
             </div>
           {/each}
         </div>
@@ -1804,8 +1785,8 @@
     </div>
     <p class={css({ mt: '4', fontSize: 'sm', color: 'sig.muted' })}>
       attachAll wires every interactive sig-* structure it finds: tabs, accordions, radios,
-      checkboxes, switches, toggles, sliders, selects of tags, file uploads, pagination, trees,
-      number and pin inputs, ratings, editables, carousels, panes, tooltips, hover cards and toasts.
+      checkboxes, switches, toggles, sliders, tag inputs, file uploads, pagination, trees, number
+      and pin inputs, ratings, editables, carousels, panes, tooltips, hover cards and toasts.
       Overlays, popovers and menus wire explicitly through create functions since they pair a
       trigger with portaled content.
     </p>
