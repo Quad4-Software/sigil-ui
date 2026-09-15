@@ -33,6 +33,7 @@
 
 ### Fixed
 
+- `Timeline` rail no longer stops short of the next dot; the connector is now a dashed line spanning the item gap
 - `sig-pane` is a column flex container so nested `PaneGroup`s fill correctly
 - `sig-pane-group` no longer forces unoverridable 100% sizes, which broke utility-class sizing
 

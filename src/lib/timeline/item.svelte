@@ -57,10 +57,10 @@
   :global(.sig-timeline-rail::before) {
     content: '';
     position: absolute;
-    top: 1rem;
-    bottom: -0.25rem;
-    width: 1px;
-    background: var(--sig-border, #d4d4d8);
+    top: 1.1rem;
+    bottom: -1.6rem;
+    left: calc(50% - 0.75px);
+    border-left: 1.5px dashed var(--sig-border, #d4d4d8);
   }
 
   :global(.sig-timeline-item:last-child .sig-timeline-rail::before) {

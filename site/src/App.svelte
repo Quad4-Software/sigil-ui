@@ -227,16 +227,13 @@
   const lead = css({ mt: '2', color: 'sig.muted' })
   const link = css({ color: 'sig.muted', _hover: { color: 'sig.fg' } })
   const navLink = css({
-    px: '3',
-    py: '1',
-    rounded: 'full',
-    border: '1px solid',
-    borderColor: 'color-mix(in oklab, var(--sig-fg) 10%, transparent)',
     fontSize: 'sm',
+    fontWeight: 'medium',
     color: 'sig.muted',
     textDecoration: 'none',
-    transition: 'color 150ms, border-color 150ms, background-color 150ms',
-    _hover: { color: 'sig.fg', bg: 'sig.surface', borderColor: 'sig.accent' }
+    textUnderlineOffset: '5px',
+    transition: 'color 150ms',
+    _hover: { color: 'sig.fg', textDecoration: 'underline' }
   })
   const wide = css({ gridColumn: '1 / -1' })
   const iconBtn = css({
@@ -311,7 +308,7 @@
       sigil-ui
     </a>
     <nav class={flex({ alignItems: 'center', gap: '5', fontSize: 'sm' })}>
-      <span class={css({ display: { base: 'none', md: 'flex' }, alignItems: 'center', gap: '2' })}>
+      <span class={css({ display: { base: 'none', md: 'flex' }, alignItems: 'center', gap: '5' })}>
         <a class={navLink} href="#playground">playground</a>
         <a class={navLink} href="#components">components</a>
         <a class={navLink} href="#adapters">adapters</a>
@@ -381,8 +378,8 @@
           textWrap: 'balance'
         })}
       >
-        Components that do not care about
-        <span class={css({ color: 'sig.accent' })}>your CSS framework</span>
+        Accessible components for
+        <span class={css({ color: 'sig.accent' })}>Svelte 5 and vanilla JS</span>
       </h1>
       <p
         class={css({
@@ -393,10 +390,9 @@
           lineHeight: 'relaxed'
         })}
       >
-        sigil-ui ships Svelte 5 runes components plus a vanilla path: stable
-        <code>sig-*</code> classes, a <code>--sig-*</code> token contract and framework-free headless
-        controllers. Tailwind v4, UnoCSS, Panda CSS or plain CSS all theme the same parts. Zero runtime
-        dependencies. Focus traps, keyboard navigation and aria wiring are built in.
+        Buttons, dialogs, tables, charts, toasts and resizable panes with accessibility built in.
+        Style them with Tailwind, UnoCSS, Panda CSS, the bundled sigil css engine, or plain CSS.
+        Zero runtime dependencies, no lock-in.
       </p>
       <div class={flex({ mt: '6', flexWrap: 'wrap', gap: '3' })}>
         <a
