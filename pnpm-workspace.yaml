@@ -16,6 +16,7 @@ minimumReleaseAgeStrict: true
 strictDepBuilds: true
 allowBuilds:
   esbuild: true
+  '@parcel/watcher': true
 
 # Fail when a package loses trust evidence (trusted publisher or provenance)
 # compared to its earlier releases. Packages published over a year ago are
