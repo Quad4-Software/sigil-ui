@@ -454,9 +454,13 @@
   const generated = $derived(entry.code(vals))
 
   const themeCode = $derived(
-    accent
-      ? `:root {\n  --sig-accent: ${accent};\n  --sig-accent-hover: color-mix(in oklab, ${accent} 85%, black);\n  --sig-ring: ${accent};\n  --sig-chart-1: ${accent};\n}`
-      : `/* defaults come from sigil-ui/theme.css\n   set --sig-accent on :root to retheme every component */`
+    `/* ${accent ? 'custom accent' : 'default accent'}: copy after sigil-ui/theme.css */
+:root {
+  --sig-accent: ${accent ?? '#4f46e5'};
+  --sig-accent-hover: color-mix(in oklab, ${accent ?? '#4f46e5'} 85%, black);
+  --sig-ring: ${accent ?? '#4f46e5'};
+  --sig-chart-1: ${accent ?? '#4f46e5'};
+}`
   )
 
   const sideBtn = (active: boolean) =>

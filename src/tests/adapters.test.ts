@@ -3,10 +3,11 @@ import { manifest } from '../lib/index.js'
 import { sigilPreset as pandaPreset } from '../lib/panda.js'
 import { sigilPreset as unoPreset } from '../lib/uno.js'
 
-// radius and shadow are sizing tokens, not colors
+// radius, shadow and the space scale are sizing tokens, not colors
 const colorVars = manifest.tokens
   .map((t) => t.name)
-  .filter((v) => v !== '--sig-radius' && v !== '--sig-shadow')
+  .filter((v) => v !== '--sig-radius' && v !== '--sig-shadow' && !v.startsWith('--sig-space-'))
+const spaceVars = manifest.tokens.map((t) => t.name).filter((v) => v.startsWith('--sig-space-'))
 
 describe('uno preset', () => {
   it('exposes every color --sig-* token as a theme color', () => {
@@ -14,6 +15,14 @@ describe('uno preset', () => {
     for (const v of colorVars) {
       const key = v.replace('--', '')
       expect(unoPreset.theme.colors[key as keyof typeof unoPreset.theme.colors]).toBe(`var(${v})`)
+    }
+  })
+
+  it('exposes every --sig-space-* token as a spacing value', () => {
+    const spacing = unoPreset.theme.spacing as Record<string, string>
+    for (const v of spaceVars) {
+      const key = `sig-${v.replace('--sig-space-', '')}`
+      expect(spacing[key]).toBe(`var(${v})`)
     }
   })
 
@@ -41,5 +50,13 @@ describe('panda preset', () => {
     const tokens = pandaPreset.theme.extend.tokens
     expect(tokens.radii.sig.value).toBe('var(--sig-radius)')
     expect(tokens.shadows.sig.value).toBe('var(--sig-shadow)')
+  })
+
+  it('exposes every --sig-space-* token as sig.* spacing tokens', () => {
+    const spacing = pandaPreset.theme.extend.tokens.spacing.sig as Record<string, { value: string }>
+    for (const v of spaceVars) {
+      const key = v.replace('--sig-space-', '')
+      expect(spacing[key]?.value).toBe(`var(${v})`)
+    }
   })
 })

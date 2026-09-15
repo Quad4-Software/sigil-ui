@@ -8,3 +8,5 @@ coverage/
 test-results/
 pnpm-lock.yaml
 bench/.fixture/
+cdn/
+!cdn/demo.html

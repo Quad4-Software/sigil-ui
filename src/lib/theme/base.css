@@ -189,6 +189,21 @@ details[open] > summary::before {
   cursor: progress;
 }
 
+/* buttons with visible text get a trailing spinner */
+button[aria-busy='true']::after,
+[role='button'][aria-busy='true']::after {
+  content: '';
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  margin-left: 0.5em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 999px;
+  animation: sig-busy-spin 0.7s linear infinite;
+  vertical-align: -0.1em;
+}
+
 [aria-busy='true']:empty::after,
 [aria-busy='true'] > [data-busy-spinner]::after {
   content: '';
@@ -209,7 +224,9 @@ details[open] > summary::before {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  [aria-busy='true']:empty::after {
+  [aria-busy='true']:empty::after,
+  button[aria-busy='true']::after,
+  [role='button'][aria-busy='true']::after {
     animation-duration: 2s;
   }
 }
@@ -422,4 +439,65 @@ sup {
   margin-top: 0.5em;
   font-size: 0.875em;
   color: var(--sig-muted, #71717a);
+}
+
+/* size and color variants: sig-prose-sm and sig-prose-lg scale the
+   type, sig-prose-invert flips body and muted colors for dark panels */
+
+.sig-prose-sm {
+  font-size: 0.875rem;
+  line-height: 1.65;
+}
+
+.sig-prose-sm h1 {
+  font-size: 1.5rem;
+}
+
+.sig-prose-sm h2 {
+  font-size: 1.25rem;
+}
+
+.sig-prose-sm h3 {
+  font-size: 1.125rem;
+}
+
+.sig-prose-sm h4 {
+  font-size: 1rem;
+}
+
+.sig-prose-lg {
+  font-size: 1.125rem;
+  line-height: 1.8;
+}
+
+.sig-prose-lg h1 {
+  font-size: 2.25rem;
+}
+
+.sig-prose-lg h2 {
+  font-size: 1.875rem;
+}
+
+.sig-prose-lg h3 {
+  font-size: 1.5rem;
+}
+
+.sig-prose-lg h4 {
+  font-size: 1.25rem;
+}
+
+.sig-prose-invert {
+  color: var(--sig-fg-invert, #fafafa);
+}
+
+.sig-prose-invert blockquote,
+.sig-prose-invert th,
+.sig-prose-invert figcaption {
+  color: var(--sig-muted-invert, #a1a1aa);
+}
+
+.sig-prose-invert blockquote,
+.sig-prose-invert th,
+.sig-prose-invert td {
+  border-color: var(--sig-border-invert, #3f3f46);
 }

@@ -26,22 +26,30 @@ jobs:
           run_install: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
           registry-url: https://registry.npmjs.org
       - run: pnpm install --frozen-lockfile
       - run: pnpm build && pnpm pack:check
 
+      # OIDC trusted publishing needs npm >= 11.5.1; node 24 ships a
+      # compatible npm, this pins a known-good floor anyway
+      - name: ensure npm supports trusted publishing
+        run: npm install -g npm@^11.5.1 && npm --version
+
       - name: publish to npmjs
-        if: env.NPM_TOKEN != ''
-        run: pnpm publish --provenance --access public --no-git-checks
+        # NPM_TOKEN set: classic token publish. Unset: OIDC trusted
+        # publishing (requires a trusted publisher configured on npmjs
+        # for this repo and this workflow filename)
+        run: |
+          if [ -n "$NODE_AUTH_TOKEN" ]; then
+            pnpm publish --provenance --access public --no-git-checks
+          else
+            npm publish --provenance --access public
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: skip notice
-        if: env.NPM_TOKEN == ''
-        run: echo "NPM_TOKEN secret is not set; skipping npmjs publish"
 
   github-packages:
     runs-on: ubuntu-latest
@@ -93,3 +101,35 @@ jobs:
           awk "/^## ${VERSION}\$/{f=1;next} /^## /{f=0} f" CHANGELOG.md > notes.md
           if [ ! -s notes.md ]; then echo "no CHANGELOG section for ${VERSION}, using tag message"; echo "Release ${TAG}" > notes.md; fi
           gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --title "$TAG" --notes-file notes.md
+
+  release-assets:
+    # attaches built CSS + manifest so consumers can install with two curls
+    needs: release-notes
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@d9184bf108216479bc5a137cc391f4d7b14c870b # v6.1.0
+        with:
+          run_install: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: upload release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release upload "$TAG" --clobber \
+            "dist/theme/sigil.css#sigil-theme.css" \
+            "dist/theme/base.css#sigil-base.css" \
+            "dist/components.min.css#sigil-components.min.css" \
+            "cdn/sigil.min.css#sigil.min.css" \
+            "dist/manifest.json#sigil-manifest.json"

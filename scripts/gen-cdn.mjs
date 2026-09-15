@@ -24,6 +24,10 @@ const header = `/* sigil-ui ${version}: theme + base + components in one file */
 writeFileSync(join(out, 'sigil.min.css'), header + theme + '\n' + base + '\n' + components)
 
 cpSync(join(dist, 'headless'), join(out, 'headless'), { recursive: true })
+// headless modules reach into dist/utils for focus trapping and friends
+mkdirSync(join(out, 'utils'), { recursive: true })
+cpSync(join(dist, 'utils', 'focus.js'), join(out, 'utils', 'focus.js'))
+cpSync(join(dist, 'utils', 'focus.d.ts'), join(out, 'utils', 'focus.d.ts'))
 
 const files = ['theme.css', 'base.css', 'components.min.css', 'sigil.min.css']
 for (const f of files) {

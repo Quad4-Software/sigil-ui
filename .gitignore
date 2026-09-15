@@ -7,6 +7,11 @@ demo-dist/
 coverage/
 styled-system/
 site/src/sizes.ts
+# copied into site/public by scripts/copy-site-dist.mjs on build
+site/public/theme.css
+site/public/base.css
+site/public/components.min.css
+site/public/manifest.json
 .tmp-*/
 *.tsbuildinfo
 *.local

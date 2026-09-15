@@ -1,11 +1,12 @@
 # sigil-ui
 
-A component library for Svelte 5 and any JS framework. Svelte parts
-are built on runes with zero runtime dependencies; the same designs
-work in React, Vue, Solid or plain HTML through stable sig-* classes
-and framework-free headless controllers. Everything consumes a
---sig-* CSS variable contract, so Tailwind v4, UnoCSS, Panda CSS, the
-bundled sigil css engine, or plain CSS all theme the same components.
+A component library and a CSS framework in one zero-dependency
+package. The component side ships 60+ accessible Svelte 5 components
+built on runes, with framework-free headless controllers so the same
+sig-* markup also runs in React, Vue, Solid or plain HTML. The CSS
+side is a styling contract (sig-* classes over --sig-* tokens) plus
+sigil css, a bundled build-time atomic engine. Tailwind v4, UnoCSS,
+Panda CSS and plain CSS all plug into the same contract.
 
 ## Install
 
@@ -35,7 +36,7 @@ Loader, Separator, Tooltip, Alert, Stat, Kbd, Empty, Breadcrumb,
 Field, ScrollArea, Pagination, CountUp, CopyButton, Reveal,
 AspectRatio, AvatarGroup, TagsInput, FileUpload, Tree, Presence,
 Marquee, NumberInput, PinInput, Rating, Editable, Waveform,
-LikeButton.
+LikeButton, Prose.
 
 Compound namespaces, each shipping Root plus named parts: Dialog,
 AlertDialog, Sheet, Card, Tabs, Accordion, Popover, HoverCard,
@@ -44,11 +45,13 @@ ToggleGroup, Timeline, Stepper, Carousel. Command.Dialog is a Cmd+K
 palette out of the box.
 
 Charts (Chart.Line/Bar/Area/Scatter/Radar/Heatmap/Sparkline/Donut/
-Gauge/Waterfall) are pure SVG with role=img and native tooltips.
-Chart.Uptime renders status-page pill bars for latency series with
-an uptime summary, and Chart.Waterfall renders running-total bridges
-with up, down and total columns. Waveform renders voice-note
-amplitude bars with click or arrow-key seeking. DataTable adds
+Gauge/Waterfall/Funnel/Gantt) are pure SVG with role=img and native
+tooltips. Chart.Uptime renders status-page pill bars for latency
+series with an uptime summary, Chart.Waterfall renders running-total
+bridges with up, down and total columns, and Chart.Funnel/Gantt cover
+conversion stages and schedules. Waveform renders voice-note amplitude
+bars with click or arrow-key seeking, or pass a MediaStream /
+AnalyserNode to fill bars live for recording UIs. DataTable adds
 sorting, row selection, filtering and a sticky header.
 
 Toasts: mount Toaster once, then call from anywhere:
@@ -101,7 +104,8 @@ page.
 
 base.css also themes scrollbars, selection, headings, mark, abbr,
 tables and sub/sup, and ships a sig-prose class for long-form
-typography (headings, lists, blockquotes, tables, figures).
+typography (headings, lists, blockquotes, tables, figures) with
+sig-prose-sm, sig-prose-lg and sig-prose-invert variants.
 
 ## CDN
 
@@ -122,7 +126,10 @@ theme + base + components.
 
 Swap cdn.jsdelivr.net/gh for cdn.statically.io/gh to use statically.
 Pin a tag for immutable caching. Individual sheets live at
-cdn/theme.css, cdn/base.css and cdn/components.min.css.
+cdn/theme.css, cdn/base.css and cdn/components.min.css, and
+cdn/demo.html is a working kitchen-sink page proving the whole path.
+GitHub releases also attach the built sheets and manifest.json for a
+two-curl vendored install.
 
 ## Styling adapters
 
@@ -141,6 +148,7 @@ codegen, and use the generated css() function. The compiler scans
 source files for style calls and emits one atomic stylesheet.
 
 ```
+npx sigil-ui css init   # write a starter sigil.config.mjs
 npx sigil-ui css        # generate styled-system/ and styles.css
 npx sigil-ui css --watch
 npx sigil-ui css --minify   # styles.css minified; styles.min.css is always written
@@ -195,6 +203,7 @@ npx sigil-ui list           # component index
 npx sigil-ui docs Button    # props, classes, example
 npx sigil-ui tokens         # the --sig-* contract
 npx sigil-ui doctor         # audit a consumer project
+npx sigil-ui doctor --contrast   # plus WCAG contrast on --sig-* pairs
 npx sigil-ui theme          # list or print accent presets
 ```
 

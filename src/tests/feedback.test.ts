@@ -88,6 +88,52 @@ describe('Waveform', () => {
     render(Waveform, { bars: amps, playing: true })
     expect(screen.getByRole('img')).toHaveAttribute('data-playing')
   })
+
+  it('fills bars in real time from an AnalyserNode', async () => {
+    const analyser = {
+      frequencyBinCount: 8,
+      getByteFrequencyData(buf: Uint8Array) {
+        buf.fill(200)
+      }
+    }
+    render(Waveform, { live: analyser as unknown as AnalyserNode, barCount: 4, label: 'Mic' })
+    const fig = screen.getByRole('img', { name: 'Mic' })
+    expect(fig).toHaveAttribute('data-playing')
+    await vi.waitFor(() => {
+      const bars = fig.querySelectorAll('.sig-waveform-bar')
+      expect(bars).toHaveLength(4)
+      expect(must(bars[0], 'bar')).toHaveStyle('height: 100%')
+    })
+  })
+
+  it('creates an AudioContext for a MediaStream and closes it on teardown', async () => {
+    const close = vi.fn()
+    const analyser = {
+      fftSize: 0,
+      smoothingTimeConstant: 0,
+      frequencyBinCount: 4,
+      getByteFrequencyData(buf: Uint8Array) {
+        buf.fill(255)
+      }
+    }
+    const source = { connect: vi.fn() }
+    vi.stubGlobal(
+      'AudioContext',
+      class {
+        createAnalyser = () => analyser
+        createMediaStreamSource = () => source
+        close = close
+      }
+    )
+    const { unmount } = render(Waveform, {
+      live: { getTracks: () => [] } as unknown as MediaStream,
+      barCount: 2
+    })
+    await vi.waitFor(() => expect(source.connect).toHaveBeenCalledWith(analyser))
+    unmount()
+    expect(close).toHaveBeenCalled()
+    vi.unstubAllGlobals()
+  })
 })
 
 describe('LikeButton', () => {

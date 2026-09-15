@@ -717,10 +717,12 @@ Data attributes: data-kind, data-size
 
 ### Waveform
 
-Voice-note style amplitude bars. Data-driven, optional played-fraction coloring, playing shimmer, and click or arrow-key seeking through role=slider. Pure CSS, no canvas.
+Voice-note style amplitude bars. Data-driven bars prop, or pass live a MediaStream or AnalyserNode for real-time recording meters. Optional played-fraction coloring, playing shimmer, and click or arrow-key seeking through role=slider. Pure CSS, no canvas.
 
 Props:
 - bars (number[]): Amplitudes 0-1, one per bar.
+- live (MediaStream | AnalyserNode): Real-time source. Streams create and close their own AudioContext.
+- barCount (number, default 48): Bars rendered in live mode.
 - progress (number): Played fraction 0-1; played bars render in the accent color.
 - playing (boolean): Subtle amplitude drift animation.
 - onseek ((fraction: number) => void): Enables slider semantics and pointer or keyboard seeking.
@@ -760,6 +762,30 @@ Data attributes: data-shape, aria-pressed
 
 <LikeButton bind:liked count={128} />
 <LikeButton shape="star" bind:liked />
+```
+
+### Prose
+
+Long-form typography wrapper. Applies the sig-prose class set from base.css: heading rhythm, lists, blockquotes, tables, figures. size sm or lg scales the type, invert flips colors for dark panels. Requires sigil-ui/base.css.
+
+Props:
+- size ('sm' | 'md' | 'lg'): Type scale. Default md applies base styles only.
+- invert (boolean): Flip body, muted and border colors for dark panels on a light page.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-prose, sig-prose-sm, sig-prose-lg, sig-prose-invert
+Data attributes: 
+
+```svelte
+<script>
+  import 'sigil-ui/base.css'
+  import { Prose } from 'sigil-ui'
+</script>
+
+<Prose>
+  <h1>Release notes</h1>
+  <p>Long-form content.</p>
+</Prose>
 ```
 
 ### Field
@@ -845,14 +871,14 @@ Data attributes: data-side
 
 ### Chart
 
-Chart namespace: Line, Area, Bar, Scatter, Radar, Heatmap, Gauge, Sparkline, Donut, Uptime and Waterfall. Pure SVG and flex, responsive, role=img with an aria-label. No canvas, no dependencies.
+Chart namespace: Line, Area, Bar, Scatter, Radar, Heatmap, Gauge, Sparkline, Donut, Uptime, Waterfall, Funnel and Gantt. Pure SVG and flex, responsive, role=img with an aria-label. No canvas, no dependencies.
 
 Props:
 - data (number[] | { label: string; value: number }[]): Series values. Donut segments accept { value, label, color }.
 - label (string): Accessible name for the figure.
 - height (number): Rendered height in px.
 - class (ClassValue): Merged with the base class. Pass framework utility classes here.
-CSS classes: sig-chart, sig-chart-line, sig-chart-area, sig-chart-grid, sig-chart-axis, sig-chart-bar, sig-chart-dot, sig-chart-ticks, sig-sparkline, sig-sparkline-line, sig-sparkline-area, sig-donut, sig-donut-track, sig-donut-seg, sig-donut-center, sig-heatmap, sig-heatmap-cell, sig-heatmap-label, sig-radar, sig-radar-ring, sig-radar-spoke, sig-radar-label, sig-radar-area, sig-radar-line, sig-scatter, sig-scatter-axis, sig-scatter-dot, sig-uptime, sig-uptime-bars, sig-uptime-bar, sig-uptime-summary, sig-uptime-pct, sig-uptime-avg, sig-waterfall, sig-waterfall-bar, sig-waterfall-link
+CSS classes: sig-chart, sig-chart-line, sig-chart-area, sig-chart-grid, sig-chart-axis, sig-chart-bar, sig-chart-dot, sig-chart-ticks, sig-sparkline, sig-sparkline-line, sig-sparkline-area, sig-donut, sig-donut-track, sig-donut-seg, sig-donut-center, sig-heatmap, sig-heatmap-cell, sig-heatmap-label, sig-radar, sig-radar-ring, sig-radar-spoke, sig-radar-label, sig-radar-area, sig-radar-line, sig-scatter, sig-scatter-axis, sig-scatter-dot, sig-uptime, sig-uptime-bars, sig-uptime-bar, sig-uptime-summary, sig-uptime-pct, sig-uptime-avg, sig-waterfall, sig-waterfall-bar, sig-waterfall-link, sig-funnel, sig-funnel-stage, sig-gantt, sig-gantt-grid, sig-gantt-labels, sig-gantt-label, sig-gantt-rows, sig-gantt-bar
 Data attributes: 
 
 ```svelte
@@ -1514,7 +1540,7 @@ Data attributes: data-direction, data-pause
 
 - --sig-bg: light #ffffff, dark #09090b. Page and surface base
 - --sig-fg: light #18181b, dark #fafafa. Primary text
-- --sig-muted: light #71717a, dark #a1a1aa. Secondary text
+- --sig-muted: light #6d6d76, dark #a1a1aa. Secondary text
 - --sig-surface: light #f4f4f5, dark #18181b. Raised fill
 - --sig-surface-hover: light #e4e4e7, dark #27272a. Raised fill on hover
 - --sig-border: light #d4d4d8, dark #3f3f46. Borders
@@ -1524,9 +1550,9 @@ Data attributes: data-direction, data-pause
 - --sig-danger: light #dc2626, dark #ef4444. Destructive actions
 - --sig-danger-hover: light #b91c1c, dark #dc2626. Danger on hover
 - --sig-danger-fg: light #ffffff, dark #09090b. Text on danger
-- --sig-success: light #16a34a, dark #4ade80. Positive outcome
+- --sig-success: light #15803d, dark #4ade80. Positive outcome
 - --sig-success-fg: light #ffffff, dark #09090b. Text on success
-- --sig-warning: light #d97706, dark #fbbf24. Caution state
+- --sig-warning: light #b45309, dark #fbbf24. Caution state
 - --sig-warning-fg: light #ffffff, dark #09090b. Text on warning
 - --sig-info: light #2563eb, dark #60a5fa. Neutral information
 - --sig-info-fg: light #ffffff, dark #09090b. Text on info
@@ -1540,6 +1566,17 @@ Data attributes: data-direction, data-pause
 - --sig-chart-3: light #16a34a, dark #4ade80. Chart series color
 - --sig-chart-4: light #d97706, dark #fbbf24. Chart series color
 - --sig-chart-5: light #dc2626, dark #ef4444. Chart series color
+- --sig-space-0: light 0, dark 0. Spacing scale
+- --sig-space-1: light 0.25rem, dark 0.25rem. Spacing scale
+- --sig-space-2: light 0.5rem, dark 0.5rem. Spacing scale
+- --sig-space-3: light 0.75rem, dark 0.75rem. Spacing scale
+- --sig-space-4: light 1rem, dark 1rem. Spacing scale
+- --sig-space-5: light 1.25rem, dark 1.25rem. Spacing scale
+- --sig-space-6: light 1.5rem, dark 1.5rem. Spacing scale
+- --sig-space-8: light 2rem, dark 2rem. Spacing scale
+- --sig-space-10: light 2.5rem, dark 2.5rem. Spacing scale
+- --sig-space-12: light 3rem, dark 3rem. Spacing scale
+- --sig-space-16: light 4rem, dark 4rem. Spacing scale
 
 ## Adapters
 

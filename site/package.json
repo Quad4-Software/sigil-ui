@@ -7,7 +7,7 @@
     "codegen": "sigil-ui css && node ../scripts/gen-sizes.mjs",
     "predev": "pnpm -C .. build && sigil-ui css && node ../scripts/gen-sizes.mjs",
     "dev": "vite",
-    "prebuild": "pnpm -C .. build && node ../scripts/gen-llms.mjs && sigil-ui css && node ../scripts/gen-sizes.mjs",
+    "prebuild": "pnpm -C .. build && node ../scripts/gen-llms.mjs && node ../scripts/copy-site-dist.mjs && sigil-ui css && node ../scripts/gen-sizes.mjs",
     "build": "vite build",
     "preview": "vite preview"
   },

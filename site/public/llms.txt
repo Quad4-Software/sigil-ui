@@ -49,10 +49,11 @@
 - Loader: Loading indicators in four kinds: spinner, dots, bars and pulse.
 - Waveform: Voice-note style amplitude bars.
 - LikeButton: Star or heart reaction button with aria-pressed, an optional count and a transform-only pop animation.
+- Prose: Long-form typography wrapper.
 - Field: Form field wrapper: label, control, hint and error with generated id, aria-describedby and aria-invalid wiring.
 - Table: Table namespace: Root (scroll wrapper + table), Head, Body, Row, H, Cell, Caption.
 - Sheet: Sheet namespace: Root (bind:open), Trigger, Portal, Overlay, Content (side: left/right/top/bottom), Title, Description, Close.
-- Chart: Chart namespace: Line, Area, Bar, Scatter, Radar, Heatmap, Gauge, Sparkline, Donut, Uptime and Waterfall.
+- Chart: Chart namespace: Line, Area, Bar, Scatter, Radar, Heatmap, Gauge, Sparkline, Donut, Uptime, Waterfall, Funnel and Gantt.
 - DataTable: Sortable data table.
 - CountUp: Animated number transition driven by requestAnimationFrame with an easeOutCubic curve.
 - Pagination: Page navigation in a nav landmark.

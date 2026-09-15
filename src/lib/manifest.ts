@@ -822,9 +822,20 @@ export const manifest: SigilManifest = {
       name: 'Waveform',
       path: 'waveform',
       description:
-        'Voice-note style amplitude bars. Data-driven, optional played-fraction coloring, playing shimmer, and click or arrow-key seeking through role=slider. Pure CSS, no canvas.',
+        'Voice-note style amplitude bars. Data-driven bars prop, or pass live a MediaStream or AnalyserNode for real-time recording meters. Optional played-fraction coloring, playing shimmer, and click or arrow-key seeking through role=slider. Pure CSS, no canvas.',
       props: [
         { name: 'bars', type: 'number[]', description: 'Amplitudes 0-1, one per bar.' },
+        {
+          name: 'live',
+          type: 'MediaStream | AnalyserNode',
+          description: 'Real-time source. Streams create and close their own AudioContext.'
+        },
+        {
+          name: 'barCount',
+          type: 'number',
+          default: '48',
+          description: 'Bars rendered in live mode.'
+        },
         {
           name: 'progress',
           type: 'number',
@@ -869,6 +880,29 @@ export const manifest: SigilManifest = {
       classes: ['sig-like', 'sig-like-icon', 'sig-like-count'],
       dataAttributes: ['data-shape', 'aria-pressed'],
       example: `<script>\n  import { LikeButton } from 'sigil-ui'\n  let liked = $state(false)\n</script>\n\n<LikeButton bind:liked count={128} />\n<LikeButton shape="star" bind:liked />`
+    },
+    {
+      name: 'Prose',
+      path: 'prose',
+      description:
+        'Long-form typography wrapper. Applies the sig-prose class set from base.css: heading rhythm, lists, blockquotes, tables, figures. size sm or lg scales the type, invert flips colors for dark panels. Requires sigil-ui/base.css.',
+      props: [
+        {
+          name: 'size',
+          type: "'sm' | 'md' | 'lg'",
+          description: 'Type scale. Default md applies base styles only.'
+        },
+        {
+          name: 'invert',
+          type: 'boolean',
+          description: 'Flip body, muted and border colors for dark panels on a light page.'
+        },
+        classProp,
+        childrenProp
+      ],
+      classes: ['sig-prose', 'sig-prose-sm', 'sig-prose-lg', 'sig-prose-invert'],
+      dataAttributes: [],
+      example: `<script>\n  import 'sigil-ui/base.css'\n  import { Prose } from 'sigil-ui'\n</script>\n\n<Prose>\n  <h1>Release notes</h1>\n  <p>Long-form content.</p>\n</Prose>`
     },
     {
       name: 'Field',
@@ -949,7 +983,7 @@ export const manifest: SigilManifest = {
       name: 'Chart',
       path: 'chart',
       description:
-        'Chart namespace: Line, Area, Bar, Scatter, Radar, Heatmap, Gauge, Sparkline, Donut, Uptime and Waterfall. Pure SVG and flex, responsive, role=img with an aria-label. No canvas, no dependencies.',
+        'Chart namespace: Line, Area, Bar, Scatter, Radar, Heatmap, Gauge, Sparkline, Donut, Uptime, Waterfall, Funnel and Gantt. Pure SVG and flex, responsive, role=img with an aria-label. No canvas, no dependencies.',
       props: [
         {
           name: 'data',
@@ -996,7 +1030,15 @@ export const manifest: SigilManifest = {
         'sig-uptime-avg',
         'sig-waterfall',
         'sig-waterfall-bar',
-        'sig-waterfall-link'
+        'sig-waterfall-link',
+        'sig-funnel',
+        'sig-funnel-stage',
+        'sig-gantt',
+        'sig-gantt-grid',
+        'sig-gantt-labels',
+        'sig-gantt-label',
+        'sig-gantt-rows',
+        'sig-gantt-bar'
       ],
       dataAttributes: [],
       example: `<script>\n  import { Chart } from 'sigil-ui'\n  const traffic = [12, 18, 9, 24, 30, 22, 35]\n</script>\n\n<Chart.Line data={traffic} label="Weekly traffic" />\n<Chart.Bar data={[{ label: 'Mon', value: 12 }, { label: 'Tue', value: 18 }]} />\n<Chart.Sparkline data={traffic} filled />\n<Chart.Donut data={[{ value: 62, label: 'Used' }, { value: 38, label: 'Free' }]} />`
@@ -1793,7 +1835,7 @@ export const manifest: SigilManifest = {
   tokens: [
     { name: '--sig-bg', light: '#ffffff', dark: '#09090b', description: 'Page and surface base' },
     { name: '--sig-fg', light: '#18181b', dark: '#fafafa', description: 'Primary text' },
-    { name: '--sig-muted', light: '#71717a', dark: '#a1a1aa', description: 'Secondary text' },
+    { name: '--sig-muted', light: '#6d6d76', dark: '#a1a1aa', description: 'Secondary text' },
     { name: '--sig-surface', light: '#f4f4f5', dark: '#18181b', description: 'Raised fill' },
     {
       name: '--sig-surface-hover',
@@ -1818,14 +1860,14 @@ export const manifest: SigilManifest = {
       description: 'Danger on hover'
     },
     { name: '--sig-danger-fg', light: '#ffffff', dark: '#09090b', description: 'Text on danger' },
-    { name: '--sig-success', light: '#16a34a', dark: '#4ade80', description: 'Positive outcome' },
+    { name: '--sig-success', light: '#15803d', dark: '#4ade80', description: 'Positive outcome' },
     {
       name: '--sig-success-fg',
       light: '#ffffff',
       dark: '#09090b',
       description: 'Text on success'
     },
-    { name: '--sig-warning', light: '#d97706', dark: '#fbbf24', description: 'Caution state' },
+    { name: '--sig-warning', light: '#b45309', dark: '#fbbf24', description: 'Caution state' },
     {
       name: '--sig-warning-fg',
       light: '#ffffff',
@@ -1883,7 +1925,18 @@ export const manifest: SigilManifest = {
       light: '#dc2626',
       dark: '#ef4444',
       description: 'Chart series color'
-    }
+    },
+    { name: '--sig-space-0', light: '0', dark: '0', description: 'Spacing scale' },
+    { name: '--sig-space-1', light: '0.25rem', dark: '0.25rem', description: 'Spacing scale' },
+    { name: '--sig-space-2', light: '0.5rem', dark: '0.5rem', description: 'Spacing scale' },
+    { name: '--sig-space-3', light: '0.75rem', dark: '0.75rem', description: 'Spacing scale' },
+    { name: '--sig-space-4', light: '1rem', dark: '1rem', description: 'Spacing scale' },
+    { name: '--sig-space-5', light: '1.25rem', dark: '1.25rem', description: 'Spacing scale' },
+    { name: '--sig-space-6', light: '1.5rem', dark: '1.5rem', description: 'Spacing scale' },
+    { name: '--sig-space-8', light: '2rem', dark: '2rem', description: 'Spacing scale' },
+    { name: '--sig-space-10', light: '2.5rem', dark: '2.5rem', description: 'Spacing scale' },
+    { name: '--sig-space-12', light: '3rem', dark: '3rem', description: 'Spacing scale' },
+    { name: '--sig-space-16', light: '4rem', dark: '4rem', description: 'Spacing scale' }
   ],
   adapters: [
     {

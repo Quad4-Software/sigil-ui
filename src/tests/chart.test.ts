@@ -233,3 +233,69 @@ describe('Chart.Waterfall', () => {
     expect(screen.getByRole('img')).toBeInTheDocument()
   })
 })
+
+describe('Chart.Funnel', () => {
+  it('renders one trapezoid per stage with titles', () => {
+    render(Chart.Funnel, {
+      data: [
+        { label: 'Visit', value: 1000 },
+        { label: 'Signup', value: 400 },
+        { label: 'Paid', value: 120 }
+      ],
+      label: 'Sales funnel'
+    })
+    const fig = screen.getByRole('img', { name: 'Sales funnel' })
+    const stages = fig.querySelectorAll('.sig-funnel-stage')
+    expect(stages).toHaveLength(3)
+    expect(stages[0]?.querySelector('title')?.textContent).toBe('Visit: 1000')
+  })
+
+  it('tapers stage polygons toward the next stage', () => {
+    render(Chart.Funnel, {
+      data: [
+        { label: 'a', value: 100 },
+        { label: 'b', value: 50 }
+      ]
+    })
+    const first = document.querySelector('.sig-funnel-stage')
+    // the top edge is wider than the bottom edge since b < a
+    expect(first?.getAttribute('points')).toMatch(/^\S+,\S+ \S+,\S+ \S+,\S+ \S+,\S+$/)
+  })
+
+  it('tolerates empty data', () => {
+    render(Chart.Funnel, { data: [] })
+    expect(screen.getByRole('img')).toBeInTheDocument()
+  })
+})
+
+describe('Chart.Gantt', () => {
+  it('renders a bar per task with row labels', () => {
+    render(Chart.Gantt, {
+      data: [
+        { label: 'Design', start: 0, end: 3 },
+        { label: 'Build', start: 2, end: 6 }
+      ],
+      label: 'Roadmap'
+    })
+    const fig = screen.getByRole('img', { name: 'Roadmap' })
+    expect(fig.querySelectorAll('.sig-gantt-bar')).toHaveLength(2)
+    expect(fig.querySelectorAll('.sig-gantt-label')[1]?.textContent).toBe('Build')
+  })
+
+  it('positions bars by value within min and max bounds', () => {
+    render(Chart.Gantt, {
+      data: [{ label: 'Task', start: 0, end: 50 }],
+      min: 0,
+      max: 100
+    })
+    const bar = document.querySelector('.sig-gantt-bar')
+    // half the axis range becomes half the drawable width
+    expect(Number(bar?.getAttribute('x'))).toBeCloseTo(4, 0)
+    expect(Number(bar?.getAttribute('width'))).toBeCloseTo(196, 0)
+  })
+
+  it('tolerates empty data', () => {
+    render(Chart.Gantt, { data: [] })
+    expect(screen.getByRole('img')).toBeInTheDocument()
+  })
+})

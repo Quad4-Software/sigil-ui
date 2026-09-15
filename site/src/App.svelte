@@ -43,6 +43,7 @@
     Popover,
     Presence,
     Progress,
+    Prose,
     LikeButton,
     Loader,
     Waveform,
@@ -662,6 +663,34 @@
                   label="Revenue bridge"
                 />
               </div>
+              <div class={stack({ gap: '2' })}>
+                <span class={css({ fontSize: 'xs', color: 'sig.muted' })}>
+                  Funnel · conversion stages
+                </span>
+                <Chart.Funnel
+                  data={[
+                    { label: 'Visit', value: 2400 },
+                    { label: 'Signup', value: 960 },
+                    { label: 'Trial', value: 410 },
+                    { label: 'Paid', value: 180 }
+                  ]}
+                  label="Signup funnel"
+                />
+              </div>
+              <div class={stack({ gap: '2' })}>
+                <span class={css({ fontSize: 'xs', color: 'sig.muted' })}>
+                  Gantt · schedule bars
+                </span>
+                <Chart.Gantt
+                  data={[
+                    { label: 'Design', start: 0, end: 3 },
+                    { label: 'Build', start: 2, end: 7 },
+                    { label: 'Test', start: 6, end: 9 },
+                    { label: 'Ship', start: 9, end: 10 }
+                  ]}
+                  label="Release schedule"
+                />
+              </div>
             </div>
           </Spec></Reveal
         >
@@ -1095,6 +1124,23 @@
                 </Table.Row>
               </Table.Body>
             </Table.Root>
+          </Spec></Reveal
+        >
+
+        <Reveal
+          ><Spec label="Prose" hint="long-form typography, sm/lg/invert variants" for="Prose">
+            <Prose>
+              <h3>Design tokens</h3>
+              <p>
+                Every component resolves colors, radii and spacing through
+                <code>--sig-*</code> variables, so a single override rethemes the library.
+              </p>
+              <ul>
+                <li>Plain CSS, Tailwind v4, UnoCSS or Panda CSS all consume the same contract</li>
+                <li>Dark mode is a <code>data-theme</code> attribute, not a re-render</li>
+              </ul>
+              <blockquote>Themes are data, not code.</blockquote>
+            </Prose>
           </Spec></Reveal
         >
 

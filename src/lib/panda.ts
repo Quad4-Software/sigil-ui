@@ -44,6 +44,21 @@ export const sigilPreset = {
         },
         shadows: {
           sig: { value: 'var(--sig-shadow)' }
+        },
+        spacing: {
+          sig: {
+            '0': { value: 'var(--sig-space-0)' },
+            '1': { value: 'var(--sig-space-1)' },
+            '2': { value: 'var(--sig-space-2)' },
+            '3': { value: 'var(--sig-space-3)' },
+            '4': { value: 'var(--sig-space-4)' },
+            '5': { value: 'var(--sig-space-5)' },
+            '6': { value: 'var(--sig-space-6)' },
+            '8': { value: 'var(--sig-space-8)' },
+            '10': { value: 'var(--sig-space-10)' },
+            '12': { value: 'var(--sig-space-12)' },
+            '16': { value: 'var(--sig-space-16)' }
+          }
         }
       }
     }

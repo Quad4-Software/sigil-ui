@@ -3,8 +3,12 @@
   import { cn } from '../utils/cn.js'
 
   interface Props extends HTMLAttributes<HTMLElement> {
-    /** Amplitudes 0-1 per bar. */
-    bars: number[]
+    /** Amplitudes 0-1 per bar. Ignored while live is set. */
+    bars?: number[]
+    /** Live source: a MediaStream (mic) or an AnalyserNode. */
+    live?: MediaStream | AnalyserNode
+    /** Bars rendered in live mode. */
+    barCount?: number
     /** Played fraction 0-1. Bars left of it render in the accent color. */
     progress?: number
     /** Animate a subtle amplitude drift while audio is playing. */
@@ -16,7 +20,9 @@
   }
 
   let {
-    bars,
+    bars = [],
+    live,
+    barCount = 48,
     progress = 0,
     playing = false,
     onseek,
@@ -26,7 +32,47 @@
     ...rest
   }: Props = $props()
 
-  const played = $derived(Math.round(progress * bars.length))
+  let liveBars = $state<number[]>([])
+
+  $effect(() => {
+    if (!live) return
+    let ctx: AudioContext | undefined
+    let analyser: AnalyserNode
+    if ('getByteFrequencyData' in live) {
+      analyser = live
+    } else {
+      ctx = new AudioContext()
+      analyser = ctx.createAnalyser()
+      analyser.fftSize = 256
+      analyser.smoothingTimeConstant = 0.8
+      ctx.createMediaStreamSource(live).connect(analyser)
+    }
+    const buf = new Uint8Array(analyser.frequencyBinCount)
+    let raf = 0
+    const tick = () => {
+      analyser.getByteFrequencyData(buf)
+      const out = new Array<number>(barCount)
+      const stride = buf.length / barCount
+      for (let i = 0; i < barCount; i++) {
+        let peak = 0
+        for (let j = Math.floor(i * stride); j < Math.floor((i + 1) * stride); j++) {
+          const v = buf[j] ?? 0
+          if (v > peak) peak = v
+        }
+        out[i] = Math.min(1, (peak / 255) * 1.6)
+      }
+      liveBars = out
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => {
+      cancelAnimationFrame(raf)
+      void ctx?.close()
+    }
+  })
+
+  const shown = $derived(live ? liveBars : bars)
+  const played = $derived(Math.round(progress * shown.length))
 
   const seek = (e: MouseEvent) => {
     const el = e.currentTarget as HTMLElement
@@ -49,7 +95,7 @@
 {#if onseek}
   <div
     class={cn('sig-waveform', className)}
-    data-playing={playing || undefined}
+    data-playing={playing || live ? '' : undefined}
     role="slider"
     tabindex="0"
     aria-label={label}
@@ -62,7 +108,7 @@
     onkeydown={keys}
     {...rest}
   >
-    {#each bars as amp, i (i)}
+    {#each shown as amp, i (i)}
       <i
         class="sig-waveform-bar"
         data-played={i < played || undefined}
@@ -73,13 +119,13 @@
 {:else}
   <div
     class={cn('sig-waveform', className)}
-    data-playing={playing || undefined}
+    data-playing={playing || live ? '' : undefined}
     role="img"
     aria-label={label}
     style="height: {height}px"
     {...rest}
   >
-    {#each bars as amp, i (i)}
+    {#each shown as amp, i (i)}
       <i
         class="sig-waveform-bar"
         data-played={i < played || undefined}
@@ -106,7 +152,9 @@
     min-width: 2px;
     border-radius: 999px;
     background: var(--sig-border, #d4d4d8);
-    transition: background-color 120ms ease;
+    transition:
+      background-color 120ms ease,
+      height 80ms ease-out;
   }
 
   :global(.sig-waveform-bar[data-played]) {

@@ -33,6 +33,19 @@ export const sigilPreset = {
       'sig-chart-3': 'var(--sig-chart-3)',
       'sig-chart-4': 'var(--sig-chart-4)',
       'sig-chart-5': 'var(--sig-chart-5)'
+    },
+    spacing: {
+      'sig-0': 'var(--sig-space-0)',
+      'sig-1': 'var(--sig-space-1)',
+      'sig-2': 'var(--sig-space-2)',
+      'sig-3': 'var(--sig-space-3)',
+      'sig-4': 'var(--sig-space-4)',
+      'sig-5': 'var(--sig-space-5)',
+      'sig-6': 'var(--sig-space-6)',
+      'sig-8': 'var(--sig-space-8)',
+      'sig-10': 'var(--sig-space-10)',
+      'sig-12': 'var(--sig-space-12)',
+      'sig-16': 'var(--sig-space-16)'
     }
   },
   rules: [

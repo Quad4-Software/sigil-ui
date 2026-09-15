@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { existsSync, readFileSync, readdirSync, watch, writeFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -24,8 +25,9 @@ usage:
   sigil-ui adapters          Tailwind / UnoCSS / Panda / vanilla wiring
   sigil-ui manifest          full component metadata as JSON
   sigil-ui doctor            inspect the current project for setup gaps
+  sigil-ui doctor --contrast also audit --sig-* token pairs for WCAG contrast
   sigil-ui css               build-time atomic CSS: generate styled-system/
-  sigil-ui css init          write a starter sigil.config.mjs
+  sigil-ui css init|--init   write a starter sigil.config.mjs
   sigil-ui css --watch       rebuild styled-system/ when source files change
   sigil-ui css --minify      emit minified styles.css (styles.min.css is always written)
   sigil-ui css --strict      fail on unknown props, wrong-domain tokens, bad recipes
@@ -105,6 +107,99 @@ function readJson(p) {
   }
 }
 
+// semantic text pairs the contract guarantees are readable
+const CONTRAST_PAIRS = [
+  ['fg', 'bg'],
+  ['muted', 'bg'],
+  ['fg', 'surface'],
+  ['muted', 'surface'],
+  ['accent-fg', 'accent'],
+  ['danger-fg', 'danger'],
+  ['success-fg', 'success'],
+  ['warning-fg', 'warning'],
+  ['info-fg', 'info']
+]
+
+function hexToRgb(v) {
+  const h = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(v)?.[1]
+  if (!h) return null
+  const n = h.length === 3 ? [...h].map((c) => c + c).join('') : h
+  return [0, 2, 4].map((i) => parseInt(n.slice(i, i + 2), 16))
+}
+
+function relLuminance([r, g, b]) {
+  const lin = (c) => {
+    const s = c / 255
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4)
+  }
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
+}
+
+function contrastRatio(a, b) {
+  const [hi, lo] = [relLuminance(a), relLuminance(b)].sort((x, y) => y - x)
+  return (hi + 0.05) / (lo + 0.05)
+}
+
+// audits --sig-* pairs against WCAG AA for both theme scopes. Package
+// defaults load from sigil-ui/theme.css, then each consumer file merges
+// in: text before a dark selector counts as light, after it as dark
+function auditContrast(cssFiles, problems, notes) {
+  let themeCss = ''
+  try {
+    themeCss = readFileSync(createRequire(import.meta.url).resolve('sigil-ui/theme.css'), 'utf8')
+  } catch {
+    notes.push('sigil-ui theme.css not resolvable; contrast audit used local overrides only')
+  }
+  const darkRe = /\[data-theme=['"]dark['"]\]|prefers-color-scheme:\s*dark|\.dark\b/
+
+  const parseVars = (css) => {
+    const vars = {}
+    for (const m2 of css.matchAll(/--sig-([\w-]+)\s*:\s*([^;}]+)/g)) {
+      vars[m2[1]] = m2[2].trim()
+    }
+    return vars
+  }
+
+  const themeDark = darkRe.exec(themeCss)
+  const scopes = [
+    ['light', parseVars(themeDark ? themeCss.slice(0, themeDark.index) : themeCss)],
+    ['dark', parseVars(themeDark ? themeCss.slice(themeDark.index) : '')]
+  ]
+  const varsByScope = { light: scopes[0][1], dark: scopes[1][1] }
+  for (const css of cssFiles) {
+    const d = darkRe.exec(css)
+    Object.assign(varsByScope.light, parseVars(d ? css.slice(0, d.index) : css))
+    if (d) Object.assign(varsByScope.dark, parseVars(css.slice(d.index)))
+  }
+
+  for (const [scope, vars] of scopes) {
+    const pick = (name, depth = 0) => {
+      const v = vars[name]
+      if (!v || depth > 3) return null
+      const ref = /^var\(--sig-([\w-]+)/.exec(v)
+      if (ref) return pick(ref[1], depth + 1)
+      const rgb = /^rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)/.exec(v)
+      if (rgb) return [Number(rgb[1]), Number(rgb[2]), Number(rgb[3])]
+      return hexToRgb(v)
+    }
+    for (const [fg, bg] of CONTRAST_PAIRS) {
+      const f = pick(fg)
+      const b = pick(bg)
+      if (!f || !b) continue
+      const r = contrastRatio(f, b)
+      if (r < 3) {
+        problems.push(
+          `--sig-${fg} on --sig-${bg} is ${r.toFixed(2)}:1 in ${scope} theme, below WCAG AA 3:1`
+        )
+      } else if (r < 4.5) {
+        notes.push(
+          `--sig-${fg} on --sig-${bg} is ${r.toFixed(2)}:1 in ${scope} theme, below WCAG AA 4.5:1 for small text`
+        )
+      }
+    }
+  }
+}
+
 function doctor(m) {
   const cwd = process.cwd()
   const problems = []
@@ -129,10 +224,14 @@ function doctor(m) {
   }
 
   const files = findFiles(join(cwd, 'src'))
-  const text = files
+  const sources = files
     .filter((f) => /\.(svelte|ts|js|css)$/.test(f))
     .map((f) => readFileSync(f, 'utf8'))
-    .join('\n')
+  const text = sources.join('\n')
+  // token declarations inside tests and fixtures are not shipped theme values
+  const themeSources = files
+    .filter((f) => /\.css$/.test(f) && !/(test|spec|fixture|mock|__)/.test(f))
+    .map((f) => readFileSync(f, 'utf8'))
 
   const usesComponents = /from\s+['"]sigil-ui['"]/.test(text)
   const importsTheme = /sigil-ui\/theme\.css|sigil-ui\/tailwind\.css/.test(text)
@@ -141,6 +240,8 @@ function doctor(m) {
       "components imported but no theme import found. Add: import 'sigil-ui/theme.css' (or your own --sig-* tokens)"
     )
   }
+
+  if (process.argv.includes('--contrast')) auditContrast(themeSources, problems, notes)
 
   const hasTailwind =
     /@import\s+['"]tailwindcss|from\s+['"]tailwindcss/.test(text) ||
@@ -189,7 +290,7 @@ if (cmd === 'css') {
   const has = (name, short) =>
     argv.includes(`--${name}`) || (short ? argv.includes(`-${short}`) : false)
 
-  if (arg === 'init') {
+  if (arg === 'init' || has('init')) {
     const target = join(cwd, 'sigil.config.mjs')
     if (existsSync(target)) {
       console.error('sigil.config.mjs already exists')
@@ -225,7 +326,13 @@ export default defineConfig({
 })
 `
     )
-    console.log('wrote sigil.config.mjs')
+    console.log(`wrote sigil.config.mjs
+next:
+  1. run npx sigil-ui css to generate styled-system/
+  2. import it once in your app entry: import './styled-system/styles.css'
+     and for sigil-ui component tokens: import 'sigil-ui/theme.css'
+  3. add it to your build: "codegen": "sigil-ui css"
+  4. keep CI honest with: npx sigil-ui css --check`)
     process.exit(0)
   }
   const config = await loadConfig(cwd)

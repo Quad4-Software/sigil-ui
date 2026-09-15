@@ -5,15 +5,25 @@
 ### Added
 
 - `Loader`: spinner, dots, bars and pulse indicators in three sizes with `role="status"`
-- `Waveform`: voice-note amplitude bars with played-fraction coloring, a playing drift animation, and click or arrow-key seeking via `role="slider"`
+- `Waveform`: voice-note amplitude bars with played-fraction coloring, a playing drift animation, and click or arrow-key seeking via `role="slider"`; `live` accepts a `MediaStream` or `AnalyserNode` and fills bars in real time for recording UIs
 - `LikeButton`: heart or star reaction button with `aria-pressed`, optional count and a transform-only pop animation
 - `Chart.Waterfall`: running-total bridge columns with up, down and total kinds and dashed connectors
-- base.css: themed thin scrollbars (WebKit pseudo-elements plus Firefox scrollbar-color), selection, heading margins, mark, abbr, tables, sub/sup, and a `sig-prose` opt-in typography class for long-form content
-- `cdn/` committed at build time: `sigil.min.css` (theme + base + components), individual sheets and the headless modules, servable from jsdelivr and statically in GitHub mode
+- `Chart.Funnel` and `Chart.Gantt`: trapezoid conversion stages and schedule bars
+- `Prose`: long-form typography wrapper around the `sig-prose` class set
+- base.css: themed thin scrollbars (WebKit pseudo-elements plus Firefox scrollbar-color), selection, heading margins, mark, abbr, tables, sub/sup, and a `sig-prose` opt-in typography class for long-form content with `sig-prose-sm`, `sig-prose-lg` and `sig-prose-invert` variants
+- base.css: `button[aria-busy]` and `[role="button"][aria-busy]` now show an inline spinner even when the button has visible text
+- `.sig-table` styles bare `thead`, `th`, `td`, `tbody tr` and `caption` descendants through zero-specificity `:where()` selectors so server-rendered markup needs no part classes
+- `--sig-space-0` through `--sig-space-16` spacing tokens in the contract, mapped in the Tailwind, UnoCSS and Panda adapters
+- `cdn/` committed at build time: `sigil.min.css` (theme + base + components), individual sheets, the headless modules and `cdn/demo.html`, a kitchen-sink page proving the zero-install path
+- `sigil css --init` scaffolds `sigil.config.mjs` and prints next steps (the `init` positional works too)
+- `sigil doctor --contrast` audits `--sig-*` text pairs in both theme scopes against WCAG AA
+- npm publish supports OIDC trusted publishing when `NPM_TOKEN` is unset, and GitHub releases attach the built stylesheets and `manifest.json`
+- The docs site serves `theme.css`, `base.css`, `components.min.css`, `manifest.json`, `llms.txt` and `llms-full.txt` at stable root paths
 
 ### Changed
 
 - `sigil css` writes only files whose content changed and removes stale outputs instead of wiping outdir, so dev watchers stop reloading on no-op builds
+- Light-theme `--sig-muted`, `--sig-success` and `--sig-warning` darkened slightly so the guaranteed text pairs pass WCAG AA 4.5:1
 
 ## 0.10.0
 

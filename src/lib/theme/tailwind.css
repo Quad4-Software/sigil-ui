@@ -34,4 +34,15 @@
   --color-sig-chart-5: var(--sig-chart-5);
   --radius-sig: var(--sig-radius);
   --shadow-sig: var(--sig-shadow);
+  --spacing-sig-0: var(--sig-space-0);
+  --spacing-sig-1: var(--sig-space-1);
+  --spacing-sig-2: var(--sig-space-2);
+  --spacing-sig-3: var(--sig-space-3);
+  --spacing-sig-4: var(--sig-space-4);
+  --spacing-sig-5: var(--sig-space-5);
+  --spacing-sig-6: var(--sig-space-6);
+  --spacing-sig-8: var(--sig-space-8);
+  --spacing-sig-10: var(--sig-space-10);
+  --spacing-sig-12: var(--sig-space-12);
+  --spacing-sig-16: var(--sig-space-16);
 }

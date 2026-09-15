@@ -96,6 +96,11 @@
     color: var(--sig-accent, #4f46e5);
   }
 
+  /* headless markup keeps fill none on the path; the data attribute fills it */
+  :global(.sig-rating-star[data-filled] svg path) {
+    fill: currentColor;
+  }
+
   :global(.sig-rating-star:hover:not(:disabled)) {
     color: var(--sig-accent, #4f46e5);
   }
