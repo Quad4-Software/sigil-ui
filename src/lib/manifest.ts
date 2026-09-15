@@ -872,7 +872,7 @@ export const manifest: SigilManifest = {
       name: 'Chart',
       path: 'chart',
       description:
-        'Chart namespace: Line, Bar, Sparkline and Donut. Pure SVG, responsive via viewBox, role=img with an aria-label. No canvas, no dependencies.',
+        'Chart namespace: Line, Area, Bar, Scatter, Radar, Heatmap, Gauge, Sparkline and Donut. Pure SVG, responsive via viewBox, role=img with an aria-label. No canvas, no dependencies.',
       props: [
         {
           name: 'data',
@@ -898,7 +898,19 @@ export const manifest: SigilManifest = {
         'sig-donut',
         'sig-donut-track',
         'sig-donut-seg',
-        'sig-donut-center'
+        'sig-donut-center',
+        'sig-heatmap',
+        'sig-heatmap-cell',
+        'sig-heatmap-label',
+        'sig-radar',
+        'sig-radar-ring',
+        'sig-radar-spoke',
+        'sig-radar-label',
+        'sig-radar-area',
+        'sig-radar-line',
+        'sig-scatter',
+        'sig-scatter-axis',
+        'sig-scatter-dot'
       ],
       dataAttributes: [],
       example: `<script>\n  import { Chart } from 'sigil-ui'\n  const traffic = [12, 18, 9, 24, 30, 22, 35]\n</script>\n\n<Chart.Line data={traffic} label="Weekly traffic" />\n<Chart.Bar data={[{ label: 'Mon', value: 12 }, { label: 'Tue', value: 18 }]} />\n<Chart.Sparkline data={traffic} filled />\n<Chart.Donut data={[{ value: 62, label: 'Used' }, { value: 38, label: 'Free' }]} />`
@@ -1143,6 +1155,384 @@ export const manifest: SigilManifest = {
       classes: ['sig-cm-wrap', 'sig-cm-content', 'sig-cm-item', 'sig-cm-sep'],
       dataAttributes: ['data-state', 'data-disabled'],
       example: `<script>\n  import { ContextMenu } from 'sigil-ui'\n</script>\n\n<ContextMenu.Root>\n  <div>Right click me</div>\n  <ContextMenu.Content>\n    <ContextMenu.Item onSelect={copy}>Copy</ContextMenu.Item>\n  </ContextMenu.Content>\n</ContextMenu.Root>`
+    },
+    {
+      name: 'ToggleGroup',
+      path: 'toggle-group',
+      description:
+        'ToggleGroup namespace: Root (bindable value, type single or multiple, roving tabindex arrow keys) and Item (aria-pressed).',
+      props: [
+        {
+          name: 'type',
+          type: "'single' | 'multiple'",
+          default: "'single'",
+          description: 'single keeps one pressed item, multiple allows several.'
+        },
+        {
+          name: 'value',
+          type: 'string | string[]',
+          bindable: true,
+          description: 'Bindable pressed value on ToggleGroup.Root.'
+        },
+        {
+          name: 'value',
+          type: 'string',
+          description: 'Required option value on ToggleGroup.Item.'
+        },
+        {
+          name: 'disabled',
+          type: 'boolean',
+          default: 'false',
+          description: 'Disables the group or a single item.'
+        },
+        classProp,
+        childrenProp
+      ],
+      classes: ['sig-toggle-group', 'sig-toggle-item'],
+      dataAttributes: ['data-state', 'data-disabled'],
+      example: `<script>\n  import { ToggleGroup } from 'sigil-ui'\n  let align = $state('left')\n</script>\n\n<ToggleGroup.Root bind:value={align}>\n  <ToggleGroup.Item value="left">Left</ToggleGroup.Item>\n  <ToggleGroup.Item value="center">Center</ToggleGroup.Item>\n  <ToggleGroup.Item value="right">Right</ToggleGroup.Item>\n</ToggleGroup.Root>`
+    },
+    {
+      name: 'HoverCard',
+      path: 'hover-card',
+      description:
+        'HoverCard namespace: Root (bindable open, openDelay, closeDelay), Trigger and Content. Opens on hover or focus with hysteresis delays so the pointer can travel into the card.',
+      props: [
+        {
+          name: 'open',
+          type: 'boolean',
+          default: 'false',
+          bindable: true,
+          description: 'Bindable open state on HoverCard.Root.'
+        },
+        {
+          name: 'openDelay',
+          type: 'number',
+          default: '300',
+          description: 'Ms before the card opens.'
+        },
+        {
+          name: 'closeDelay',
+          type: 'number',
+          default: '200',
+          description: 'Ms before the card closes after the pointer leaves.'
+        },
+        {
+          name: 'side',
+          type: "'top' | 'bottom'",
+          default: "'bottom'",
+          description: 'Placement on HoverCard.Content.'
+        },
+        classProp,
+        childrenProp
+      ],
+      classes: ['sig-hover-wrap', 'sig-hover-trigger', 'sig-hover-card'],
+      dataAttributes: ['data-state', 'data-side', 'data-align'],
+      example: `<script>\n  import { HoverCard } from 'sigil-ui'\n</script>\n\n<HoverCard.Root>\n  <HoverCard.Trigger>@octocat</HoverCard.Trigger>\n  <HoverCard.Content>Profile preview.</HoverCard.Content>\n</HoverCard.Root>`
+    },
+    {
+      name: 'TagsInput',
+      path: 'tags-input',
+      description:
+        'Tag editor with bindable tags. Enter or comma adds, Backspace on an empty field removes the last tag, max and duplicates props constrain input.',
+      props: [
+        {
+          name: 'tags',
+          type: 'string[]',
+          bindable: true,
+          description: 'Bindable tag list.'
+        },
+        { name: 'placeholder', type: 'string', default: "'Add tag'", description: 'Input hint.' },
+        { name: 'max', type: 'number', description: 'Maximum tag count.' },
+        {
+          name: 'duplicates',
+          type: 'boolean',
+          default: 'false',
+          description: 'Allow repeated tags.'
+        },
+        classProp
+      ],
+      classes: ['sig-tags-input', 'sig-tags-field', 'sig-tag', 'sig-tag-remove'],
+      dataAttributes: ['data-disabled'],
+      example: `<script>\n  import { TagsInput } from 'sigil-ui'\n  let tags = $state(['svelte'])\n</script>\n\n<TagsInput bind:tags max={5} />`
+    },
+    {
+      name: 'AspectRatio',
+      path: 'aspect-ratio',
+      description:
+        'Fixed-ratio box using the aspect-ratio property. Children are stretched to cover the frame.',
+      props: [
+        {
+          name: 'ratio',
+          type: 'number',
+          default: '16 / 9',
+          description: 'Width divided by height.'
+        },
+        classProp,
+        childrenProp
+      ],
+      classes: ['sig-aspect-ratio'],
+      dataAttributes: [],
+      example: `<script>\n  import { AspectRatio } from 'sigil-ui'\n</script>\n\n<AspectRatio ratio={1}><img src={photo} alt="" /></AspectRatio>`
+    },
+    {
+      name: 'AvatarGroup',
+      path: 'avatar-group',
+      description:
+        'Overlapping avatar stack. items renders Avatar parts; max clamps the count and shows a +N overflow badge.',
+      props: [
+        {
+          name: 'items',
+          type: '{ src?, alt?, fallback? }[]',
+          description: 'Avatars rendered in order.'
+        },
+        { name: 'max', type: 'number', description: 'Visible count before the +N badge.' },
+        classProp,
+        childrenProp
+      ],
+      classes: ['sig-avatar-group', 'sig-avatar-overflow'],
+      dataAttributes: [],
+      example: `<script>\n  import { AvatarGroup } from 'sigil-ui'\n  const people = [{ fallback: 'Ada Lovelace' }, { fallback: 'Grace Hopper' }]\n</script>\n\n<AvatarGroup items={people} max={3} />`
+    },
+    {
+      name: 'Tree',
+      path: 'tree',
+      description:
+        'Tree view with role=tree, expandable groups, aria-selected and full arrow key navigation. items is a nested TreeNode array; selected and expanded are bindable.',
+      props: [
+        {
+          name: 'items',
+          type: 'TreeNode[]',
+          description: 'Nested nodes: { id, label, children?, icon? }.'
+        },
+        {
+          name: 'selected',
+          type: 'string',
+          bindable: true,
+          description: 'Bindable selected node id.'
+        },
+        {
+          name: 'expanded',
+          type: 'string[]',
+          bindable: true,
+          description: 'Bindable expanded node ids.'
+        },
+        {
+          name: 'onSelect',
+          type: '(node: TreeNode) => void',
+          description: 'Called when a node is picked.'
+        },
+        classProp
+      ],
+      classes: ['sig-tree', 'sig-tree-level', 'sig-tree-item', 'sig-tree-chevron'],
+      dataAttributes: ['data-selected'],
+      example: `<script>\n  import { Tree } from 'sigil-ui'\n  const items = [\n    { id: 'src', label: 'src', children: [{ id: 'app', label: 'App.svelte' }] }\n  ]\n</script>\n\n<Tree {items} />`
+    },
+    {
+      name: 'Timeline',
+      path: 'timeline',
+      description:
+        'Timeline namespace: Root (ol) and Item (title, description, time, tone). A rail with tone-colored dots marks each event.',
+      props: [
+        { name: 'title', type: 'string', description: 'Event heading on Timeline.Item.' },
+        { name: 'description', type: 'string', description: 'Secondary text on Timeline.Item.' },
+        { name: 'time', type: 'string', description: 'Timestamp label on Timeline.Item.' },
+        {
+          name: 'tone',
+          type: "'default' | 'success' | 'danger' | 'warning' | 'info'",
+          default: "'default'",
+          description: 'Dot color on Timeline.Item.'
+        },
+        classProp,
+        childrenProp
+      ],
+      classes: [
+        'sig-timeline',
+        'sig-timeline-item',
+        'sig-timeline-rail',
+        'sig-timeline-dot',
+        'sig-timeline-body',
+        'sig-timeline-head',
+        'sig-timeline-title',
+        'sig-timeline-time',
+        'sig-timeline-desc'
+      ],
+      dataAttributes: ['data-tone'],
+      example: `<script>\n  import { Timeline } from 'sigil-ui'\n</script>\n\n<Timeline.Root>\n  <Timeline.Item title="Deployed" time="2h ago" tone="success" />\n  <Timeline.Item title="Build started" time="3h ago" />\n</Timeline.Root>`
+    },
+    {
+      name: 'Stepper',
+      path: 'stepper',
+      description:
+        'Stepper namespace: Root (bindable step) and Item (title, description). Steps render complete, current or upcoming via data-state with aria-current on the active step.',
+      props: [
+        {
+          name: 'step',
+          type: 'number',
+          default: '0',
+          bindable: true,
+          description: 'Bindable active index on Stepper.Root.'
+        },
+        { name: 'title', type: 'string', description: 'Step label on Stepper.Item.' },
+        {
+          name: 'description',
+          type: 'string',
+          description: 'Secondary text on Stepper.Item.'
+        },
+        classProp,
+        childrenProp
+      ],
+      classes: [
+        'sig-stepper',
+        'sig-step',
+        'sig-step-button',
+        'sig-step-indicator',
+        'sig-step-text',
+        'sig-step-title',
+        'sig-step-desc'
+      ],
+      dataAttributes: ['data-state'],
+      example: `<script>\n  import { Stepper } from 'sigil-ui'\n  let step = $state(1)\n</script>\n\n<Stepper.Root bind:step>\n  <Stepper.Item title="Account" />\n  <Stepper.Item title="Profile" />\n  <Stepper.Item title="Done" />\n</Stepper.Root>`
+    },
+    {
+      name: 'AlertDialog',
+      path: 'alert-dialog',
+      description:
+        'Confirmation dialog namespace: Root (bindable open), Trigger, Content (role=alertdialog), Title, Description, Cancel and Action (tone primary or danger). Built on Dialog: focus trap, Escape, scroll lock, focus restore.',
+      props: [
+        {
+          name: 'open',
+          type: 'boolean',
+          default: 'false',
+          bindable: true,
+          description: 'Bindable open state on AlertDialog.Root.'
+        },
+        {
+          name: 'tone',
+          type: "'primary' | 'danger'",
+          default: "'primary'",
+          description: 'Button tone on AlertDialog.Action.'
+        },
+        classProp,
+        childrenProp
+      ],
+      classes: ['sig-alert-dialog', 'sig-alert-cancel', 'sig-alert-action'],
+      dataAttributes: [],
+      example: `<script>\n  import { AlertDialog, Button } from 'sigil-ui'\n  let open = $state(false)\n</script>\n\n<AlertDialog.Root bind:open>\n  <AlertDialog.Trigger class="sig-btn" data-variant="danger">Delete</AlertDialog.Trigger>\n  <AlertDialog.Content>\n    <AlertDialog.Title>Delete project?</AlertDialog.Title>\n    <AlertDialog.Description>This cannot be undone.</AlertDialog.Description>\n    <AlertDialog.Cancel />\n    <AlertDialog.Action tone="danger" onclick={remove}>Delete</AlertDialog.Action>\n  </AlertDialog.Content>\n</AlertDialog.Root>`
+    },
+    {
+      name: 'FileUpload',
+      path: 'file-upload',
+      description:
+        'Dropzone with a hidden file input. Click or drag files in; files is bindable and each entry shows name, size and a remove button.',
+      props: [
+        { name: 'files', type: 'File[]', bindable: true, description: 'Bindable file list.' },
+        { name: 'accept', type: 'string', description: 'Native accept filter.' },
+        {
+          name: 'multiple',
+          type: 'boolean',
+          default: 'false',
+          description: 'Allow more than one file.'
+        },
+        {
+          name: 'label',
+          type: 'string',
+          default: "'Drop files here or click to browse'",
+          description: 'Dropzone prompt.'
+        },
+        { name: 'hint', type: 'string', description: 'Secondary line under the prompt.' },
+        classProp
+      ],
+      classes: [
+        'sig-file-upload',
+        'sig-dropzone',
+        'sig-dropzone-label',
+        'sig-dropzone-hint',
+        'sig-file-input',
+        'sig-file-list',
+        'sig-file',
+        'sig-file-name',
+        'sig-file-size',
+        'sig-file-remove'
+      ],
+      dataAttributes: ['data-dragover', 'data-disabled'],
+      example: `<script>\n  import { FileUpload } from 'sigil-ui'\n  let files = $state<File[]>([])\n</script>\n\n<FileUpload bind:files multiple accept="image/*" hint="PNG or JPG" />`
+    },
+    {
+      name: 'Menubar',
+      path: 'menubar',
+      description:
+        'Application menubar namespace: Root (role=menubar), Menu, Trigger (aria-haspopup=menu), Content (role=menu), Item (role=menuitem) and Separator. Arrow keys move across menus and inside lists.',
+      props: [
+        {
+          name: 'onSelect',
+          type: '() => void',
+          description: 'Called when the item is picked on Menubar.Item.'
+        },
+        classProp,
+        childrenProp
+      ],
+      classes: [
+        'sig-menubar',
+        'sig-menu',
+        'sig-menu-trigger',
+        'sig-menu-content',
+        'sig-menu-item',
+        'sig-menu-sep'
+      ],
+      dataAttributes: ['data-state'],
+      example: `<script>\n  import { Menubar } from 'sigil-ui'\n</script>\n\n<Menubar.Root>\n  <Menubar.Menu>\n    <Menubar.Trigger>File</Menubar.Trigger>\n    <Menubar.Content>\n      <Menubar.Item onSelect={save}>Save</Menubar.Item>\n      <Menubar.Item onSelect={quit}>Quit</Menubar.Item>\n    </Menubar.Content>\n  </Menubar.Menu>\n</Menubar.Root>`
+    },
+    {
+      name: 'Presence',
+      path: 'presence',
+      description:
+        'Enter and exit animation wrapper. Children stay mounted while the exit animation runs when show flips false. Honors prefers-reduced-motion.',
+      props: [
+        { name: 'show', type: 'boolean', description: 'Mount and animate the content.' },
+        {
+          name: 'duration',
+          type: 'number',
+          default: '200',
+          description: 'Animation time in ms.'
+        },
+        classProp,
+        childrenProp
+      ],
+      classes: ['sig-presence'],
+      dataAttributes: ['data-state'],
+      example: `<script>\n  import { Presence } from 'sigil-ui'\n  let open = $state(true)\n</script>\n\n<Presence {open}><p>Fades in and out.</p></Presence>`
+    },
+    {
+      name: 'Marquee',
+      path: 'marquee',
+      description:
+        'Infinite scrolling strip. Content is duplicated for a seamless loop, pauseOnHover freezes it, direction flips it. Honors prefers-reduced-motion.',
+      props: [
+        {
+          name: 'speed',
+          type: 'number',
+          default: '30',
+          description: 'Seconds per loop.'
+        },
+        {
+          name: 'direction',
+          type: "'left' | 'right'",
+          default: "'left'",
+          description: 'Scroll direction.'
+        },
+        {
+          name: 'pauseOnHover',
+          type: 'boolean',
+          default: 'true',
+          description: 'Freeze while hovered.'
+        },
+        classProp,
+        childrenProp
+      ],
+      classes: ['sig-marquee', 'sig-marquee-track', 'sig-marquee-group'],
+      dataAttributes: ['data-direction', 'data-pause'],
+      example: `<script>\n  import { Marquee, Badge } from 'sigil-ui'\n</script>\n\n<Marquee>\n  <Badge tone="accent">zero deps</Badge>\n  <Badge tone="success">runes</Badge>\n</Marquee>`
     }
   ],
   tokens: [

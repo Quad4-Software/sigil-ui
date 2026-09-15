@@ -18,6 +18,15 @@
 - sigil css: arbitrary values (`w: '[300px]'`), `_groupHover`, `_groupFocus`, `_open`, `_closed` conditions
 - sigil css engine rewrite: tokens emit as `--s-*` custom properties for runtime theme switching, longhand atomic classes with last-wins merging across `css()` arguments, recipes and slot recipes via `defineRecipe`/`defineSlotRecipe`, `textStyle`/`layerStyle`, keyframes, custom and container conditions, peer/group/rtl/motion conditions, token opacity modifiers (`accent/50`), `!` important suffix, negative spacing, `spaceX`/`spaceY` logical sibling margins, arbitrary `&` selector and `@`-rule keys
 - axe-core accessibility test suite
+- `ToggleGroup` namespace: Root (`bind:value`, `type` single or multiple, arrow keys) and Item (`aria-pressed`)
+- `HoverCard` namespace: Root (`bind:open`, `openDelay`, `closeDelay`), Trigger, Content
+- `TagsInput` (`bind:tags`, Enter/comma adds, Backspace removes, `max`, `duplicates`), `FileUpload` (`bind:files` dropzone), `AspectRatio`, `AvatarGroup` (`items`, `max` with +N overflow)
+- `Tree` (`items` nested nodes, `bind:selected`, `bind:expanded`, arrow-key navigation), `Timeline` and `Stepper` namespaces
+- `AlertDialog` namespace: `role="alertdialog"` confirmation dialog built on Dialog, with Cancel and Action parts
+- `Menubar` namespace: application menubar with arrow-key navigation across menus
+- `Chart.Heatmap`, `Chart.Radar` and `Chart.Scatter` visualizations
+- `Presence` (enter/exit animation wrapper that holds children mounted while the exit runs) and `Marquee` (seamless loop, `pauseOnHover`)
+- `Dialog.Root` accepts `onOpenChange`
 
 ### Fixed
 

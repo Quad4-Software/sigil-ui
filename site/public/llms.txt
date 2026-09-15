@@ -47,7 +47,7 @@
 - Field: Form field wrapper: label, control, hint and error with generated id, aria-describedby and aria-invalid wiring.
 - Table: Table namespace: Root (scroll wrapper + table), Head, Body, Row, H, Cell, Caption.
 - Sheet: Sheet namespace: Root (bind:open), Trigger, Portal, Overlay, Content (side: left/right/top/bottom), Title, Description, Close.
-- Chart: Chart namespace: Line, Bar, Sparkline and Donut.
+- Chart: Chart namespace: Line, Area, Bar, Scatter, Radar, Heatmap, Gauge, Sparkline and Donut.
 - DataTable: Sortable data table.
 - CountUp: Animated number transition driven by requestAnimationFrame with an easeOutCubic curve.
 - Pagination: Page navigation in a nav landmark.
@@ -57,6 +57,19 @@
 - Command: Command palette namespace: Root (bindable value, filter, loop), Input (role=combobox), List, Item (role=option, keywords, onSelect), Group (heading), Empty, Separator, Dialog (mod+k modal).
 - Combobox: Autocomplete namespace: Root (bindable value and open, filter), Input (role=combobox, aria-activedescendant), Content (role=listbox), Item (role=option), Empty.
 - ContextMenu: Right-click menu namespace: Root (opens at pointer, bindable open), Content (role=menu, viewport clamped), Item (role=menuitem, onSelect), Separator.
+- ToggleGroup: ToggleGroup namespace: Root (bindable value, type single or multiple, roving tabindex arrow keys) and Item (aria-pressed).
+- HoverCard: HoverCard namespace: Root (bindable open, openDelay, closeDelay), Trigger and Content.
+- TagsInput: Tag editor with bindable tags.
+- AspectRatio: Fixed-ratio box using the aspect-ratio property.
+- AvatarGroup: Overlapping avatar stack.
+- Tree: Tree view with role=tree, expandable groups, aria-selected and full arrow key navigation.
+- Timeline: Timeline namespace: Root (ol) and Item (title, description, time, tone).
+- Stepper: Stepper namespace: Root (bindable step) and Item (title, description).
+- AlertDialog: Confirmation dialog namespace: Root (bindable open), Trigger, Content (role=alertdialog), Title, Description, Cancel and Action (tone primary or danger).
+- FileUpload: Dropzone with a hidden file input.
+- Menubar: Application menubar namespace: Root (role=menubar), Menu, Trigger (aria-haspopup=menu), Content (role=menu), Item (role=menuitem) and Separator.
+- Presence: Enter and exit animation wrapper.
+- Marquee: Infinite scrolling strip.
 
 ## Adapters
 

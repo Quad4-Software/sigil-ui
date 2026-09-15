@@ -777,14 +777,14 @@ Data attributes: data-side
 
 ### Chart
 
-Chart namespace: Line, Bar, Sparkline and Donut. Pure SVG, responsive via viewBox, role=img with an aria-label. No canvas, no dependencies.
+Chart namespace: Line, Area, Bar, Scatter, Radar, Heatmap, Gauge, Sparkline and Donut. Pure SVG, responsive via viewBox, role=img with an aria-label. No canvas, no dependencies.
 
 Props:
 - data (number[] | { label: string; value: number }[]): Series values. Donut segments accept { value, label, color }.
 - label (string): Accessible name for the figure.
 - height (number): Rendered height in px.
 - class (ClassValue): Merged with the base class. Pass framework utility classes here.
-CSS classes: sig-chart, sig-chart-line, sig-chart-area, sig-chart-grid, sig-chart-axis, sig-chart-bar, sig-chart-dot, sig-chart-ticks, sig-sparkline, sig-sparkline-line, sig-sparkline-area, sig-donut, sig-donut-track, sig-donut-seg, sig-donut-center
+CSS classes: sig-chart, sig-chart-line, sig-chart-area, sig-chart-grid, sig-chart-axis, sig-chart-bar, sig-chart-dot, sig-chart-ticks, sig-sparkline, sig-sparkline-line, sig-sparkline-area, sig-donut, sig-donut-track, sig-donut-seg, sig-donut-center, sig-heatmap, sig-heatmap-cell, sig-heatmap-label, sig-radar, sig-radar-ring, sig-radar-spoke, sig-radar-label, sig-radar-area, sig-radar-line, sig-scatter, sig-scatter-axis, sig-scatter-dot
 Data attributes: 
 
 ```svelte
@@ -1012,6 +1012,319 @@ Data attributes: data-state, data-disabled
     <ContextMenu.Item onSelect={copy}>Copy</ContextMenu.Item>
   </ContextMenu.Content>
 </ContextMenu.Root>
+```
+
+### ToggleGroup
+
+ToggleGroup namespace: Root (bindable value, type single or multiple, roving tabindex arrow keys) and Item (aria-pressed).
+
+Props:
+- type ('single' | 'multiple', default 'single'): single keeps one pressed item, multiple allows several.
+- value (string | string[], bindable): Bindable pressed value on ToggleGroup.Root.
+- value (string): Required option value on ToggleGroup.Item.
+- disabled (boolean, default false): Disables the group or a single item.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-toggle-group, sig-toggle-item
+Data attributes: data-state, data-disabled
+
+```svelte
+<script>
+  import { ToggleGroup } from 'sigil-ui'
+  let align = $state('left')
+</script>
+
+<ToggleGroup.Root bind:value={align}>
+  <ToggleGroup.Item value="left">Left</ToggleGroup.Item>
+  <ToggleGroup.Item value="center">Center</ToggleGroup.Item>
+  <ToggleGroup.Item value="right">Right</ToggleGroup.Item>
+</ToggleGroup.Root>
+```
+
+### HoverCard
+
+HoverCard namespace: Root (bindable open, openDelay, closeDelay), Trigger and Content. Opens on hover or focus with hysteresis delays so the pointer can travel into the card.
+
+Props:
+- open (boolean, bindable, default false): Bindable open state on HoverCard.Root.
+- openDelay (number, default 300): Ms before the card opens.
+- closeDelay (number, default 200): Ms before the card closes after the pointer leaves.
+- side ('top' | 'bottom', default 'bottom'): Placement on HoverCard.Content.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-hover-wrap, sig-hover-trigger, sig-hover-card
+Data attributes: data-state, data-side, data-align
+
+```svelte
+<script>
+  import { HoverCard } from 'sigil-ui'
+</script>
+
+<HoverCard.Root>
+  <HoverCard.Trigger>@octocat</HoverCard.Trigger>
+  <HoverCard.Content>Profile preview.</HoverCard.Content>
+</HoverCard.Root>
+```
+
+### TagsInput
+
+Tag editor with bindable tags. Enter or comma adds, Backspace on an empty field removes the last tag, max and duplicates props constrain input.
+
+Props:
+- tags (string[], bindable): Bindable tag list.
+- placeholder (string, default 'Add tag'): Input hint.
+- max (number): Maximum tag count.
+- duplicates (boolean, default false): Allow repeated tags.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-tags-input, sig-tags-field, sig-tag, sig-tag-remove
+Data attributes: data-disabled
+
+```svelte
+<script>
+  import { TagsInput } from 'sigil-ui'
+  let tags = $state(['svelte'])
+</script>
+
+<TagsInput bind:tags max={5} />
+```
+
+### AspectRatio
+
+Fixed-ratio box using the aspect-ratio property. Children are stretched to cover the frame.
+
+Props:
+- ratio (number, default 16 / 9): Width divided by height.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-aspect-ratio
+Data attributes: 
+
+```svelte
+<script>
+  import { AspectRatio } from 'sigil-ui'
+</script>
+
+<AspectRatio ratio={1}><img src={photo} alt="" /></AspectRatio>
+```
+
+### AvatarGroup
+
+Overlapping avatar stack. items renders Avatar parts; max clamps the count and shows a +N overflow badge.
+
+Props:
+- items ({ src?, alt?, fallback? }[]): Avatars rendered in order.
+- max (number): Visible count before the +N badge.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-avatar-group, sig-avatar-overflow
+Data attributes: 
+
+```svelte
+<script>
+  import { AvatarGroup } from 'sigil-ui'
+  const people = [{ fallback: 'Ada Lovelace' }, { fallback: 'Grace Hopper' }]
+</script>
+
+<AvatarGroup items={people} max={3} />
+```
+
+### Tree
+
+Tree view with role=tree, expandable groups, aria-selected and full arrow key navigation. items is a nested TreeNode array; selected and expanded are bindable.
+
+Props:
+- items (TreeNode[]): Nested nodes: { id, label, children?, icon? }.
+- selected (string, bindable): Bindable selected node id.
+- expanded (string[], bindable): Bindable expanded node ids.
+- onSelect ((node: TreeNode) => void): Called when a node is picked.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-tree, sig-tree-level, sig-tree-item, sig-tree-chevron
+Data attributes: data-selected
+
+```svelte
+<script>
+  import { Tree } from 'sigil-ui'
+  const items = [
+    { id: 'src', label: 'src', children: [{ id: 'app', label: 'App.svelte' }] }
+  ]
+</script>
+
+<Tree {items} />
+```
+
+### Timeline
+
+Timeline namespace: Root (ol) and Item (title, description, time, tone). A rail with tone-colored dots marks each event.
+
+Props:
+- title (string): Event heading on Timeline.Item.
+- description (string): Secondary text on Timeline.Item.
+- time (string): Timestamp label on Timeline.Item.
+- tone ('default' | 'success' | 'danger' | 'warning' | 'info', default 'default'): Dot color on Timeline.Item.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-timeline, sig-timeline-item, sig-timeline-rail, sig-timeline-dot, sig-timeline-body, sig-timeline-head, sig-timeline-title, sig-timeline-time, sig-timeline-desc
+Data attributes: data-tone
+
+```svelte
+<script>
+  import { Timeline } from 'sigil-ui'
+</script>
+
+<Timeline.Root>
+  <Timeline.Item title="Deployed" time="2h ago" tone="success" />
+  <Timeline.Item title="Build started" time="3h ago" />
+</Timeline.Root>
+```
+
+### Stepper
+
+Stepper namespace: Root (bindable step) and Item (title, description). Steps render complete, current or upcoming via data-state with aria-current on the active step.
+
+Props:
+- step (number, bindable, default 0): Bindable active index on Stepper.Root.
+- title (string): Step label on Stepper.Item.
+- description (string): Secondary text on Stepper.Item.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-stepper, sig-step, sig-step-button, sig-step-indicator, sig-step-text, sig-step-title, sig-step-desc
+Data attributes: data-state
+
+```svelte
+<script>
+  import { Stepper } from 'sigil-ui'
+  let step = $state(1)
+</script>
+
+<Stepper.Root bind:step>
+  <Stepper.Item title="Account" />
+  <Stepper.Item title="Profile" />
+  <Stepper.Item title="Done" />
+</Stepper.Root>
+```
+
+### AlertDialog
+
+Confirmation dialog namespace: Root (bindable open), Trigger, Content (role=alertdialog), Title, Description, Cancel and Action (tone primary or danger). Built on Dialog: focus trap, Escape, scroll lock, focus restore.
+
+Props:
+- open (boolean, bindable, default false): Bindable open state on AlertDialog.Root.
+- tone ('primary' | 'danger', default 'primary'): Button tone on AlertDialog.Action.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-alert-dialog, sig-alert-cancel, sig-alert-action
+Data attributes: 
+
+```svelte
+<script>
+  import { AlertDialog, Button } from 'sigil-ui'
+  let open = $state(false)
+</script>
+
+<AlertDialog.Root bind:open>
+  <AlertDialog.Trigger class="sig-btn" data-variant="danger">Delete</AlertDialog.Trigger>
+  <AlertDialog.Content>
+    <AlertDialog.Title>Delete project?</AlertDialog.Title>
+    <AlertDialog.Description>This cannot be undone.</AlertDialog.Description>
+    <AlertDialog.Cancel />
+    <AlertDialog.Action tone="danger" onclick={remove}>Delete</AlertDialog.Action>
+  </AlertDialog.Content>
+</AlertDialog.Root>
+```
+
+### FileUpload
+
+Dropzone with a hidden file input. Click or drag files in; files is bindable and each entry shows name, size and a remove button.
+
+Props:
+- files (File[], bindable): Bindable file list.
+- accept (string): Native accept filter.
+- multiple (boolean, default false): Allow more than one file.
+- label (string, default 'Drop files here or click to browse'): Dropzone prompt.
+- hint (string): Secondary line under the prompt.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-file-upload, sig-dropzone, sig-dropzone-label, sig-dropzone-hint, sig-file-input, sig-file-list, sig-file, sig-file-name, sig-file-size, sig-file-remove
+Data attributes: data-dragover, data-disabled
+
+```svelte
+<script>
+  import { FileUpload } from 'sigil-ui'
+  let files = $state<File[]>([])
+</script>
+
+<FileUpload bind:files multiple accept="image/*" hint="PNG or JPG" />
+```
+
+### Menubar
+
+Application menubar namespace: Root (role=menubar), Menu, Trigger (aria-haspopup=menu), Content (role=menu), Item (role=menuitem) and Separator. Arrow keys move across menus and inside lists.
+
+Props:
+- onSelect (() => void): Called when the item is picked on Menubar.Item.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-menubar, sig-menu, sig-menu-trigger, sig-menu-content, sig-menu-item, sig-menu-sep
+Data attributes: data-state
+
+```svelte
+<script>
+  import { Menubar } from 'sigil-ui'
+</script>
+
+<Menubar.Root>
+  <Menubar.Menu>
+    <Menubar.Trigger>File</Menubar.Trigger>
+    <Menubar.Content>
+      <Menubar.Item onSelect={save}>Save</Menubar.Item>
+      <Menubar.Item onSelect={quit}>Quit</Menubar.Item>
+    </Menubar.Content>
+  </Menubar.Menu>
+</Menubar.Root>
+```
+
+### Presence
+
+Enter and exit animation wrapper. Children stay mounted while the exit animation runs when show flips false. Honors prefers-reduced-motion.
+
+Props:
+- show (boolean): Mount and animate the content.
+- duration (number, default 200): Animation time in ms.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-presence
+Data attributes: data-state
+
+```svelte
+<script>
+  import { Presence } from 'sigil-ui'
+  let open = $state(true)
+</script>
+
+<Presence {open}><p>Fades in and out.</p></Presence>
+```
+
+### Marquee
+
+Infinite scrolling strip. Content is duplicated for a seamless loop, pauseOnHover freezes it, direction flips it. Honors prefers-reduced-motion.
+
+Props:
+- speed (number, default 30): Seconds per loop.
+- direction ('left' | 'right', default 'left'): Scroll direction.
+- pauseOnHover (boolean, default true): Freeze while hovered.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-marquee, sig-marquee-track, sig-marquee-group
+Data attributes: data-direction, data-pause
+
+```svelte
+<script>
+  import { Marquee, Badge } from 'sigil-ui'
+</script>
+
+<Marquee>
+  <Badge tone="accent">zero deps</Badge>
+  <Badge tone="success">runes</Badge>
+</Marquee>
 ```
 
 ## Tokens

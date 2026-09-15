@@ -2,7 +2,10 @@
   import {
     Accordion,
     Alert,
+    AlertDialog,
+    AspectRatio,
     Avatar,
+    AvatarGroup,
     Badge,
     Breadcrumb,
     Button,
@@ -20,16 +23,21 @@
     DropdownMenu,
     Empty,
     Field,
+    FileUpload,
     GridOverlay,
+    HoverCard,
     Input,
     Kbd,
     manifest,
+    Marquee,
     Measure,
+    Menubar,
     Pagination,
     Pane,
     PaneGroup,
     PaneResizer,
     Popover,
+    Presence,
     Progress,
     RadioGroup,
     Reveal,
@@ -40,14 +48,19 @@
     Slider,
     Spinner,
     Stat,
+    Stepper,
     Switch,
     Table,
     Tabs,
+    TagsInput,
     Textarea,
+    Timeline,
     toast,
     Toaster,
     Toggle,
-    Tooltip
+    ToggleGroup,
+    Tooltip,
+    Tree
   } from 'sigil-ui'
   import { ExternalLink, Moon, Sun } from '@lucide/svelte'
   import { css } from '../styled-system/css'
@@ -73,6 +86,49 @@
   let servicePage = $state(1)
   let paletteOpen = $state(false)
   let pickedFruit = $state('')
+  let align = $state('left')
+  let formats = $state<string[]>(['bold'])
+  let tags = $state(['svelte', 'runes'])
+  let files = $state<File[]>([])
+  let wizard = $state(1)
+  let cardShown = $state(true)
+  let confirmOpen = $state(false)
+
+  const treeItems = [
+    {
+      id: 'src',
+      label: 'src',
+      children: [
+        {
+          id: 'lib',
+          label: 'lib',
+          children: [
+            { id: 'button', label: 'button' },
+            { id: 'dialog', label: 'dialog' }
+          ]
+        },
+        { id: 'tests', label: 'tests' }
+      ]
+    },
+    { id: 'site', label: 'site', children: [{ id: 'pages', label: 'pages' }] },
+    { id: 'pkg', label: 'package.json' }
+  ]
+  const heat = [
+    [2, 5, 1, 8, 4, 0, 3],
+    [6, 3, 9, 2, 7, 5, 1],
+    [1, 8, 4, 6, 3, 9, 5]
+  ]
+  const heatDays = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+  const scatter = [
+    { x: 1, y: 3 },
+    { x: 2, y: 7 },
+    { x: 3, y: 4 },
+    { x: 4, y: 9 },
+    { x: 5, y: 6 },
+    { x: 6, y: 11 },
+    { x: 7, y: 8 },
+    { x: 8, y: 13 }
+  ]
 
   const traffic = [12, 18, 14, 22, 19, 28, 26, 34, 31, 42, 38, 47]
   const latency = [220, 180, 240, 160, 190, 140, 170, 150, 165, 132]
@@ -268,7 +324,7 @@
       ></div>
     </div>
     <div class={css({ position: 'relative' })}>
-      <p class={kicker}>Svelte 5 runes, zero dependencies, any CSS</p>
+      <p class={kicker}>Svelte 5 plus vanilla JS. Zero dependencies, any CSS</p>
       <h1
         class={css({
           mt: '2',
@@ -292,10 +348,10 @@
           lineHeight: 'relaxed'
         })}
       >
-        sigil-ui ships runes-native components styled through a
-        <code>--sig-*</code> token contract. Tailwind v4, UnoCSS, Panda CSS or plain CSS all theme the
-        same components. Zero runtime dependencies. Focus traps, keyboard navigation and aria wiring are
-        built in.
+        sigil-ui ships Svelte 5 runes components plus a vanilla path: stable
+        <code>sig-*</code> classes, a <code>--sig-*</code> token contract and framework-free headless
+        controllers. Tailwind v4, UnoCSS, Panda CSS or plain CSS all theme the same parts. Zero runtime
+        dependencies. Focus traps, keyboard navigation and aria wiring are built in.
       </p>
       <div class={flex({ mt: '6', flexWrap: 'wrap', gap: '3' })}>
         <a
@@ -435,6 +491,28 @@
                 <span class={css({ fontSize: 'lg', fontWeight: 'semibold' })}>100%</span>
               </Chart.Donut>
             </div>
+            <div class={stack({ gap: '2' })}>
+              <span class={css({ fontSize: 'xs', color: 'sig.muted' })}>Radar</span>
+              <Chart.Radar
+                labels={['Speed', 'Uptime', 'Scale', 'Cost', 'Reach']}
+                data={[8, 6, 7, 5, 9]}
+                label="Service scores"
+                size={200}
+              />
+            </div>
+            <div class={stack({ gap: '2' })}>
+              <span class={css({ fontSize: 'xs', color: 'sig.muted' })}>Heatmap</span>
+              <Chart.Heatmap
+                data={heat}
+                xLabels={heatDays}
+                yLabels={['api', 'web', 'jobs']}
+                label="Requests by hour"
+              />
+            </div>
+            <div class={stack({ gap: '2' })}>
+              <span class={css({ fontSize: 'xs', color: 'sig.muted' })}>Scatter</span>
+              <Chart.Scatter data={scatter} label="Latency vs size" />
+            </div>
           </div>
         </Spec></Reveal
       >
@@ -559,7 +637,39 @@
                   {switched ? 'on' : 'off'}, {bold ? 'bold' : 'plain'}
                 </span>
               </div>
+              <div class={stack({ gap: '2' })}>
+                <ToggleGroup.Root bind:value={align} aria-label="Text align">
+                  <ToggleGroup.Item value="left">Left</ToggleGroup.Item>
+                  <ToggleGroup.Item value="center">Center</ToggleGroup.Item>
+                  <ToggleGroup.Item value="right">Right</ToggleGroup.Item>
+                </ToggleGroup.Root>
+                <ToggleGroup.Root type="multiple" bind:value={formats} aria-label="Text format">
+                  <ToggleGroup.Item value="bold">B</ToggleGroup.Item>
+                  <ToggleGroup.Item value="italic">I</ToggleGroup.Item>
+                  <ToggleGroup.Item value="underline">U</ToggleGroup.Item>
+                </ToggleGroup.Root>
+              </div>
             </div>
+          </div>
+        </Spec></Reveal
+      >
+
+      <Reveal class={wide}
+        ><Spec label="Data entry" hint="TagsInput, FileUpload">
+          <div
+            class={css({
+              display: 'grid',
+              gap: '6',
+              gridTemplateColumns: { base: '1fr', md: 'repeat(2, 1fr)' }
+            })}
+          >
+            <div class={stack({ gap: '3' })}>
+              <span class={css({ fontSize: 'sm', color: 'sig.muted' })}>
+                Enter or comma adds, Backspace removes. {tags.length} tags.
+              </span>
+              <TagsInput bind:tags max={6} placeholder="Add a keyword" />
+            </div>
+            <FileUpload bind:files multiple hint="Drop to attach, click to browse" />
           </div>
         </Spec></Reveal
       >
@@ -636,6 +746,41 @@
                 </Sheet.Content>
               </Sheet.Portal>
             </Sheet.Root>
+
+            <HoverCard.Root>
+              <HoverCard.Trigger class="sig-btn" data-variant="secondary">
+                Hover card
+              </HoverCard.Trigger>
+              <HoverCard.Content>
+                <div class={stack({ gap: '1' })}>
+                  <span class={css({ fontSize: 'sm', fontWeight: 'medium' })}>@sigil</span>
+                  <span class={css({ fontSize: 'xs', color: 'sig.muted' })}>
+                    Opens on hover or focus, waits for the pointer.
+                  </span>
+                </div>
+              </HoverCard.Content>
+            </HoverCard.Root>
+
+            <AlertDialog.Root bind:open={confirmOpen}>
+              <AlertDialog.Trigger class="sig-btn" data-variant="danger">
+                Alert dialog
+              </AlertDialog.Trigger>
+              <AlertDialog.Content>
+                <AlertDialog.Title>Delete deployment?</AlertDialog.Title>
+                <AlertDialog.Description>
+                  This removes the deployment record. It cannot be undone.
+                </AlertDialog.Description>
+                <div class={flex({ mt: '4', justifyContent: 'flex-end', gap: '2' })}>
+                  <AlertDialog.Cancel />
+                  <AlertDialog.Action
+                    tone="danger"
+                    onclick={() => toast.success('Deployment deleted')}
+                  >
+                    Delete
+                  </AlertDialog.Action>
+                </div>
+              </AlertDialog.Content>
+            </AlertDialog.Root>
           </div>
         </Spec></Reveal
       >
@@ -732,8 +877,32 @@
       >
 
       <Reveal class={wide}
-        ><Spec label="Navigation" hint="Tabs, Accordion, Breadcrumb, Kbd">
+        ><Spec label="Navigation" hint="Menubar, Tabs, Accordion, Breadcrumb, Kbd">
           <div class={stack({ gap: '5' })}>
+            <Menubar.Root>
+              <Menubar.Menu>
+                <Menubar.Trigger>File</Menubar.Trigger>
+                <Menubar.Content>
+                  <Menubar.Item onSelect={() => toast.info('New file')}>New file</Menubar.Item>
+                  <Menubar.Item onSelect={() => toast.info('Save')}>Save</Menubar.Item>
+                  <Menubar.Separator />
+                  <Menubar.Item onSelect={() => toast.info('Quit')}>Quit</Menubar.Item>
+                </Menubar.Content>
+              </Menubar.Menu>
+              <Menubar.Menu>
+                <Menubar.Trigger>Edit</Menubar.Trigger>
+                <Menubar.Content>
+                  <Menubar.Item onSelect={() => toast.info('Copy')}>Copy</Menubar.Item>
+                  <Menubar.Item onSelect={() => toast.info('Paste')} disabled>Paste</Menubar.Item>
+                </Menubar.Content>
+              </Menubar.Menu>
+              <Menubar.Menu>
+                <Menubar.Trigger>View</Menubar.Trigger>
+                <Menubar.Content>
+                  <Menubar.Item onSelect={() => theme.toggle()}>Toggle theme</Menubar.Item>
+                </Menubar.Content>
+              </Menubar.Menu>
+            </Menubar.Root>
             <Breadcrumb.Root>
               <Breadcrumb.Item><a href="#components">Home</a></Breadcrumb.Item>
               <Breadcrumb.Item><a href="#components">Library</a></Breadcrumb.Item>
@@ -868,6 +1037,108 @@
               {/each}
             </div>
           </ScrollArea>
+        </Spec></Reveal
+      >
+
+      <Reveal class={wide}
+        ><Spec label="Structure" hint="Tree, Timeline, Stepper">
+          <div
+            class={css({
+              display: 'grid',
+              gap: '6',
+              gridTemplateColumns: { base: '1fr', md: 'repeat(3, 1fr)' },
+              alignItems: 'start'
+            })}
+          >
+            <div class={stack({ gap: '2' })}>
+              <span class={css({ fontSize: 'xs', color: 'sig.muted' })}>Tree</span>
+              <Tree items={treeItems} expanded={['src']} aria-label="Project files" />
+            </div>
+            <div class={stack({ gap: '2' })}>
+              <span class={css({ fontSize: 'xs', color: 'sig.muted' })}>Timeline</span>
+              <Timeline.Root>
+                <Timeline.Item title="Deployed v1.4" time="2h ago" tone="success" />
+                <Timeline.Item
+                  title="Canary raised errors"
+                  time="4h ago"
+                  tone="warning"
+                  description="0.4% of requests"
+                />
+                <Timeline.Item title="Build queued" time="5h ago" />
+              </Timeline.Root>
+            </div>
+            <div class={stack({ gap: '2' })}>
+              <span class={css({ fontSize: 'xs', color: 'sig.muted' })}>Stepper</span>
+              <Stepper.Root bind:step={wizard}>
+                <Stepper.Item title="Account" description="Name and email" />
+                <Stepper.Item title="Plan" description="Pick a tier" />
+                <Stepper.Item title="Done" />
+              </Stepper.Root>
+            </div>
+          </div>
+        </Spec></Reveal
+      >
+
+      <Reveal class={wide}
+        ><Spec label="Media and motion" hint="AspectRatio, AvatarGroup, Presence, Marquee">
+          <div
+            class={css({
+              display: 'grid',
+              gap: '6',
+              gridTemplateColumns: { base: '1fr', md: 'repeat(2, 1fr)' },
+              alignItems: 'start'
+            })}
+          >
+            <div class={stack({ gap: '3' })}>
+              <AspectRatio ratio={16 / 9}>
+                <div
+                  class={css({
+                    w: 'full',
+                    h: 'full',
+                    display: 'grid',
+                    placeItems: 'center',
+                    bg: 'sig.surface',
+                    color: 'sig.muted',
+                    fontSize: 'sm'
+                  })}
+                >
+                  16:9 frame
+                </div>
+              </AspectRatio>
+              <AvatarGroup
+                items={[
+                  { fallback: 'Ada Lovelace' },
+                  { fallback: 'Grace Hopper' },
+                  { fallback: 'Alan Turing' },
+                  { fallback: 'Edsger Dijkstra' },
+                  { fallback: 'Margaret Hamilton' }
+                ]}
+                max={4}
+              />
+            </div>
+            <div class={stack({ gap: '4' })}>
+              <div class={flex({ alignItems: 'center', gap: '3' })}>
+                <Button variant="secondary" onclick={() => (cardShown = !cardShown)}>
+                  Toggle presence
+                </Button>
+                <Presence show={cardShown}>
+                  <Badge tone="accent">animates in and out</Badge>
+                </Presence>
+              </div>
+              <Marquee
+                class={css({
+                  rounded: 'sig',
+                  border: '1px solid',
+                  borderColor: 'sig.border',
+                  py: '2'
+                })}
+              >
+                {#each ['svelte 5', 'vanilla', 'zero deps', 'any css', 'a11y built in'] as word (word)}
+                  <span class={css({ px: '4', fontSize: 'sm', color: 'sig.muted' })}>{word}</span>
+                {/each}
+              </Marquee>
+            </div>
+          </div>
         </Spec></Reveal
       >
 

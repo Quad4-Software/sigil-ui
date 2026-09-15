@@ -3,7 +3,7 @@
   import { cn } from '../utils/cn.js'
 
   interface Props extends HTMLAttributes<HTMLSpanElement> {
-    src?: string
+    src?: string | undefined
     alt?: string
     fallback?: string
   }

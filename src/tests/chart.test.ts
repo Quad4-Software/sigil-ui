@@ -121,3 +121,50 @@ describe('Chart.Donut', () => {
     expect(fig.querySelectorAll('.sig-donut-seg')).toHaveLength(2)
   })
 })
+
+describe('Chart.Heatmap', () => {
+  it('renders a cell per datum with tooltips', () => {
+    render(Chart.Heatmap, {
+      data: [
+        [1, 2, 3],
+        [4, 5, 6]
+      ],
+      xLabels: ['Mon', 'Tue', 'Wed'],
+      yLabels: ['api', 'web'],
+      label: 'Load'
+    })
+    const fig = screen.getByRole('img', { name: 'Load' })
+    expect(fig.querySelectorAll('.sig-heatmap-cell')).toHaveLength(6)
+    expect(screen.getByText('Mon')).toBeInTheDocument()
+    expect(screen.getByText('api')).toBeInTheDocument()
+  })
+})
+
+describe('Chart.Radar', () => {
+  it('renders rings, spokes and a series polygon', () => {
+    render(Chart.Radar, {
+      labels: ['Speed', 'Power', 'Range'],
+      data: [4, 3, 5],
+      label: 'Stats'
+    })
+    const fig = screen.getByRole('img', { name: 'Stats' })
+    expect(fig.querySelectorAll('.sig-radar-ring')).toHaveLength(4)
+    expect(fig.querySelectorAll('.sig-radar-spoke')).toHaveLength(3)
+    expect(fig.querySelector('.sig-radar-area')).toBeInTheDocument()
+  })
+})
+
+describe('Chart.Scatter', () => {
+  it('renders a dot per point', () => {
+    render(Chart.Scatter, {
+      data: [
+        { x: 1, y: 2 },
+        { x: 3, y: 4 },
+        { x: 5, y: 1 }
+      ],
+      label: 'Points'
+    })
+    const fig = screen.getByRole('img', { name: 'Points' })
+    expect(fig.querySelectorAll('.sig-scatter-dot')).toHaveLength(3)
+  })
+})

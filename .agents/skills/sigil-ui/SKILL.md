@@ -25,24 +25,35 @@ Provide your own `--sig-*` values to theme.
   Checkbox, Slider, Avatar, Progress, Skeleton, Spinner, Separator,
   Tooltip, Alert, Stat, Kbd, Empty, Field (label + hint + error wiring,
   children snippet receives control props), ScrollArea, Pagination,
-  CountUp, CopyButton, Reveal (IntersectionObserver scroll-in).
+  CountUp, CopyButton, Reveal (IntersectionObserver scroll-in),
+  AspectRatio, AvatarGroup (items + max +N overflow), TagsInput
+  (bind:tags, Enter/comma adds, Backspace removes), FileUpload
+  (bind:files, dropzone), Tree (items: TreeNode[], bind:selected,
+  bind:expanded, arrow-key nav), Presence (show + exit animation),
+  Marquee (loop, pauseOnHover).
 - Namespaces: Dialog (Root, Trigger, Portal, Overlay, Content, Title,
-  Description, Close), Sheet (same parts, Content takes
-  side: left/right/top/bottom), Card (Root, Header, Title, Description,
-  Content, Footer), Tabs (Root, List, Trigger, Content), Accordion
-  (Root, Item, Trigger, Content), RadioGroup (Root, Item), Breadcrumb
-  (Root, Item), Popover (Root, Trigger, Content), DropdownMenu (Root,
-  Trigger, Content, Item, Separator), ContextMenu (Root wraps the
-  trigger area; Content is the viewport-clamped menu), Table (Root,
-  Head, Body, Row, H, Cell, Caption), Command (Root, Input, List,
-  Item, Group, Empty, Separator, Dialog), Combobox (Root, Input,
-  Content, Item, Empty).
+  Description, Close), AlertDialog (Root, Trigger, Content, Title,
+  Description, Cancel, Action; role=alertdialog), Sheet (same parts,
+  Content takes side: left/right/top/bottom), Card (Root, Header,
+  Title, Description, Content, Footer), Tabs (Root, List, Trigger,
+  Content), Accordion (Root, Item, Trigger, Content), RadioGroup
+  (Root, Item), ToggleGroup (Root, Item; type single or multiple),
+  Breadcrumb (Root, Item), Popover (Root, Trigger, Content),
+  HoverCard (Root, Trigger, Content; openDelay/closeDelay),
+  DropdownMenu (Root, Trigger, Content, Item, Separator), ContextMenu
+  (Root wraps the trigger area; Content is the viewport-clamped menu),
+  Menubar (Root, Menu, Trigger, Content, Item, Separator), Table
+  (Root, Head, Body, Row, H, Cell, Caption), Command (Root, Input,
+  List, Item, Group, Empty, Separator, Dialog), Combobox (Root, Input,
+  Content, Item, Empty), Timeline (Root, Item: title/description/
+  time/tone), Stepper (Root bind:step, Item: title/description).
 - Data: DataTable (columns/rows generics, sortable headers with
   aria-sort, selectable rows, filter input, sticky header) and
   Pagination (bind:page, sibling windowing).
 - Charts: Chart.Line (multi-series), Chart.Bar, Chart.Area,
-  Chart.Sparkline, Chart.Donut, Chart.Gauge. Pure SVG, role=img,
-  native tooltips, token-driven colors.
+  Chart.Scatter, Chart.Radar, Chart.Heatmap, Chart.Sparkline,
+  Chart.Donut, Chart.Gauge. Pure SVG, role=img, native tooltips,
+  token-driven colors.
 - Overlays: Toaster plus the `toast` API
   (`toast(title, opts)`, `toast.success/info/warning/danger`, action
   buttons, `duration`, `toast.dismiss(id)`).

@@ -1,10 +1,11 @@
 # sigil-ui
 
-A Svelte 5 component library built on runes, with zero runtime
-dependencies. Components apply stable sig-* classes and consume a
---sig-* CSS variable contract, so the same components work with
+A component library for Svelte 5 and plain HTML. Svelte parts are
+built on runes with zero runtime dependencies; the same designs work
+without a framework through stable sig-* classes and headless
+controllers. Everything consumes a --sig-* CSS variable contract, so
 Tailwind v4, UnoCSS, Panda CSS, the bundled sigil css engine, or
-plain CSS.
+plain CSS all theme the same components.
 
 ## Install
 
@@ -31,16 +32,18 @@ render; every --sig-* variable has a fallback. Dark mode follows
 Primitives: Button, Badge, Switch, Toggle, Input, Textarea, Select,
 Checkbox, RadioGroup, Slider, Avatar, Progress, Skeleton, Spinner,
 Separator, Tooltip, Alert, Stat, Kbd, Empty, Breadcrumb, Field,
-ScrollArea, Pagination, CountUp, CopyButton, Reveal.
+ScrollArea, Pagination, CountUp, CopyButton, Reveal, AspectRatio,
+AvatarGroup, TagsInput, FileUpload, Tree, Presence, Marquee.
 
 Compound namespaces, each shipping Root plus named parts: Dialog,
-Sheet, Card, Tabs, Accordion, Popover, DropdownMenu, ContextMenu,
-Table, Command, Combobox. Command.Dialog is a Cmd+K palette out of
-the box.
+AlertDialog, Sheet, Card, Tabs, Accordion, Popover, HoverCard,
+DropdownMenu, ContextMenu, Menubar, Table, Command, Combobox,
+ToggleGroup, Timeline, Stepper. Command.Dialog is a Cmd+K palette
+out of the box.
 
-Charts (Chart.Line/Bar/Area/Sparkline/Donut/Gauge) are pure SVG with
-role=img and native tooltips. DataTable adds sorting, row selection,
-filtering and a sticky header.
+Charts (Chart.Line/Bar/Area/Scatter/Radar/Heatmap/Sparkline/Donut/
+Gauge) are pure SVG with role=img and native tooltips. DataTable adds
+sorting, row selection, filtering and a sticky header.
 
 Toasts: mount Toaster once, then call from anywhere:
 

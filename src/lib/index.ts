@@ -8,7 +8,18 @@ export { Checkbox } from './checkbox/index.js'
 export { RadioGroup, RadioGroupRoot, RadioGroupItem } from './radio-group/index.js'
 export { Slider } from './slider/index.js'
 export { Toggle } from './toggle/index.js'
+export { ToggleGroup, ToggleGroupRoot, ToggleGroupItem } from './toggle-group/index.js'
 export { Avatar } from './avatar/index.js'
+export { AvatarGroup } from './avatar-group/index.js'
+export { AspectRatio } from './aspect-ratio/index.js'
+export { TagsInput } from './tags-input/index.js'
+export { FileUpload } from './file-upload/index.js'
+export { Tree } from './tree/index.js'
+export type { TreeNode } from './tree/index.js'
+export { Timeline, TimelineRoot, TimelineItem } from './timeline/index.js'
+export { Stepper, StepperRoot, StepperItem } from './stepper/index.js'
+export { Marquee } from './marquee/index.js'
+export { Presence } from './presence/index.js'
 export { Progress } from './progress/index.js'
 export { Skeleton } from './skeleton/index.js'
 export { Alert } from './alert/index.js'
@@ -20,6 +31,26 @@ export { Kbd } from './kbd/index.js'
 export { Empty } from './empty/index.js'
 export { Breadcrumb, BreadcrumbRoot, BreadcrumbItem } from './breadcrumb/index.js'
 export { Popover, PopoverRoot, PopoverTrigger, PopoverContent } from './popover/index.js'
+export { HoverCard, HoverCardRoot, HoverCardTrigger, HoverCardContent } from './hover-card/index.js'
+export {
+  AlertDialog,
+  AlertDialogRoot,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+  AlertDialogAction
+} from './alert-dialog/index.js'
+export {
+  Menubar,
+  MenubarRoot,
+  MenubarMenu,
+  MenubarTrigger,
+  MenubarContent,
+  MenubarItem,
+  MenubarSeparator
+} from './menubar/index.js'
 export {
   DropdownMenu,
   DropdownMenuRoot,

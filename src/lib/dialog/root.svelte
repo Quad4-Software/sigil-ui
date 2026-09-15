@@ -4,10 +4,11 @@
 
   interface Props {
     open?: boolean
+    onOpenChange?: ((open: boolean) => void) | undefined
     children?: Snippet
   }
 
-  let { open = $bindable(false), children }: Props = $props()
+  let { open = $bindable(false), onOpenChange, children }: Props = $props()
   const id = $props.id()
 
   const ctx: DialogContext = {
@@ -16,6 +17,7 @@
     },
     set open(value: boolean) {
       open = value
+      onOpenChange?.(value)
     },
     titleId: `${id}-title`,
     descriptionId: `${id}-description`
