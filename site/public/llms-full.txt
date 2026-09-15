@@ -1351,6 +1351,12 @@ Data attributes: data-direction, data-pause
 - --sig-overlay: light rgb(0 0 0 / 0.5), dark rgb(0 0 0 / 0.7). Dialog scrim
 - --sig-radius: light 0.375rem, dark 0.375rem. Corner radius
 - --sig-shadow: light 0 10px 30px rgb(0 0 0 / 0.15), dark 0 10px 30px rgb(0 0 0 / 0.5). Overlay shadow
+- --sig-accent-muted: light accent at 12%, dark accent at 18%. Accent tint derived from --sig-accent for subtle fills
+- --sig-chart-1: light #4f46e5, dark #818cf8. Primary chart series color, follows accent
+- --sig-chart-2: light #0284c7, dark #60a5fa. Chart series color
+- --sig-chart-3: light #16a34a, dark #4ade80. Chart series color
+- --sig-chart-4: light #d97706, dark #fbbf24. Chart series color
+- --sig-chart-5: light #dc2626, dark #ef4444. Chart series color
 
 ## Adapters
 
@@ -1399,12 +1405,17 @@ import { defineConfig } from 'sigil-ui/css'
 
 export default defineConfig({
   include: ['./src/**/*.{svelte,ts}'],
+  strict: true,
+  components: 'auto',
   tokens: { colors: { sig: { accent: 'var(--sig-accent)' } } },
   recipes: { chip: { base: { px: '3' }, variants: { tone: { accent: {} } } } }
 })
 
-// npx sigil-ui css --watch
-// tokens emit as --s-* vars so themes switch at runtime
+// npx sigil-ui css --watch      rebuild on change
+// npx sigil-ui css --check     CI stale-output guard
+// npx sigil-ui css --explain s2abc   class provenance
+// components: 'auto' emits styled-system/components.css with only
+// the sigil-ui component styles your imports use
 // import { css } from '../styled-system/css'
 // import { chip } from '../styled-system/recipes'
 ```

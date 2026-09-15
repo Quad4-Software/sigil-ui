@@ -21,7 +21,9 @@
     ...rest
   }: Props = $props()
 
-  const dir = $derived(delta === undefined ? null : delta >= 0 ? 'up' : 'down')
+  const dir = $derived(
+    delta === undefined ? null : delta === 0 ? 'flat' : delta > 0 ? 'up' : 'down'
+  )
 </script>
 
 <div class={cn('sig-stat', className)} {...rest}>
@@ -29,7 +31,7 @@
   <span class="sig-stat-value">{value}</span>
   {#if delta !== undefined}
     <span class="sig-stat-delta" data-dir={dir}>
-      {delta >= 0 ? '+' : ''}{delta}{deltaLabel ? ` ${deltaLabel}` : ''}
+      {delta > 0 ? '+' : ''}{delta}{deltaLabel ? ` ${deltaLabel}` : ''}
     </span>
   {/if}
   {@render children?.()}
@@ -70,5 +72,9 @@
 
   :global(.sig-stat-delta[data-dir='down']) {
     color: var(--sig-danger, #dc2626);
+  }
+
+  :global(.sig-stat-delta[data-dir='flat']) {
+    color: var(--sig-muted, #71717a);
   }
 </style>

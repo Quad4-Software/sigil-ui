@@ -18,10 +18,10 @@
   }
 
   const PALETTE = [
-    'var(--sig-accent, #4f46e5)',
-    'var(--sig-success, #16a34a)',
-    'var(--sig-warning, #d97706)',
-    'var(--sig-info, #0284c7)'
+    'var(--sig-chart-1, var(--sig-accent, #4f46e5))',
+    'var(--sig-chart-2, var(--sig-info, #0284c7))',
+    'var(--sig-chart-3, var(--sig-success, #16a34a))',
+    'var(--sig-chart-4, var(--sig-warning, #d97706))'
   ]
 
   let {

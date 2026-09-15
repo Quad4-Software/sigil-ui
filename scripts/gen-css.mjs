@@ -7,6 +7,16 @@ import { join } from 'node:path'
 
 const SRC = new URL('../src/lib', import.meta.url).pathname
 const OUT = new URL('../dist/components.css', import.meta.url).pathname
+const PARTS = new URL('../dist/css-parts.json', import.meta.url).pathname
+
+// dirs whose component name is not just the kebab-cased manifest name
+const DIR_ALIAS = { pane: 'PaneGroup', toast: 'Toaster' }
+const kebab = (s) => s.replace(/([A-Z])/g, (m) => '-' + m.toLowerCase()).replace(/^-/, '')
+
+const { manifest } = await import(new URL('../dist/manifest.js', import.meta.url))
+const MANIFEST_NAMES = new Set(manifest.components.map((c) => c.name))
+const nameForDir = (dir) =>
+  DIR_ALIAS[dir] ?? [...MANIFEST_NAMES].find((n) => kebab(n) === dir) ?? null
 
 function* walk(dir) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -17,12 +27,16 @@ function* walk(dir) {
 }
 
 const blocks = []
+const parts = {}
 for (const file of walk(SRC)) {
   const source = readFileSync(file, 'utf8')
   const styles = source.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)
+  const dir = file.slice(SRC.length + 1).split('/')[0]
+  const name = nameForDir(dir)
   for (const match of styles) {
     const body = match[1].replaceAll(/:global\(([^)]*)\)/g, '$1')
     blocks.push(`/* ${file.slice(SRC.length + 1)} */\n${body.trim()}`)
+    if (name) parts[name] = (parts[name] ? parts[name] + '\n' : '') + body.trim()
   }
 }
 
@@ -49,4 +63,7 @@ function minifyCss(css) {
 mkdirSync(join(OUT, '..'), { recursive: true })
 writeFileSync(OUT.replace(/\.css$/, '.min.css'), minifyCss(css) + '\n')
 writeFileSync(OUT, css)
-console.log(`components.css: ${blocks.length} style blocks, ${css.length} bytes`)
+writeFileSync(PARTS, JSON.stringify(parts) + '\n')
+console.log(
+  `components.css: ${blocks.length} style blocks, ${css.length} bytes, ${Object.keys(parts).length} parts`
+)

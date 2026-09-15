@@ -26,7 +26,13 @@ export const sigilPreset = {
       'sig-info': 'var(--sig-info)',
       'sig-info-fg': 'var(--sig-info-fg)',
       'sig-ring': 'var(--sig-ring)',
-      'sig-overlay': 'var(--sig-overlay)'
+      'sig-overlay': 'var(--sig-overlay)',
+      'sig-accent-muted': 'var(--sig-accent-muted)',
+      'sig-chart-1': 'var(--sig-chart-1)',
+      'sig-chart-2': 'var(--sig-chart-2)',
+      'sig-chart-3': 'var(--sig-chart-3)',
+      'sig-chart-4': 'var(--sig-chart-4)',
+      'sig-chart-5': 'var(--sig-chart-5)'
     }
   },
   rules: [

@@ -26,6 +26,12 @@
   --color-sig-info-fg: var(--sig-info-fg);
   --color-sig-ring: var(--sig-ring);
   --color-sig-overlay: var(--sig-overlay);
+  --color-sig-accent-muted: var(--sig-accent-muted);
+  --color-sig-chart-1: var(--sig-chart-1);
+  --color-sig-chart-2: var(--sig-chart-2);
+  --color-sig-chart-3: var(--sig-chart-3);
+  --color-sig-chart-4: var(--sig-chart-4);
+  --color-sig-chart-5: var(--sig-chart-5);
   --radius-sig: var(--sig-radius);
   --shadow-sig: var(--sig-shadow);
 }

@@ -60,7 +60,7 @@
 
   :global(.sig-sparkline-line) {
     fill: none;
-    stroke: var(--sig-accent, #4f46e5);
+    stroke: var(--sig-chart-1, var(--sig-accent, #4f46e5));
     stroke-width: 1.5;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -68,7 +68,7 @@
   }
 
   :global(.sig-sparkline-area) {
-    fill: var(--sig-accent, #4f46e5);
+    fill: var(--sig-chart-1, var(--sig-accent, #4f46e5));
     opacity: 0.15;
   }
 </style>

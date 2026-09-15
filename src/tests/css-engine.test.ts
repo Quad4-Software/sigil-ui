@@ -2,7 +2,18 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterAll, describe, expect, it } from 'vitest'
-import { build, compile, defineConfig, extractCalls, minifyCss } from '../../css/engine.mjs'
+import {
+  build,
+  checkBuild,
+  compile,
+  defineConfig,
+  detectComponents,
+  explain,
+  extractCalls,
+  minifyCss,
+  resolveComponentCss,
+  sourceFiles
+} from '../../css/engine.mjs'
 
 const config = {
   include: ['./src/**/*.ts'],
@@ -322,6 +333,194 @@ describe('build', () => {
       .map((c: string) => cssText.match(new RegExp(`\\.${c}\\{([^}]+)\\}`))?.[1])
     expect(bodyDecls).not.toContain('padding-top:var(--s-spacing-4)')
     expect(bodyDecls).toContain('padding-top:var(--s-spacing-8)')
+  })
+})
+
+describe('layers and properties', () => {
+  const cwd = mkdtempSync(join(process.cwd(), '.tmp-css-layers-'))
+
+  afterAll(() => rmSync(cwd, { recursive: true, force: true }))
+
+  it('wraps output in base and utilities cascade layers', () => {
+    mkdirSync(join(cwd, 'src'), { recursive: true })
+    writeFileSync(join(cwd, 'src', 'l.ts'), "css({ p: '4' })")
+    const { css } = compile(defineConfig({ ...config, tokens: { spacing: { '4': '1rem' } } }), cwd)
+    expect(css).toContain('@layer base, components, utilities;')
+    expect(css).toContain('@layer base {')
+    expect(css).toContain('@layer utilities {')
+  })
+
+  it('registers token variables with @property when the value is literal', () => {
+    const { css } = compile(defineConfig({ ...config, tokens: { spacing: { '4': '1rem' } } }), cwd)
+    expect(css).toContain(
+      "@property --s-spacing-4{syntax:'<length-percentage>';inherits:true;initial-value:1rem}"
+    )
+  })
+
+  it('skips @property for var() or function token values', () => {
+    const { css } = compile(
+      defineConfig({
+        ...config,
+        tokens: { colors: { accent: 'var(--sig-accent)', plain: '#fff' } }
+      }),
+      cwd
+    )
+    expect(css).not.toContain('--s-colors-accent{syntax')
+    expect(css).toContain("@property --s-colors-plain{syntax:'<color>'")
+  })
+
+  it('emits flat output when layers are off', () => {
+    const { css } = compile(
+      defineConfig({ ...config, layers: false, tokens: { spacing: { '4': '1rem' } } }),
+      cwd
+    )
+    expect(css).not.toContain('@layer')
+  })
+})
+
+describe('strict mode', () => {
+  const cwd = mkdtempSync(join(process.cwd(), '.tmp-css-strict-'))
+
+  afterAll(() => rmSync(cwd, { recursive: true, force: true }))
+
+  const strict = (body: string, extra = {}) =>
+    compile(
+      defineConfig({ ...config, strict: true, ...extra }),
+      (() => {
+        mkdirSync(join(cwd, 'src'), { recursive: true })
+        writeFileSync(join(cwd, 'src', 's.ts'), body)
+        return cwd
+      })()
+    ).problems
+
+  it('flags unknown style props with file and line', () => {
+    const problems = strict("css({ paddin: '4' })")
+    expect(problems).toHaveLength(1)
+    expect(problems[0]).toContain('src/s.ts:1')
+    expect(problems[0]).toContain('unknown style prop "paddin"')
+  })
+
+  it('flags tokens referenced across domains', () => {
+    const problems = strict("css({ color: '4' })", {
+      tokens: { spacing: { '4': '1rem' }, colors: { sig: { accent: '#4f46e5' } } }
+    })
+    // '4' is not an ident so it is not checked; use a named token instead
+    expect(problems).toHaveLength(0)
+    const bad = strict("css({ color: 'md' })", {
+      tokens: { radii: { md: '0.375rem' }, colors: {} }
+    })
+    expect(bad[0]).toContain('"md" is a radii token')
+  })
+
+  it('lets universal CSS keywords pass even when a token shares the name', () => {
+    const problems = strict("css({ border: 'none', mx: 'auto' })", {
+      tokens: { lineHeights: { none: '1' }, sizes: { auto: 'auto' } }
+    })
+    expect(problems).toHaveLength(0)
+  })
+
+  it('flags bad recipe variants at the call site', () => {
+    const problems = strict("chip({ tone: 'accnet' })", {
+      recipes: { chip: { variants: { tone: { accent: { color: 'red' } } } } }
+    })
+    expect(problems[0]).toContain('chip() variant "tone" has no option "accnet"')
+    const unknown = strict("chip({ siz: 'sm' })", {
+      recipes: { chip: { variants: { size: { sm: { p: '4' } } } } }
+    })
+    expect(unknown[0]).toContain('chip() has no variant "siz"')
+  })
+
+  it('flags unknown conditions instead of warning', () => {
+    const problems = strict("css({ _hovver: { color: 'red' } })")
+    expect(problems[0]).toContain('unknown condition "_hovver"')
+  })
+})
+
+describe('provenance and explain', () => {
+  const cwd = mkdtempSync(join(process.cwd(), '.tmp-css-prov-'))
+
+  afterAll(() => rmSync(cwd, { recursive: true, force: true }))
+
+  it('writes styles.map.json with file and line per atom', () => {
+    mkdirSync(join(cwd, 'src'), { recursive: true })
+    writeFileSync(join(cwd, 'src', 'p.ts'), "// header\nconst x = css({ p: '4' })")
+    build(defineConfig({ ...config, tokens: { spacing: { '4': '1rem' } } }), cwd)
+    const map = JSON.parse(readFileSync(join(cwd, 'styled-system', 'styles.map.json'), 'utf8'))
+    const entry = Object.values(map)[0] as { f: string; l: number; d: string }
+    expect(entry.f).toBe('src/p.ts')
+    expect(entry.l).toBe(2)
+    expect(entry.d).toContain('padding')
+  })
+
+  it('explains an atom class from the provenance map', () => {
+    const map = JSON.parse(readFileSync(join(cwd, 'styled-system', 'styles.map.json'), 'utf8'))
+    const cls = Object.keys(map)[0]
+    const out = explain(cls, join(cwd, 'styled-system'))
+    expect(out).toContain('src/p.ts:2')
+    expect(out).toContain(cls)
+  })
+
+  it('explains sig-* classes from the component parts', () => {
+    const out = explain('sig-btn', join(cwd, 'styled-system'))
+    expect(out).toContain('Button')
+  })
+})
+
+describe('checkBuild stale guard', () => {
+  const cwd = mkdtempSync(join(process.cwd(), '.tmp-css-check-'))
+
+  afterAll(() => rmSync(cwd, { recursive: true, force: true }))
+
+  it('passes right after a build and fails when sources change', () => {
+    mkdirSync(join(cwd, 'src'), { recursive: true })
+    writeFileSync(join(cwd, 'src', 'c.ts'), "css({ p: '4' })")
+    const cfg = defineConfig({ ...config, tokens: { spacing: { '4': '1rem', '8': '2rem' } } })
+    build(cfg, cwd)
+    expect(checkBuild(cfg, cwd).stale).toHaveLength(0)
+    writeFileSync(join(cwd, 'src', 'c.ts'), "css({ p: '8' })")
+    const stale = checkBuild(cfg, cwd).stale
+    expect(stale).toContain('styles.css')
+  })
+})
+
+describe('tree-shaken component styles', () => {
+  const cwd = mkdtempSync(join(process.cwd(), '.tmp-css-parts-'))
+
+  afterAll(() => rmSync(cwd, { recursive: true, force: true }))
+
+  const parts = {
+    Button: '.sig-btn { color: red }',
+    Dialog: '.sig-dialog-overlay { position: fixed }',
+    Card: '.sig-card { padding: 1rem }'
+  }
+
+  it('emits only the requested components inside the components layer', () => {
+    const res = resolveComponentCss(defineConfig({ components: ['button', 'Dialog'] }), [], parts)
+    expect(res?.names).toEqual(['Button', 'Dialog'])
+    expect(res?.css).toContain('@layer components')
+    expect(res?.css).toContain('.sig-btn')
+    expect(res?.css).toContain('.sig-dialog-overlay')
+    expect(res?.css).not.toContain('.sig-card')
+  })
+
+  it('reports unknown component names', () => {
+    const res = resolveComponentCss(defineConfig({ components: ['Nope'] }), [], parts)
+    expect(res?.unknown).toEqual(['Nope'])
+  })
+
+  it('detects components from sigil-ui imports', () => {
+    mkdirSync(join(cwd, 'src'), { recursive: true })
+    writeFileSync(
+      join(cwd, 'src', 'a.ts'),
+      `import { Button, Dialog as D, type Foo } from 'sigil-ui'\nimport { x } from 'other'`
+    )
+    const files = sourceFiles(defineConfig(config), cwd)
+    const detected = detectComponents(files)
+    expect(detected).toBeInstanceOf(Set)
+    expect([...(detected as Set<string>)]).toEqual(['Button', 'Dialog'])
+    const res = resolveComponentCss(defineConfig({ components: 'auto' }), files, parts)
+    expect(res?.names).toEqual(['Button', 'Dialog'])
+    expect(res?.unknown).toEqual([])
   })
 })
 

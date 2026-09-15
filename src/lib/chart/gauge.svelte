@@ -70,7 +70,7 @@
 
   :global(.sig-gauge-arc) {
     fill: none;
-    stroke: var(--sig-accent, #4f46e5);
+    stroke: var(--sig-chart-1, var(--sig-accent, #4f46e5));
     stroke-linecap: round;
     transition: stroke-dasharray 200ms ease;
   }

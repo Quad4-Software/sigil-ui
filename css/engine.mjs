@@ -2,6 +2,7 @@
 // sigil css engine: scans source for css() calls, emits atomic CSS and a
 // typed generated runtime. Zero dependencies, plain node ESM.
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
@@ -209,6 +210,67 @@ const PROPS = {
   // space-between-children utilities, resolved against spacing
   spaceX: [['margin-inline-start'], 'spacing', true, ' > :not([hidden]) ~ :not([hidden])'],
   spaceY: [['margin-block-start'], 'spacing', true, ' > :not([hidden]) ~ :not([hidden])']
+}
+
+// standard CSS property names (kebab) outside the shorthand table. Strict
+// mode uses this to catch typos like paddin or colr while still allowing
+// any real CSS property to pass through as a raw declaration
+const KNOWN_CSS_PROPS = new Set(
+  `display position overflow overflow-x overflow-y visibility cursor pointer-events user-select
+flex flex-basis flex-direction flex-wrap flex-grow flex-shrink flex-flow order
+justify-content align-items align-content align-self justify-self justify-items
+place-items place-content place-self grid-template-columns grid-template-rows grid-template-areas
+grid-column grid-row grid-area grid-auto-flow grid-auto-columns grid-auto-rows
+object-fit object-position aspect-ratio box-sizing
+transform transform-origin transform-style translate rotate scale perspective
+transition transition-property transition-duration transition-delay transition-timing-function
+animation animation-name animation-duration animation-delay animation-timing-function
+animation-iteration-count animation-direction animation-fill-mode animation-play-state animation-timeline
+filter backdrop-filter mix-blend-mode background-blend-mode isolation clip-path
+background background-color background-image background-size background-position
+background-repeat background-attachment row-gap column-gap
+scroll-margin-top scroll-margin-right scroll-margin-bottom scroll-margin-left
+scroll-padding-top scroll-padding-right scroll-padding-bottom scroll-padding-left
+background-clip background-origin border-style border-top-style border-right-style
+border-bottom-style border-left-style border-inline-style border-block-style
+border-top border-right border-bottom border-left border-inline border-block
+border border-radius outline outline-style outline-width outline-offset
+text-align text-decoration text-decoration-line text-decoration-style text-decoration-thickness
+text-transform text-overflow text-wrap text-wrap-mode text-wrap-style white-space word-break
+overflow-wrap hyphens writing-mode direction unicode-bidi vertical-align text-indent
+text-underline-offset text-underline-position text-emphasis text-shadow text-rendering
+list-style list-style-type list-style-position list-style-image
+table-layout border-collapse border-spacing empty-cells caption-side
+resize appearance touch-action scroll-behavior scroll-snap-type scroll-snap-align
+scroll-snap-stop overscroll-behavior overscroll-behavior-x overscroll-behavior-y
+contain content-visibility will-change content counter-reset counter-increment counter-set
+columns column-count column-width column-gap column-rule column-rule-width column-span
+break-inside break-before break-after orphans widows tab-size quotes
+color-scheme forced-color-adjust print-color-adjust color-interpolation
+stroke-width stroke-dasharray stroke-dashoffset stroke-linecap stroke-linejoin
+stroke-miterlimit fill-rule clip-rule fill-opacity stroke-opacity flood-color flood-opacity
+stop-color stop-opacity marker-start marker-mid marker-end paint-order
+dominant-baseline text-anchor alignment-baseline baseline-shift
+font-style font-variant font-variant-caps font-variant-numeric font-kerning
+font-feature-settings font-variation-settings font-optical-sizing font-stretch font-size-adjust
+min-width min-height max-width max-height width height
+inline-size block-size min-inline-size min-block-size max-inline-size max-block-size
+margin-inline margin-inline-start margin-inline-end margin-block margin-block-start margin-block-end
+padding-inline padding-inline-start padding-inline-end padding-block padding-block-start padding-block-end
+inset-inline inset-inline-start inset-inline-end inset-block inset-block-start inset-block-end
+scroll-margin-inline scroll-margin-block scroll-padding-inline scroll-padding-block
+scroll-timeline scroll-timeline-name view-timeline view-timeline-name timeline-scope
+mask mask-image mask-size mask-position mask-repeat mask-clip mask-mode mask-composite
+shape-outside shape-margin shape-image-threshold float clear zoom
+offset offset-path offset-distance offset-rotate offset-anchor anchor-name anchor-scope
+position-anchor position-area position-try field-sizing interpolate-size
+overlay transition-behavior backdrop-filter grid-template`.split(/\s+/)
+)
+
+function isKnownProp(prop) {
+  if (prop in PROPS) return true
+  if (prop.startsWith('--') || prop.startsWith('-')) return true
+  return KNOWN_CSS_PROPS.has(kebab(prop))
 }
 
 function kebab(s) {
@@ -467,11 +529,93 @@ function expandCond(condKey, cls, ctx) {
   return { selector, wrappers, bpIndex, unknown }
 }
 
-function compileStyles(obj, ctx, flat, vars, varPrefix) {
+// universal CSS keywords are valid in any property domain, so a token
+// table entry named 'none' or 'auto' must not make the raw keyword a
+// cross-domain violation
+const CSS_KEYWORDS = new Set([
+  'auto',
+  'none',
+  'normal',
+  'inherit',
+  'initial',
+  'unset',
+  'revert',
+  'revert-layer',
+  'currentcolor',
+  'transparent',
+  'solid',
+  'dashed',
+  'dotted',
+  'hidden',
+  'visible',
+  'static',
+  'relative',
+  'absolute',
+  'fixed',
+  'sticky',
+  'block',
+  'inline',
+  'inline-block',
+  'flex',
+  'grid',
+  'contents',
+  'center',
+  'start',
+  'end',
+  'baseline',
+  'stretch',
+  'left',
+  'right',
+  'bold',
+  'medium',
+  'wrap',
+  'nowrap',
+  'row',
+  'column',
+  'pointer',
+  'default',
+  'contain',
+  'cover',
+  'fill',
+  'both',
+  'ease',
+  'linear',
+  'infinite',
+  'forwards',
+  'backwards',
+  'alternate'
+])
+
+// strict-mode validation for a single prop/value pair. Catches typo'd
+// props and tokens referenced across domains (color: 'sm' where sm is a
+// fontSizes token). Legit raw values like 'red' or 'auto' pass silently.
+function checkStyleValue(prop, raw, flat, problems, at) {
+  if (!isKnownProp(prop)) {
+    problems.push(`${at}: unknown style prop "${prop}"`)
+    return
+  }
+  const category = categorize(prop)[1]
+  if (!category) return
+  let v = String(raw).replace(/!$/, '')
+  if (v.startsWith('-')) v = v.slice(1)
+  if (!/^[a-zA-Z][\w.-]*$/.test(v) || CSS_KEYWORDS.has(v.toLowerCase())) return
+  const table = flat[category]
+  if (table && v in table) return
+  if (category === 'sizes' && flat.spacing && v in flat.spacing) return
+  for (const [cat, t] of Object.entries(flat)) {
+    if (cat !== category && t && v in t) {
+      problems.push(`${at}: "${v}" is a ${cat} token, not valid for ${prop} (${category})`)
+      return
+    }
+  }
+}
+
+function compileStyles(obj, ctx, flat, vars, varPrefix, at = '') {
   const triples = []
   walkStyles(obj, '', triples, ctx)
   const rules = []
   for (const [condKey, prop, raw] of triples) {
+    if (ctx.strict) checkStyleValue(prop, raw, flat, ctx.problems, at)
     const entry = categorize(prop)
     const selSuffix = entry && entry[3] ? entry[3] : ''
     for (const [cssProp, value, imp] of resolveAtoms(prop, raw, flat, vars, varPrefix)) {
@@ -484,7 +628,8 @@ function compileStyles(obj, ctx, flat, vars, varPrefix) {
         decl,
         wrappers,
         bpIndex,
-        unknown
+        unknown,
+        at
       })
     }
   }
@@ -589,7 +734,9 @@ function extractLiteral(src, start) {
   return null
 }
 
-export function extractCalls(src, names = FN_NAMES) {
+// like extractCalls but keeps the call site so provenance and error
+// messages can point at file:line
+export function extractCallsDetailed(src, names = FN_NAMES) {
   const re = new RegExp(`\\b(${names.join('|')})\\s*\\(`, 'g')
   const found = []
   let m
@@ -598,12 +745,22 @@ export function extractCalls(src, names = FN_NAMES) {
     if (!lit) continue
     try {
       const value = new Function(`"use strict"; return (${lit.text})`)()
-      found.push(value)
+      found.push({ fn: m[1], value, index: m.index, line: lineOf(src, m.index) })
     } catch {
       // literal references runtime values; not statically analyzable
     }
   }
   return found
+}
+
+function lineOf(src, index) {
+  let line = 1
+  for (let i = 0; i < index; i++) if (src[i] === '\n') line++
+  return line
+}
+
+export function extractCalls(src, names = FN_NAMES) {
+  return extractCallsDetailed(src, names).map((c) => c.value)
 }
 
 const PREFLIGHT = `*,*::before,*::after{box-sizing:border-box}
@@ -662,6 +819,52 @@ function compileRecipes(config, ctx, flat, vars, varPrefix) {
   return { rules, spec }
 }
 
+// @property syntax per token category. Registered custom properties
+// interpolate during transitions instead of snapping, so animating a
+// token (accent color, spacing) actually tweens
+const PROPERTY_SYNTAX = {
+  colors: '<color>',
+  spacing: '<length-percentage>',
+  sizes: '<length-percentage>',
+  radii: '<length-percentage>',
+  borderWidths: '<length>',
+  fontSizes: '<length>',
+  letterSpacings: '<length>',
+  opacity: '<number>',
+  zIndex: '<integer>',
+  lineHeights: '<number> | <length-percentage>',
+  fontWeights: '<number>'
+}
+
+function propertyValueOk(syntax, v) {
+  if (/[()]/.test(v)) return false
+  if (syntax === '<integer>') return /^-?\d+$/.test(v)
+  if (syntax.startsWith('<number>'))
+    return /^-?[\d.]+(%|[a-z]+)?$/.test(v) || /^-?[\d.]+(px|r?em|ch|ex|%)?$/.test(v)
+  if (syntax.startsWith('<length'))
+    return /^-?[\d.]+(px|r?em|ch|ex|vh|vw|vmin|vmax|svh|lvh|dvh|cqw|cqh|%)?$/.test(v)
+  return true
+}
+
+// @property blocks for token variables whose values are literal enough
+// to declare an initial-value for
+function emitProperties(config, flat) {
+  const prefix = config.varPrefix ?? 's'
+  const out = []
+  for (const [cat, table] of Object.entries(flat)) {
+    const syntax = PROPERTY_SYNTAX[cat]
+    if (!syntax) continue
+    for (const [name, leaf] of Object.entries(table)) {
+      const v = String(tokenBaseValue(leaf)).trim()
+      if (!propertyValueOk(syntax, v)) continue
+      out.push(
+        `@property --${prefix}-${cat}-${dashName(name)}{syntax:'${syntax}';inherits:true;initial-value:${v}}`
+      )
+    }
+  }
+  return out.join('\n')
+}
+
 function emitVariables(config, flat, ctx) {
   const lines = []
   const varOf = (cat, name) => `--${config.varPrefix ?? 's'}-${cat}-${dashName(name)}`
@@ -710,7 +913,42 @@ function emitKeyframes(keyframes) {
   return out.join('\n')
 }
 
-export function compile(config, cwd = process.cwd()) {
+// files matching config.include, posix-relative to cwd alongside the
+// absolute path so provenance can report readable locations
+export function sourceFiles(config, cwd = process.cwd()) {
+  const include = config.include ?? ['./src/**/*.{ts,js,svelte}']
+  const res = include.map((g) => globToRe(g.replace(/^\.\//, '')))
+  return listFiles(cwd)
+    .filter((f) => {
+      const rel = relative(cwd, f).split('\\').join('/')
+      return res.some((r) => r.test(rel))
+    })
+    .map((f) => ({ abs: f, rel: relative(cwd, f).split('\\').join('/') }))
+}
+
+// strict-mode validation of recipe call sites: chip({ tone: 'accnet' })
+// is reported instead of silently producing no variant styles
+function checkRecipeCalls(config, src, rel, problems) {
+  const defs = { ...(config.recipes ?? {}), ...(config.slotRecipes ?? {}) }
+  const names = Object.keys(defs)
+  if (!names.length) return
+  for (const call of extractCallsDetailed(src, names)) {
+    const def = defs[call.fn]
+    const variants = def.variants ?? {}
+    const at = `${rel}:${call.line}`
+    for (const [k, v] of Object.entries(call.value)) {
+      if (!(k in variants)) {
+        problems.push(`${at}: ${call.fn}() has no variant "${k}"`)
+      } else if (!(String(v) in variants[k])) {
+        problems.push(
+          `${at}: ${call.fn}() variant "${k}" has no option "${v}" (have: ${Object.keys(variants[k]).join(', ')})`
+        )
+      }
+    }
+  }
+}
+
+export function compile(config, cwd = process.cwd(), files = sourceFiles(config, cwd)) {
   const breakpoints = { ...DEFAULT_BREAKPOINTS, ...config.breakpoints }
   const vars = config.cssVariables !== false
   const varPrefix = config.varPrefix ?? 's'
@@ -718,37 +956,48 @@ export function compile(config, cwd = process.cwd()) {
     breakpoints,
     conditions: buildConditions(config, breakpoints).conditions,
     textStyles: config.textStyles ?? {},
-    layerStyles: config.layerStyles ?? {}
+    layerStyles: config.layerStyles ?? {},
+    strict: !!config.strict,
+    problems: []
   }
   const flat = flattenTokens(config.tokens)
-  const include = config.include ?? ['./src/**/*.{ts,js,svelte}']
-  const res = include.map((g) => globToRe(g.replace(/^\.\//, '')))
-  const files = listFiles(cwd).filter((f) => {
-    const rel = relative(cwd, f).split('\\').join('/')
-    return res.some((r) => r.test(rel))
-  })
 
   const seen = new Map()
   const warned = new Set()
+  const provenance = {}
   const pushRules = (rules) => {
     for (const rule of rules) {
       if (rule.unknown.length) {
         for (const c of rule.unknown) {
-          if (!warned.has(c)) {
+          if (ctx.strict) ctx.problems.push(`${rule.at}: unknown condition "${c}"`)
+          else if (!warned.has(c)) {
             warned.add(c)
             console.warn(`sigil css: unknown condition ${c}, styles under it were skipped`)
           }
         }
         continue
       }
-      if (!seen.has(rule.cls)) seen.set(rule.cls, rule)
+      if (!seen.has(rule.cls)) {
+        seen.set(rule.cls, rule)
+        if (rule.at) {
+          const i = rule.at.lastIndexOf(':')
+          provenance[rule.cls] = {
+            f: rule.at.slice(0, i),
+            l: Number(rule.at.slice(i + 1)),
+            d: rule.decl,
+            s: rule.selector,
+            w: rule.wrappers
+          }
+        }
+      }
     }
   }
   for (const file of files) {
-    const src = readFileSync(file, 'utf8')
-    for (const obj of extractCalls(src)) {
-      pushRules(compileStyles(obj, ctx, flat, vars, varPrefix))
+    const src = readFileSync(file.abs, 'utf8')
+    for (const call of extractCallsDetailed(src)) {
+      pushRules(compileStyles(call.value, ctx, flat, vars, varPrefix, `${file.rel}:${call.line}`))
     }
+    if (ctx.strict) checkRecipeCalls(config, src, file.rel, ctx.problems)
   }
   const { rules: recipeRules } = compileRecipes(config, ctx, flat, vars, varPrefix)
   pushRules(recipeRules)
@@ -759,13 +1008,33 @@ export function compile(config, cwd = process.cwd()) {
     const rule = `${r.selector}{${r.decl}}`
     blocks.push(r.wrappers.length ? `${r.wrappers.join('')}{${rule}}` : rule)
   }
-  if (vars) blocks.unshift(emitVariables(config, flat, ctx))
-  const kf = emitKeyframes(config.keyframes)
-  if (kf) blocks.unshift(kf)
 
-  const pretty = (config.preflight === false ? '' : PREFLIGHT) + blocks.join('\n') + '\n'
+  const layered = config.layers !== false
+  const base = []
+  if (config.preflight !== false) base.push(PREFLIGHT.trimEnd())
+  if (vars) base.push(emitVariables(config, flat, ctx))
+  const kf = emitKeyframes(config.keyframes)
+  if (kf) base.push(kf)
+
+  let pretty
+  if (layered) {
+    const prop = emitProperties(config, flat)
+    pretty =
+      '@layer base, components, utilities;\n' +
+      (prop ? prop + '\n' : '') +
+      `@layer base {\n${base.join('\n')}\n}\n` +
+      `@layer utilities {\n${blocks.join('\n')}\n}\n`
+  } else {
+    pretty = base.join('\n') + '\n' + blocks.join('\n') + '\n'
+  }
   const css = config.minify ? minifyCss(pretty) : pretty
-  return { css, count: rules.length, files: files.length }
+  return {
+    css,
+    count: rules.length,
+    files: files.length,
+    problems: ctx.problems,
+    provenance
+  }
 }
 
 // conservative whitespace and comment stripper. Leaves + and / alone so
@@ -1006,7 +1275,92 @@ export declare function center(o?: StyleObject): string
   return { js, dts }
 }
 
-export function build(config, cwd = process.cwd()) {
+// per-component style blocks extracted from the library at package
+// build time. { Button: '.sig-btn{...}...', ... }
+export function loadComponentParts(cwd = process.cwd()) {
+  const candidates = []
+  try {
+    const req = createRequire(join(cwd, 'sigil-resolve.cjs'))
+    candidates.push(req.resolve('sigil-ui/css-parts.json'))
+  } catch {
+    // package not resolvable from cwd; fall through to engine-relative
+  }
+  try {
+    candidates.push(new URL('../dist/css-parts.json', import.meta.url))
+  } catch {
+    // import.meta.url may not be a file url under dev servers
+  }
+  for (const c of candidates) {
+    try {
+      if (existsSync(c)) return JSON.parse(readFileSync(c, 'utf8'))
+    } catch {
+      continue
+    }
+  }
+  return null
+}
+
+// component names imported from 'sigil-ui' across the scanned sources.
+// Returns 'all' for namespace imports since usage is unknowable
+export function detectComponents(files) {
+  const names = new Set()
+  const re = /import\s+([\s\S]*?)\s+from\s+['"]sigil-ui['"]/g
+  for (const file of files) {
+    const src = readFileSync(file.abs, 'utf8')
+    for (const m of src.matchAll(re)) {
+      const clause = m[1].trim()
+      if (clause.startsWith('type ')) continue
+      if (clause.startsWith('*')) return 'all'
+      const inner = clause.match(/\{([\s\S]*)\}/)?.[1]
+      if (!inner) continue
+      for (const part of inner.split(',')) {
+        const name = part
+          .trim()
+          .split(/\s+as\s+/)[0]
+          .trim()
+        if (name && !name.startsWith('type ')) names.add(name)
+      }
+    }
+  }
+  return names
+}
+
+// resolve config.components ('auto' | string[]) into the subset of
+// library component CSS the project actually uses
+export function resolveComponentCss(config, files, parts = loadComponentParts()) {
+  const wanted = config.components
+  if (!wanted) return null
+  if (!parts) {
+    throw new Error(
+      'css-parts.json not found. Run the sigil-ui build (or reinstall) so component styles exist.'
+    )
+  }
+  const lookup = new Map(Object.keys(parts).map((k) => [k.toLowerCase(), k]))
+  let names
+  if (wanted === 'auto') {
+    const detected = detectComponents(files)
+    names = detected === 'all' ? Object.keys(parts) : [...detected]
+  } else {
+    names = Array.isArray(wanted) ? wanted : [wanted]
+  }
+  const resolved = []
+  const unknown = []
+  for (const n of names) {
+    const key = lookup.get(String(n).toLowerCase())
+    if (key) resolved.push(key)
+    else unknown.push(n)
+  }
+  const css = resolved.map((k) => parts[k]).join('\n')
+  const layered = config.layers !== false
+  const body =
+    `/* tree-shaken sigil-ui component styles: ${resolved.join(', ')} */\n` +
+    (layered ? `@layer components {\n${css}\n}\n` : css + '\n')
+  return { names: resolved, unknown, css: body }
+}
+
+// all generated outputs as relPath -> content, in memory. build() writes
+// them, checkBuild() diffs them against disk for the stale-output guard
+export function renderAll(config, cwd = process.cwd()) {
   const breakpoints = { ...DEFAULT_BREAKPOINTS, ...config.breakpoints }
   const ctx = {
     breakpoints,
@@ -1015,24 +1369,71 @@ export function build(config, cwd = process.cwd()) {
     layerStyles: config.layerStyles ?? {}
   }
   const flat = flattenTokens(config.tokens)
-  const outdir = resolve(cwd, config.outdir ?? 'styled-system')
-  const { css, count, files } = compile(config, cwd)
+  const files = sourceFiles(config, cwd)
+  const { css, count, problems, provenance } = compile(config, cwd, files)
 
-  rmSync(outdir, { recursive: true, force: true })
-  mkdirSync(join(outdir, 'css'), { recursive: true })
-  mkdirSync(join(outdir, 'patterns'), { recursive: true })
-  writeFileSync(join(outdir, 'styles.css'), css)
-  writeFileSync(join(outdir, 'styles.min.css'), config.minify ? css : minifyCss(css))
-  writeFileSync(join(outdir, 'css', 'index.mjs'), generateRuntime(config, ctx, flat))
-  writeFileSync(join(outdir, 'css', 'index.d.ts'), generateDts(config, flat, ctx))
+  const outputs = new Map()
+  outputs.set('styles.css', css)
+  outputs.set('styles.min.css', config.minify ? css : minifyCss(css))
+  outputs.set('styles.map.json', JSON.stringify(provenance, null, 1) + '\n')
+  outputs.set('css/index.mjs', generateRuntime(config, ctx, flat))
+  outputs.set('css/index.d.ts', generateDts(config, flat, ctx))
   const pats = generatePatterns()
-  writeFileSync(join(outdir, 'patterns', 'index.mjs'), pats.js)
-  writeFileSync(join(outdir, 'patterns', 'index.d.ts'), pats.dts)
+  outputs.set('patterns/index.mjs', pats.js)
+  outputs.set('patterns/index.d.ts', pats.dts)
   const rec = recipeRuntime(config)
   if (rec) {
-    mkdirSync(join(outdir, 'recipes'), { recursive: true })
-    writeFileSync(join(outdir, 'recipes', 'index.mjs'), rec)
-    writeFileSync(join(outdir, 'recipes', 'index.d.ts'), recipeDts(config))
+    outputs.set('recipes/index.mjs', rec)
+    outputs.set('recipes/index.d.ts', recipeDts(config))
   }
-  return { count, files, outdir }
+  const comp = resolveComponentCss(config, files)
+  if (comp && comp.names.length) outputs.set('components.css', comp.css)
+  return { outputs, count, sourceCount: files.length, problems, components: comp }
+}
+
+export function build(config, cwd = process.cwd()) {
+  const outdir = resolve(cwd, config.outdir ?? 'styled-system')
+  const { outputs, count, sourceCount, problems, components } = renderAll(config, cwd)
+  rmSync(outdir, { recursive: true, force: true })
+  for (const [rel, content] of outputs) {
+    const target = join(outdir, rel)
+    mkdirSync(join(target, '..'), { recursive: true })
+    writeFileSync(target, content)
+  }
+  return { count, files: sourceCount, outdir, problems, components }
+}
+
+// stale-output guard for CI: regenerates everything and reports which
+// emitted files differ from (or are missing on) disk
+export function checkBuild(config, cwd = process.cwd()) {
+  const outdir = resolve(cwd, config.outdir ?? 'styled-system')
+  const { outputs, problems } = renderAll(config, cwd)
+  const stale = []
+  for (const [rel, content] of outputs) {
+    const target = join(outdir, rel)
+    if (!existsSync(target) || readFileSync(target, 'utf8') !== content) stale.push(rel)
+  }
+  return { stale, outdir, problems }
+}
+
+// provenance lookup for --explain. Searches styles.map.json first, then
+// the library component parts for sig-* classes
+export function explain(cls, outdir) {
+  const name = cls.replace(/^\./, '')
+  const mapPath = join(outdir, 'styles.map.json')
+  if (existsSync(mapPath)) {
+    const map = JSON.parse(readFileSync(mapPath, 'utf8'))
+    const hit = map[name]
+    if (hit) {
+      const at = hit.w?.length ? ` inside ${hit.w.join(' ')}` : ''
+      return `${hit.s} { ${hit.d} }${at}\n  from ${hit.f}:${hit.l}`
+    }
+  }
+  const parts = loadComponentParts()
+  if (parts) {
+    for (const [comp, css] of Object.entries(parts)) {
+      if (css.includes('.' + name)) return `.${name} is a sigil-ui ${comp} class (components.css)`
+    }
+  }
+  return null
 }

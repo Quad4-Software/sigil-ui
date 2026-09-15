@@ -32,7 +32,7 @@ describe('manifest', () => {
 
   it('has a documented token for every --sig-* var in the default theme', () => {
     const css = readFileSync(join(libDir, 'theme', 'sigil.css'), 'utf8')
-    const declared = new Set([...css.matchAll(/--sig-[a-z-]+/g)].map((m) => m[0]))
+    const declared = new Set([...css.matchAll(/--sig-[a-z0-9-]+/g)].map((m) => m[0]))
     const documented = new Set(manifest.tokens.map((t) => t.name))
     for (const name of declared) {
       expect(documented.has(name), `${name} missing from manifest.tokens`).toBe(true)

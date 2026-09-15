@@ -44,6 +44,7 @@
     "./theme.css": "./dist/theme/sigil.css",
     "./components.css": "./dist/components.css",
     "./components.min.css": "./dist/components.min.css",
+    "./css-parts.json": "./dist/css-parts.json",
     "./headless": {
       "types": "./dist/headless/index.d.ts",
       "default": "./dist/headless/index.js"

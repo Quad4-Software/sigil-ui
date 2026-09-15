@@ -48,7 +48,7 @@
 
 <style>
   :global(.sig-chart-bar) {
-    fill: var(--sig-accent, #4f46e5);
+    fill: var(--sig-chart-1, var(--sig-accent, #4f46e5));
     transition: opacity 120ms ease;
   }
 

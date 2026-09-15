@@ -5,6 +5,7 @@
   --sig-accent-hover: #047857;
   --sig-accent-fg: #ffffff;
   --sig-ring: #059669;
+  --sig-chart-1: #059669;
 }
 
 [data-theme='dark'] {
@@ -12,4 +13,5 @@
   --sig-accent-hover: #10b981;
   --sig-accent-fg: #09090b;
   --sig-ring: #34d399;
+  --sig-chart-1: #34d399;
 }

@@ -117,7 +117,10 @@ Pick one. All five produce the same result.
   recipes from the generated styled-system/. Style calls must be
   literal objects: the compiler extracts them statically. Tokens emit
   as `--s-<category>-<name>` custom properties so themes can switch at
-  runtime. Features: conditions (`_hover`, `_dark`, `_focusVisible`,
+  runtime. Output is wrapped in `@layer base, components, utilities`
+  (`layers: false` opts out) and token vars get `@property`
+  registrations when the value is literal, so they interpolate in
+  transitions. Features: conditions (`_hover`, `_dark`, `_focusVisible`,
   `_open`, `_expanded`, `_checked`, `_disabled`, `_groupHover`,
   `_peerChecked`, `_rtl`, `_motionReduce`, breakpoint keys,
   `@media`/`@container`/`@supports` keys, arbitrary `&` selector keys
@@ -129,6 +132,17 @@ Pick one. All five produce the same result.
   `defineRecipe`/`defineSlotRecipe` in config. `css(a, b)` merges left
   to right: later args and later object keys win. Unknown values pass
   through as raw CSS.
+- Quality flags: `strict: true` (or `--strict`) fails the build on
+  unknown props, tokens referenced across domains (`color: 'md'` where
+  md is a radii token), unknown conditions and bad recipe variants.
+  `--check` is a CI guard that fails when styled-system/ is stale.
+  `--explain <class>` maps an atom back to its source file and line via
+  styles.map.json.
+- Tree-shaken component styles: `components: 'auto'` in config (or
+  `--components Button,Dialog`) emits styled-system/components.css with
+  only the sigil-ui styles for the components imported in the scanned
+  sources. Plain-CSS consumers can then ship that file instead of the
+  full components.css bundle.
 - Tailwind v4: `@import 'sigil-ui/tailwind.css'` after the tailwindcss
   import. Utilities: `bg-sig-accent`, `text-sig-fg`, `border-sig-border`,
   `rounded-sig`, `shadow-sig`.
@@ -147,6 +161,12 @@ Use `createTheme` from the root export. Call it during component init:
     theme.mode = 'dark'                       // 'light' | 'dark' | 'system'
     theme.resolved                            // 'light' | 'dark'
     theme.toggle()
+    theme.accent = '#e11d48'                  // retheme: derives hover, ring, chart-1
+    // or pass { accent: '#e11d48', accentFg: '#fff' } to createTheme
+
+Chart series read `--sig-chart-1` through `--sig-chart-5` (each falls
+back to a semantic token). `--sig-accent-muted` is an accent tint that
+follows `--sig-accent` automatically.
 
 It stamps `data-theme` on `<html>` and syncs across tabs.
 

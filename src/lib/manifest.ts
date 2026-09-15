@@ -1598,6 +1598,42 @@ export const manifest: SigilManifest = {
       light: '0 10px 30px rgb(0 0 0 / 0.15)',
       dark: '0 10px 30px rgb(0 0 0 / 0.5)',
       description: 'Overlay shadow'
+    },
+    {
+      name: '--sig-accent-muted',
+      light: 'accent at 12%',
+      dark: 'accent at 18%',
+      description: 'Accent tint derived from --sig-accent for subtle fills'
+    },
+    {
+      name: '--sig-chart-1',
+      light: '#4f46e5',
+      dark: '#818cf8',
+      description: 'Primary chart series color, follows accent'
+    },
+    {
+      name: '--sig-chart-2',
+      light: '#0284c7',
+      dark: '#60a5fa',
+      description: 'Chart series color'
+    },
+    {
+      name: '--sig-chart-3',
+      light: '#16a34a',
+      dark: '#4ade80',
+      description: 'Chart series color'
+    },
+    {
+      name: '--sig-chart-4',
+      light: '#d97706',
+      dark: '#fbbf24',
+      description: 'Chart series color'
+    },
+    {
+      name: '--sig-chart-5',
+      light: '#dc2626',
+      dark: '#ef4444',
+      description: 'Chart series color'
     }
   ],
   adapters: [
@@ -1624,7 +1660,7 @@ export const manifest: SigilManifest = {
     {
       name: 'sigil css',
       entry: 'sigil-ui/css',
-      usage: `// sigil.config.mjs\nimport { defineConfig } from 'sigil-ui/css'\n\nexport default defineConfig({\n  include: ['./src/**/*.{svelte,ts}'],\n  tokens: { colors: { sig: { accent: 'var(--sig-accent)' } } },\n  recipes: { chip: { base: { px: '3' }, variants: { tone: { accent: {} } } } }\n})\n\n// npx sigil-ui css --watch\n// tokens emit as --s-* vars so themes switch at runtime\n// import { css } from '../styled-system/css'\n// import { chip } from '../styled-system/recipes'`
+      usage: `// sigil.config.mjs\nimport { defineConfig } from 'sigil-ui/css'\n\nexport default defineConfig({\n  include: ['./src/**/*.{svelte,ts}'],\n  strict: true,\n  components: 'auto',\n  tokens: { colors: { sig: { accent: 'var(--sig-accent)' } } },\n  recipes: { chip: { base: { px: '3' }, variants: { tone: { accent: {} } } } }\n})\n\n// npx sigil-ui css --watch      rebuild on change\n// npx sigil-ui css --check     CI stale-output guard\n// npx sigil-ui css --explain s2abc   class provenance\n// components: 'auto' emits styled-system/components.css with only\n// the sigil-ui component styles your imports use\n// import { css } from '../styled-system/css'\n// import { chip } from '../styled-system/recipes'`
     }
   ]
 }

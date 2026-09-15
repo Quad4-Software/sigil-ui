@@ -53,7 +53,7 @@
         cx={px(d.x)}
         cy={py(d.y)}
         r="4"
-        fill={d.color ?? 'var(--sig-accent, #4f46e5)'}
+        fill={d.color ?? 'var(--sig-chart-1, var(--sig-accent, #4f46e5))'}
         class="sig-scatter-dot"
       >
         <title>{d.label ?? `${d.x}, ${d.y}`}</title>

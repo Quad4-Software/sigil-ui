@@ -30,6 +30,16 @@
 - `sigil-ui/components.min.css`: minified build of the vanilla stylesheet, published alongside `components.css`
 - sigil css: `minify` config option and `--minify` CLI flag; `styles.min.css` is emitted on every build
 - `Dialog.Root` accepts `onOpenChange`
+- sigil css: `strict` config option and `--strict` flag fail the build on unknown style props, tokens referenced across domains (`color: 'md'` where md is a radii token), unknown conditions and invalid recipe variants, with file:line locations
+- sigil css: `--check` flag is a CI guard that fails when `styled-system/` output is stale
+- sigil css: `--explain <class>` prints the declaration and source location of any atom via the generated `styles.map.json`; `sig-*` classes resolve to their owning component
+- sigil css: `--components Button,Dialog` or `components: 'auto'` emits `styled-system/components.css` with only the sigil-ui component styles the project uses; `auto` detects them from `sigil-ui` imports
+- sigil css: output is wrapped in `@layer base, components, utilities` so consumer CSS overrides generated rules predictably (`layers: false` opts out)
+- sigil css: token variables are registered with `@property` when the value is literal, so colors, lengths and numbers interpolate in transitions
+- `--sig-chart-1` through `--sig-chart-5` chart palette tokens, consumed by every Chart series with `--sig-accent` fallbacks
+- `--sig-accent-muted` accent tint token derived from `--sig-accent`
+- `createTheme({ accent, accentFg })` sets the accent and derives hover, ring and chart-1; `theme.accent` is settable at runtime
+- `Stat` renders a neutral `data-dir="flat"` delta for zero changes
 
 ### Fixed
 

@@ -4,6 +4,7 @@ export default defineConfig({
   include: ['./src/**/*.{svelte,ts}'],
   outdir: 'styled-system',
   preflight: true,
+  strict: true,
   tokens: {
     colors: {
       sig: {
@@ -77,6 +78,7 @@ export default defineConfig({
     },
     radii: {
       sig: 'var(--sig-radius)',
+      sm: '0.25rem',
       md: '0.375rem',
       lg: '0.5rem',
       xl: '0.75rem',

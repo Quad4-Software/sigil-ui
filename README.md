@@ -108,7 +108,20 @@ source files for style calls and emits one atomic stylesheet.
 npx sigil-ui css        # generate styled-system/ and styles.css
 npx sigil-ui css --watch
 npx sigil-ui css --minify   # styles.css minified; styles.min.css is always written
+npx sigil-ui css --strict   # fail on unknown props, wrong-domain tokens, bad recipes
+npx sigil-ui css --check    # CI guard: fails when styled-system/ is stale
+npx sigil-ui css --components auto   # tree-shaken sigil-ui component styles
+npx sigil-ui css --explain s2abc     # which source line produced an atom
 ```
+
+`components: 'auto'` (or `--components Button,Dialog`) emits
+styled-system/components.css holding only the sigil-ui component styles
+your imports use, so plain-CSS consumers ship kilobytes instead of the
+full bundle. Output lands in `@layer base/components/utilities` so your
+own CSS overrides predictably, and token variables are registered with
+`@property` where the value allows it, so they interpolate in
+transitions. `strict: true` in the config turns silent typos
+(`paddin`, `color: 'md'`, `chip({ tone: 'accnet' })`) into build errors.
 
 ```ts
 import { css } from '../styled-system/css'
@@ -128,6 +141,16 @@ keys, arbitrary `&` selector keys), per-property responsive objects,
 arbitrary values, important suffixes, token opacity (`accent/50`),
 keyframes, recipes and slot recipes are all supported. Later
 arguments win on conflicts.
+
+## Theming
+
+Every component reads the `--sig-*` contract, so one variable override
+rethemes the library. `createTheme({ accent: '#e11d48' })` sets the
+accent and derives hover, ring and the primary chart color.
+`--sig-chart-1` through `--sig-chart-5` color every chart series, and
+`--sig-accent-muted` is an accent tint that follows the accent
+automatically. Five accent presets ship under `sigil-ui/themes/`; list
+them with `npx sigil-ui theme`.
 
 ## For agents
 

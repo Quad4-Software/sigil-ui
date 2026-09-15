@@ -30,7 +30,13 @@ export const sigilPreset = {
             info: { value: 'var(--sig-info)' },
             'info-fg': { value: 'var(--sig-info-fg)' },
             ring: { value: 'var(--sig-ring)' },
-            overlay: { value: 'var(--sig-overlay)' }
+            overlay: { value: 'var(--sig-overlay)' },
+            'accent-muted': { value: 'var(--sig-accent-muted)' },
+            'chart-1': { value: 'var(--sig-chart-1)' },
+            'chart-2': { value: 'var(--sig-chart-2)' },
+            'chart-3': { value: 'var(--sig-chart-3)' },
+            'chart-4': { value: 'var(--sig-chart-4)' },
+            'chart-5': { value: 'var(--sig-chart-5)' }
           }
         },
         radii: {

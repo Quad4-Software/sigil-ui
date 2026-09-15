@@ -27,6 +27,16 @@ export interface SigilCssConfig {
   preflight?: boolean
   /** Collapse the stylesheet to one line. Default false. */
   minify?: boolean
+  /** Fail the build on unknown style props, tokens referenced across
+   *  domains, unknown conditions and bad recipe variants. Default false. */
+  strict?: boolean
+  /** Wrap output in cascade layers (base, components, utilities) so
+   *  consumer overrides beat generated rules predictably. Default true. */
+  layers?: boolean
+  /** Emit styled-system/components.css with only the sigil-ui component
+   *  styles needed. 'auto' detects from sigil-ui imports in the scanned
+   *  sources; a list picks explicitly. Default off. */
+  components?: 'auto' | string[]
   /** Emit tokens as CSS variables on :root so they can be overridden at
    *  runtime. Default true. */
   cssVariables?: boolean

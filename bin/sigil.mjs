@@ -28,6 +28,11 @@ usage:
   sigil-ui css init          write a starter sigil.config.mjs
   sigil-ui css --watch       rebuild styled-system/ when source files change
   sigil-ui css --minify      emit minified styles.css (styles.min.css is always written)
+  sigil-ui css --strict      fail on unknown props, wrong-domain tokens, bad recipes
+  sigil-ui css --check       CI guard: fail if styled-system/ output is stale
+  sigil-ui css --components Button,Dialog   tree-shaken sigil-ui component styles
+  sigil-ui css --components auto            detect from your sigil-ui imports
+  sigil-ui css --explain <class>            show where an atom came from
   sigil-ui theme [name]      list accent presets or print one to stdout
 
 quickstart:
@@ -170,8 +175,20 @@ if (!cmd || cmd === 'help' || cmd === '--help' || cmd === '-h') {
 }
 
 if (cmd === 'css') {
-  const { loadConfig, build } = await import(new URL('../css/engine.mjs', import.meta.url))
+  const engine = await import(new URL('../css/engine.mjs', import.meta.url))
+  const { loadConfig, build, checkBuild, explain } = engine
   const cwd = process.cwd()
+  const argv = process.argv.slice(3)
+  const flag = (name) => {
+    const eq = argv.find((a) => a === `--${name}` || a.startsWith(`--${name}=`))
+    if (!eq) return undefined
+    if (eq.includes('=')) return eq.split('=').slice(1).join('=')
+    const next = argv[argv.indexOf(eq) + 1]
+    return next && !next.startsWith('-') ? next : true
+  }
+  const has = (name, short) =>
+    argv.includes(`--${name}`) || (short ? argv.includes(`-${short}`) : false)
+
   if (arg === 'init') {
     const target = join(cwd, 'sigil.config.mjs')
     if (existsSync(target)) {
@@ -186,6 +203,10 @@ export default defineConfig({
   include: ['./src/**/*.{svelte,ts,js}'],
   outdir: 'styled-system',
   preflight: true,
+  // strict: true fails the build on unknown props, wrong-domain tokens
+  // and bad recipe variants instead of emitting silent output
+  // components: 'auto' emits styled-system/components.css holding only
+  // the sigil-ui component styles your imports actually use
   // tokens emit as --s-<cat>-<name> custom properties and rules
   // reference var(--s-*) so themes can switch at runtime
   tokens: {
@@ -212,11 +233,53 @@ export default defineConfig({
     console.error('no sigil.config.mjs found. Run: sigil-ui css init')
     process.exit(1)
   }
-  const res = build(arg === '--minify' || arg === '-m' ? { ...config, minify: true } : config, cwd)
-  console.log(
-    `sigil css: scanned ${res.files} files, emitted ${res.count} rules to ${res.outdir}/styles.css`
-  )
-  if (arg === '--watch' || arg === '-w') {
+  if (has('minify', 'm')) config.minify = true
+  if (has('strict')) config.strict = true
+  const comp = flag('components')
+  if (comp) config.components = comp === 'auto' ? 'auto' : String(comp).split(',')
+
+  const report = (res) => {
+    const parts = []
+    if (res.components?.names?.length) parts.push(`components: ${res.components.names.join(', ')}`)
+    if (res.components?.unknown?.length)
+      console.error(`sigil css: unknown components ${res.components.unknown.join(', ')}`)
+    console.log(
+      `sigil css: scanned ${res.files} files, emitted ${res.count} rules to ${res.outdir}/styles.css` +
+        (parts.length ? ` (${parts.join('; ')})` : '')
+    )
+  }
+  const failOnProblems = (problems) => {
+    if (!problems?.length) return false
+    for (const p of problems) console.error(`sigil css: ${p}`)
+    return true
+  }
+
+  const explainTarget = flag('explain')
+  if (explainTarget) {
+    const outdir = resolve(cwd, config.outdir ?? 'styled-system')
+    const found = explain(String(explainTarget), outdir)
+    console.log(found ?? `no provenance for ${explainTarget} (run sigil-ui css first)`)
+    process.exit(found ? 0 : 1)
+  }
+
+  if (has('check')) {
+    const res = checkBuild(config, cwd)
+    if (config.strict && failOnProblems(res.problems)) process.exit(1)
+    if (res.stale.length) {
+      console.error(
+        `sigil css: stale output in ${res.outdir}: ${res.stale.join(', ')}\nrun sigil-ui css to regenerate`
+      )
+      process.exit(1)
+    }
+    console.log('sigil css: styled-system/ is up to date')
+    process.exit(0)
+  }
+
+  const res = build(config, cwd)
+  report(res)
+  if (config.strict && failOnProblems(res.problems)) process.exit(1)
+
+  if (has('watch', 'w')) {
     const roots = new Set()
     for (const glob of config.include ?? []) {
       // watch the deepest directory before the first glob segment

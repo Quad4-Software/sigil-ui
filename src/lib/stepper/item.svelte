@@ -106,7 +106,8 @@
   :global(.sig-step[data-state='current'] .sig-step-indicator) {
     border-color: var(--sig-accent, #4f46e5);
     color: var(--sig-accent, #4f46e5);
-    outline: 3px solid color-mix(in srgb, var(--sig-accent, #4f46e5) 20%, transparent);
+    outline: 3px solid
+      var(--sig-accent-muted, color-mix(in srgb, var(--sig-accent, #4f46e5) 20%, transparent));
   }
 
   :global(.sig-step[data-state='complete'] .sig-step-indicator) {

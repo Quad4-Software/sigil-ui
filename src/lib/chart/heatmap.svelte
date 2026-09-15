@@ -32,7 +32,7 @@
   function color(value: number) {
     const pct = Math.round((value / max) * 100)
     if (value <= 0) return 'var(--sig-surface, #f4f4f5)'
-    return `color-mix(in srgb, var(--sig-accent, #4f46e5) ${pct}%, var(--sig-surface, #f4f4f5))`
+    return `color-mix(in srgb, var(--sig-chart-1, var(--sig-accent, #4f46e5)) ${pct}%, var(--sig-surface, #f4f4f5))`
   }
 </script>
 
