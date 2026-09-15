@@ -867,6 +867,141 @@ export const manifest: SigilManifest = {
       ],
       dataAttributes: ['data-side'],
       example: `<script>\n  import { Sheet, Button } from 'sigil-ui'\n</script>\n\n<Sheet.Root>\n  <Sheet.Trigger class="sig-btn">Open</Sheet.Trigger>\n  <Sheet.Portal>\n    <Sheet.Overlay />\n    <Sheet.Content side="right">\n      <Sheet.Title>Details</Sheet.Title>\n      <Sheet.Description>Panel content.</Sheet.Description>\n      <Sheet.Close class="sig-btn">Close</Sheet.Close>\n    </Sheet.Content>\n  </Sheet.Portal>\n</Sheet.Root>`
+    },
+    {
+      name: 'Chart',
+      path: 'chart',
+      description:
+        'Chart namespace: Line, Bar, Sparkline and Donut. Pure SVG, responsive via viewBox, role=img with an aria-label. No canvas, no dependencies.',
+      props: [
+        {
+          name: 'data',
+          type: 'number[] | { label: string; value: number }[]',
+          description: 'Series values. Donut segments accept { value, label, color }.'
+        },
+        { name: 'label', type: 'string', description: 'Accessible name for the figure.' },
+        { name: 'height', type: 'number', description: 'Rendered height in px.' },
+        classProp
+      ],
+      classes: [
+        'sig-chart',
+        'sig-chart-line',
+        'sig-chart-area',
+        'sig-chart-grid',
+        'sig-chart-axis',
+        'sig-chart-bar',
+        'sig-chart-dot',
+        'sig-chart-ticks',
+        'sig-sparkline',
+        'sig-sparkline-line',
+        'sig-sparkline-area',
+        'sig-donut',
+        'sig-donut-track',
+        'sig-donut-seg',
+        'sig-donut-center'
+      ],
+      dataAttributes: [],
+      example: `<script>\n  import { Chart } from 'sigil-ui'\n  const traffic = [12, 18, 9, 24, 30, 22, 35]\n</script>\n\n<Chart.Line data={traffic} label="Weekly traffic" />\n<Chart.Bar data={[{ label: 'Mon', value: 12 }, { label: 'Tue', value: 18 }]} />\n<Chart.Sparkline data={traffic} filled />\n<Chart.Donut data={[{ value: 62, label: 'Used' }, { value: 38, label: 'Free' }]} />`
+    },
+    {
+      name: 'DataTable',
+      path: 'data-table',
+      description:
+        'Sortable data table. columns define key, label, sortable, align and an optional cell snippet per row. Sort state exposes aria-sort; rows hover-fill.',
+      props: [
+        {
+          name: 'columns',
+          type: '{ key, label, sortable?, align?, cell? }[]',
+          description: 'Column definitions. cell is a snippet receiving the row.'
+        },
+        { name: 'rows', type: 'T[]', description: 'Row objects keyed by column.key.' },
+        { name: 'caption', type: 'string', description: 'Table caption.' },
+        { name: 'empty', type: 'string', default: 'No data', description: 'Empty state text.' },
+        classProp
+      ],
+      classes: [
+        'sig-datatable',
+        'sig-datatable-caption',
+        'sig-datatable-sort',
+        'sig-datatable-dir',
+        'sig-datatable-empty'
+      ],
+      dataAttributes: ['data-align', 'data-dir'],
+      example: `<script>\n  import { DataTable } from 'sigil-ui'\n  const columns = [\n    { key: 'service', label: 'Service', sortable: true },\n    { key: 'uptime', label: 'Uptime', sortable: true, align: 'right' }\n  ]\n</script>\n\n<DataTable {columns} rows={[{ service: 'api', uptime: '99.98%' }]} />`
+    },
+    {
+      name: 'CountUp',
+      path: 'count-up',
+      description:
+        'Animated number transition driven by requestAnimationFrame with an easeOutCubic curve. Jumps instantly under prefers-reduced-motion.',
+      props: [
+        { name: 'value', type: 'number', description: 'Target number.' },
+        { name: 'duration', type: 'number', default: '800', description: 'Tween time in ms.' },
+        { name: 'decimals', type: 'number', default: '0', description: 'Fixed decimals.' },
+        { name: 'format', type: '(n: number) => string', description: 'Custom formatter.' },
+        classProp
+      ],
+      classes: ['sig-countup'],
+      dataAttributes: [],
+      example: `<script>\n  import { CountUp } from 'sigil-ui'\n</script>\n\n<CountUp value={48210} format={(n) => n.toLocaleString()} />`
+    },
+    {
+      name: 'Pagination',
+      path: 'pagination',
+      description:
+        'Page navigation in a nav landmark. bind:page, sibling windowing with gaps, aria-current on the active page, Prev and Next buttons.',
+      props: [
+        { name: 'page', type: 'number', bindable: true, description: 'Current 1-based page.' },
+        { name: 'pages', type: 'number', description: 'Total page count.' },
+        {
+          name: 'siblings',
+          type: 'number',
+          default: '1',
+          description: 'Pages shown around current.'
+        },
+        classProp
+      ],
+      classes: ['sig-pagination', 'sig-page-btn', 'sig-page-gap'],
+      dataAttributes: ['data-active'],
+      example: `<script>\n  import { Pagination } from 'sigil-ui'\n  let page = $state(1)\n</script>\n\n<Pagination bind:page pages={12} />`
+    },
+    {
+      name: 'CopyButton',
+      path: 'copy-button',
+      description:
+        'Copy text to the clipboard with a textarea fallback. Shows a timed copied state and announces it through a visually hidden role=status.',
+      props: [
+        { name: 'text', type: 'string', description: 'Text written to the clipboard.' },
+        { name: 'label', type: 'string', default: 'Copy', description: 'Idle label.' },
+        { name: 'copiedLabel', type: 'string', default: 'Copied', description: 'Success label.' },
+        { name: 'timeout', type: 'number', default: '1600', description: 'Copied state ms.' },
+        classProp,
+        childrenProp
+      ],
+      classes: ['sig-copy', 'sig-copy-live'],
+      dataAttributes: ['data-copied'],
+      example: `<script>\n  import { CopyButton } from 'sigil-ui'\n</script>\n\n<CopyButton text="pnpm add sigil-ui" />`
+    },
+    {
+      name: 'Reveal',
+      path: 'reveal',
+      description:
+        'Scroll-into-view reveal via IntersectionObserver. Fades and slides children in, once by default. Disabled under prefers-reduced-motion.',
+      props: [
+        {
+          name: 'once',
+          type: 'boolean',
+          default: 'true',
+          description: 'Only reveal the first time.'
+        },
+        { name: 'delay', type: 'number', default: '0', description: 'Transition delay in ms.' },
+        { name: 'threshold', type: 'number', default: '0.15', description: 'Intersection ratio.' },
+        classProp,
+        childrenProp
+      ],
+      classes: ['sig-reveal'],
+      dataAttributes: ['data-visible'],
+      example: `<script>\n  import { Reveal } from 'sigil-ui'\n</script>\n\n<Reveal><p>Appears when scrolled into view.</p></Reveal>`
     }
   ],
   tokens: [

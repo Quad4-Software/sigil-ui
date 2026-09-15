@@ -775,6 +775,140 @@ Data attributes: data-side
 </Sheet.Root>
 ```
 
+### Chart
+
+Chart namespace: Line, Bar, Sparkline and Donut. Pure SVG, responsive via viewBox, role=img with an aria-label. No canvas, no dependencies.
+
+Props:
+- data (number[] | { label: string; value: number }[]): Series values. Donut segments accept { value, label, color }.
+- label (string): Accessible name for the figure.
+- height (number): Rendered height in px.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-chart, sig-chart-line, sig-chart-area, sig-chart-grid, sig-chart-axis, sig-chart-bar, sig-chart-dot, sig-chart-ticks, sig-sparkline, sig-sparkline-line, sig-sparkline-area, sig-donut, sig-donut-track, sig-donut-seg, sig-donut-center
+Data attributes: 
+
+```svelte
+<script>
+  import { Chart } from 'sigil-ui'
+  const traffic = [12, 18, 9, 24, 30, 22, 35]
+</script>
+
+<Chart.Line data={traffic} label="Weekly traffic" />
+<Chart.Bar data={[{ label: 'Mon', value: 12 }, { label: 'Tue', value: 18 }]} />
+<Chart.Sparkline data={traffic} filled />
+<Chart.Donut data={[{ value: 62, label: 'Used' }, { value: 38, label: 'Free' }]} />
+```
+
+### DataTable
+
+Sortable data table. columns define key, label, sortable, align and an optional cell snippet per row. Sort state exposes aria-sort; rows hover-fill.
+
+Props:
+- columns ({ key, label, sortable?, align?, cell? }[]): Column definitions. cell is a snippet receiving the row.
+- rows (T[]): Row objects keyed by column.key.
+- caption (string): Table caption.
+- empty (string, default No data): Empty state text.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-datatable, sig-datatable-caption, sig-datatable-sort, sig-datatable-dir, sig-datatable-empty
+Data attributes: data-align, data-dir
+
+```svelte
+<script>
+  import { DataTable } from 'sigil-ui'
+  const columns = [
+    { key: 'service', label: 'Service', sortable: true },
+    { key: 'uptime', label: 'Uptime', sortable: true, align: 'right' }
+  ]
+</script>
+
+<DataTable {columns} rows={[{ service: 'api', uptime: '99.98%' }]} />
+```
+
+### CountUp
+
+Animated number transition driven by requestAnimationFrame with an easeOutCubic curve. Jumps instantly under prefers-reduced-motion.
+
+Props:
+- value (number): Target number.
+- duration (number, default 800): Tween time in ms.
+- decimals (number, default 0): Fixed decimals.
+- format ((n: number) => string): Custom formatter.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-countup
+Data attributes: 
+
+```svelte
+<script>
+  import { CountUp } from 'sigil-ui'
+</script>
+
+<CountUp value={48210} format={(n) => n.toLocaleString()} />
+```
+
+### Pagination
+
+Page navigation in a nav landmark. bind:page, sibling windowing with gaps, aria-current on the active page, Prev and Next buttons.
+
+Props:
+- page (number, bindable): Current 1-based page.
+- pages (number): Total page count.
+- siblings (number, default 1): Pages shown around current.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-pagination, sig-page-btn, sig-page-gap
+Data attributes: data-active
+
+```svelte
+<script>
+  import { Pagination } from 'sigil-ui'
+  let page = $state(1)
+</script>
+
+<Pagination bind:page pages={12} />
+```
+
+### CopyButton
+
+Copy text to the clipboard with a textarea fallback. Shows a timed copied state and announces it through a visually hidden role=status.
+
+Props:
+- text (string): Text written to the clipboard.
+- label (string, default Copy): Idle label.
+- copiedLabel (string, default Copied): Success label.
+- timeout (number, default 1600): Copied state ms.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-copy, sig-copy-live
+Data attributes: data-copied
+
+```svelte
+<script>
+  import { CopyButton } from 'sigil-ui'
+</script>
+
+<CopyButton text="pnpm add sigil-ui" />
+```
+
+### Reveal
+
+Scroll-into-view reveal via IntersectionObserver. Fades and slides children in, once by default. Disabled under prefers-reduced-motion.
+
+Props:
+- once (boolean, default true): Only reveal the first time.
+- delay (number, default 0): Transition delay in ms.
+- threshold (number, default 0.15): Intersection ratio.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-reveal
+Data attributes: data-visible
+
+```svelte
+<script>
+  import { Reveal } from 'sigil-ui'
+</script>
+
+<Reveal><p>Appears when scrolled into view.</p></Reveal>
+```
+
 ## Tokens
 
 - --sig-bg: light #ffffff, dark #09090b. Page and surface base

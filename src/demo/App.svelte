@@ -7,8 +7,12 @@
     Breadcrumb,
     Button,
     Card,
+    Chart,
     Checkbox,
+    CopyButton,
+    CountUp,
     createTheme,
+    DataTable,
     Dialog,
     DropdownMenu,
     Empty,
@@ -17,12 +21,14 @@
     Input,
     Kbd,
     Measure,
+    Pagination,
     Pane,
     PaneGroup,
     PaneResizer,
     Popover,
     Progress,
     RadioGroup,
+    Reveal,
     Select,
     Separator,
     Sheet,
@@ -53,6 +59,19 @@
   let volume = $state(40)
   let pressed = $state(false)
   let debug = $state(false)
+  let page = $state(1)
+
+  const traffic = [12, 18, 14, 22, 19, 28, 26, 34, 31, 42, 38, 47]
+  const rows = [
+    { name: 'api', status: 'up', requests: 1284021 },
+    { name: 'web', status: 'up', requests: 842310 },
+    { name: 'workers', status: 'down', requests: 98110 }
+  ]
+  const columns = [
+    { key: 'name', label: 'Service', sortable: true },
+    { key: 'status', label: 'Status', sortable: true },
+    { key: 'requests', label: 'Requests', sortable: true, align: 'right' as const }
+  ]
 </script>
 
 <main class="page">
@@ -267,6 +286,44 @@
         >Error toast</Button
       >
     </div>
+  </section>
+
+  <section>
+    <h2>Charts and data</h2>
+    <div class="grid">
+      <Chart.Line data={traffic} label="Traffic" />
+      <Chart.Bar
+        data={[
+          { label: 'Mon', value: 4 },
+          { label: 'Tue', value: 7 },
+          { label: 'Wed', value: 3 }
+        ]}
+        label="Deploys"
+      />
+      <Chart.Donut
+        data={[
+          { label: 'api', value: 46 },
+          { label: 'web', value: 34 },
+          { label: 'workers', value: 20 }
+        ]}
+        label="Share"
+      />
+    </div>
+    <DataTable {columns} {rows} caption="Sortable" />
+    <div class="row" style="margin-top: 1rem">
+      <Pagination bind:page pages={5} />
+      <CopyButton text="pnpm add sigil-ui" />
+    </div>
+  </section>
+
+  <section>
+    <h2>Motion</h2>
+    <div class="row">
+      <CountUp value={8431} format={(n) => Math.round(n).toLocaleString()} />
+    </div>
+    <Reveal>
+      <div class="fill" style="padding: 1rem; margin-top: 1rem">Fades and slides in on scroll.</div>
+    </Reveal>
   </section>
 </main>
 
