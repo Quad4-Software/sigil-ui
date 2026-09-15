@@ -9,6 +9,14 @@ export function defineConfig(config) {
   return config
 }
 
+export function defineRecipe(recipe) {
+  return recipe
+}
+
+export function defineSlotRecipe(recipe) {
+  return recipe
+}
+
 const DEFAULT_BREAKPOINTS = {
   sm: '640px',
   md: '768px',
@@ -24,60 +32,118 @@ const SELECTOR_CONDITIONS = {
   _focusVisible: '&:focus-visible',
   _focusWithin: '&:focus-within',
   _active: '&:active',
-  _disabled: '&:disabled',
   _visited: '&:visited',
+  _link: '&:link',
+  _enabled: '&:enabled',
+  _disabled: '&:disabled, &[aria-disabled="true"]',
+  _readOnly: '&:read-only',
+  _readWrite: '&:read-write',
+  _required: '&:required',
+  _optional: '&:optional',
+  _invalid: '&:invalid, &[aria-invalid="true"]',
+  _valid: '&:valid',
+  _userInvalid: '&:user-invalid',
+  _checked: '&:checked, &[data-state="checked"], &[aria-checked="true"]',
+  _indeterminate: '&:indeterminate, &[data-state="indeterminate"]',
+  _selected: '&[aria-selected="true"], &[data-state="checked"], &[data-selected]',
+  _pressed: '&[aria-pressed="true"]',
+  _expanded: '&[aria-expanded="true"]',
   _first: '&:first-child',
   _last: '&:last-child',
+  _only: '&:only-child',
+  _firstOfType: '&:first-of-type',
+  _lastOfType: '&:last-of-type',
+  _onlyOfType: '&:only-of-type',
   _odd: '&:nth-child(odd)',
   _even: '&:nth-child(even)',
+  _empty: '&:empty',
+  _target: '&:target',
   _before: '&::before',
   _after: '&::after',
   _placeholder: '&::placeholder',
+  _placeholderShown: '&:placeholder-shown',
   _marker: '&::marker',
   _selection: '&::selection',
-  _open: '&[data-state="open"], &[data-state="checked"], &[data-state="active"]',
+  _autofill: '&:autofill, &:-webkit-autofill',
+  _fullscreen: '&:fullscreen',
+  _open: '&[data-state="open"], &[data-state="checked"], &[data-state="active"], &[open]',
   _closed: '&[data-state="closed"], &[data-state="inactive"]',
+  _inert: '&[inert]',
+  _popoverOpen: '&:popover-open',
+  _rtl: '&:dir(rtl), [dir="rtl"] &',
+  _ltr: '&:dir(ltr), [dir="ltr"] &',
   _groupHover: '.group:hover &, [data-sig-group]:hover &',
-  _groupFocus: '.group:focus-within &, [data-sig-group]:focus-within &',
+  _groupFocus: '.group:focus &, [data-sig-group]:focus &',
+  _groupFocusWithin: '.group:focus-within &, [data-sig-group]:focus-within &',
+  _groupActive: '.group:active &, [data-sig-group]:active &',
+  _groupChecked: '.group:checked &, .group[data-state="checked"] &',
+  _groupDisabled: '.group:disabled &, .group[aria-disabled="true"] &',
+  _groupInvalid: '.group[aria-invalid="true"] &',
+  _groupOpen: '.group[data-state="open"] &, .group[open] &',
+  _peerHover: '.peer:hover ~ &, [data-sig-peer]:hover ~ &',
+  _peerFocus: '.peer:focus ~ &, [data-sig-peer]:focus ~ &',
+  _peerFocusVisible: '.peer:focus-visible ~ &, [data-sig-peer]:focus-visible ~ &',
+  _peerChecked: '.peer:checked ~ &, .peer[data-state="checked"] ~ &',
+  _peerDisabled: '.peer:disabled ~ &, .peer[aria-disabled="true"] ~ &',
+  _peerInvalid: '.peer[aria-invalid="true"] ~ &',
   _dark: '[data-theme="dark"] &',
   _light: '[data-theme="light"] &'
 }
 
-// conditions emitted as @media wrappers
+// conditions emitted as at-rule wrappers around the rule
 const MEDIA_CONDITIONS = {
-  _motionReduce: '(prefers-reduced-motion: reduce)',
-  _motionSafe: '(prefers-reduced-motion: no-preference)',
-  _print: 'print',
-  _portrait: '(orientation: portrait)',
-  _landscape: '(orientation: landscape)'
+  _motionReduce: '@media (prefers-reduced-motion: reduce)',
+  _motionSafe: '@media (prefers-reduced-motion: no-preference)',
+  _contrastMore: '@media (prefers-contrast: more)',
+  _contrastLess: '@media (prefers-contrast: less)',
+  _print: '@media print',
+  _portrait: '@media (orientation: portrait)',
+  _landscape: '@media (orientation: landscape)',
+  _starting: '@starting-style'
 }
 
-// shorthand prop -> [css properties, token category, append px to bare numbers]
+// shorthand prop -> [css longhands, token category, append px to bare numbers]
+// multi-longhand entries emit one atomic class per longhand so merge order
+// is correct: css({ p: '4' }, { px: '8' }) keeps the padding-block from p
 const PROPS = {
-  p: [['padding'], 'spacing', true],
-  px: [['padding-inline'], 'spacing', true],
-  py: [['padding-block'], 'spacing', true],
+  p: [['padding-top', 'padding-right', 'padding-bottom', 'padding-left'], 'spacing', true],
+  px: [['padding-left', 'padding-right'], 'spacing', true],
+  py: [['padding-top', 'padding-bottom'], 'spacing', true],
   pt: [['padding-top'], 'spacing', true],
   pr: [['padding-right'], 'spacing', true],
   pb: [['padding-bottom'], 'spacing', true],
   pl: [['padding-left'], 'spacing', true],
-  padding: [['padding'], 'spacing', true],
-  m: [['margin'], 'spacing', true],
-  mx: [['margin-inline'], 'spacing', true],
-  my: [['margin-block'], 'spacing', true],
+  padding: [['padding-top', 'padding-right', 'padding-bottom', 'padding-left'], 'spacing', true],
+  paddingX: [['padding-left', 'padding-right'], 'spacing', true],
+  paddingY: [['padding-top', 'padding-bottom'], 'spacing', true],
+  m: [['margin-top', 'margin-right', 'margin-bottom', 'margin-left'], 'spacing', true],
+  mx: [['margin-left', 'margin-right'], 'spacing', true],
+  my: [['margin-top', 'margin-bottom'], 'spacing', true],
   mt: [['margin-top'], 'spacing', true],
   mr: [['margin-right'], 'spacing', true],
   mb: [['margin-bottom'], 'spacing', true],
   ml: [['margin-left'], 'spacing', true],
-  margin: [['margin'], 'spacing', true],
-  gap: [['gap'], 'spacing', true],
+  margin: [['margin-top', 'margin-right', 'margin-bottom', 'margin-left'], 'spacing', true],
+  marginX: [['margin-left', 'margin-right'], 'spacing', true],
+  marginY: [['margin-top', 'margin-bottom'], 'spacing', true],
+  gap: [['row-gap', 'column-gap'], 'spacing', true],
   gapX: [['column-gap'], 'spacing', true],
   gapY: [['row-gap'], 'spacing', true],
-  inset: [['inset'], 'spacing', true],
-  scrollMargin: [['scroll-margin'], 'spacing', true],
+  inset: [['top', 'right', 'bottom', 'left'], 'spacing', true],
+  insetX: [['left', 'right'], 'spacing', true],
+  insetY: [['top', 'bottom'], 'spacing', true],
+  scrollMargin: [
+    ['scroll-margin-top', 'scroll-margin-right', 'scroll-margin-bottom', 'scroll-margin-left'],
+    'spacing',
+    true
+  ],
   scrollMarginTop: [['scroll-margin-top'], 'spacing', true],
   scrollMarginBottom: [['scroll-margin-bottom'], 'spacing', true],
-  scrollPadding: [['scroll-padding'], 'spacing', true],
+  scrollPadding: [
+    ['scroll-padding-top', 'scroll-padding-right', 'scroll-padding-bottom', 'scroll-padding-left'],
+    'spacing',
+    true
+  ],
   top: [['top'], 'spacing', true],
   right: [['right'], 'spacing', true],
   bottom: [['bottom'], 'spacing', true],
@@ -93,13 +159,31 @@ const PROPS = {
   bg: [['background'], 'colors', false],
   bgColor: [['background-color'], 'colors', false],
   color: [['color'], 'colors', false],
-  borderColor: [['border-color'], 'colors', false],
+  borderColor: [
+    ['border-top-color', 'border-right-color', 'border-bottom-color', 'border-left-color'],
+    'colors',
+    false
+  ],
+  borderTopColor: [['border-top-color'], 'colors', false],
+  borderBottomColor: [['border-bottom-color'], 'colors', false],
+  borderXColor: [['border-left-color', 'border-right-color'], 'colors', false],
+  borderYColor: [['border-top-color', 'border-bottom-color'], 'colors', false],
   outlineColor: [['outline-color'], 'colors', false],
   caretColor: [['caret-color'], 'colors', false],
   accentColor: [['accent-color'], 'colors', false],
   fill: [['fill'], 'colors', false],
   stroke: [['stroke'], 'colors', false],
-  rounded: [['border-radius'], 'radii', true],
+  textDecorationColor: [['text-decoration-color'], 'colors', false],
+  rounded: [
+    [
+      'border-top-left-radius',
+      'border-top-right-radius',
+      'border-bottom-right-radius',
+      'border-bottom-left-radius'
+    ],
+    'radii',
+    true
+  ],
   roundedTop: [['border-top-left-radius', 'border-top-right-radius'], 'radii', true],
   roundedBottom: [['border-bottom-left-radius', 'border-bottom-right-radius'], 'radii', true],
   roundedLeft: [['border-top-left-radius', 'border-bottom-left-radius'], 'radii', true],
@@ -112,18 +196,61 @@ const PROPS = {
   lineHeight: [['line-height'], 'lineHeights', false],
   letterSpacing: [['letter-spacing'], 'letterSpacings', true],
   z: [['z-index'], 'zIndex', false],
-  flexDir: [['flex-direction'], null, false]
+  zIndex: [['z-index'], 'zIndex', false],
+  opacity: [['opacity'], 'opacity', false],
+  borderWidth: [
+    ['border-top-width', 'border-right-width', 'border-bottom-width', 'border-left-width'],
+    'borderWidths',
+    true
+  ],
+  borderTopWidth: [['border-top-width'], 'borderWidths', true],
+  borderBottomWidth: [['border-bottom-width'], 'borderWidths', true],
+  flexDir: [['flex-direction'], null, false],
+  // space-between-children utilities, resolved against spacing
+  spaceX: [['margin-inline-start'], 'spacing', true, ' > :not([hidden]) ~ :not([hidden])'],
+  spaceY: [['margin-block-start'], 'spacing', true, ' > :not([hidden]) ~ :not([hidden])']
 }
 
-const kebab = (s) => s.replace(/([A-Z])/g, (m) => '-' + m.toLowerCase())
+function kebab(s) {
+  return s.replace(/([A-Z])/g, (m) => '-' + m.toLowerCase())
+}
 
 // scan for calls to these names
-const FN_NAMES = ['css', 'cx', 'flex', 'stack', 'vstack', 'hstack', 'grid', 'center', 'wrap']
+const FN_NAMES = [
+  'css',
+  'cx',
+  'atoms',
+  'flex',
+  'stack',
+  'vstack',
+  'hstack',
+  'grid',
+  'center',
+  'wrap'
+]
 
 function hash(str) {
   let h = 5381
   for (let i = 0; i < str.length; i++) h = (h * 33) ^ str.charCodeAt(i)
   return 's' + (h >>> 0).toString(36)
+}
+
+function cap(s) {
+  return s[0].toUpperCase() + s.slice(1)
+}
+function dashName(s) {
+  return s.replaceAll('.', '-').replaceAll('_', '-')
+}
+
+// token leaf may be a raw value or { value: raw } or a conditional
+// { value: { base, _dark, md, ... } }
+function tokenBaseValue(leaf) {
+  if (leaf && typeof leaf === 'object' && 'value' in leaf) {
+    const v = leaf.value
+    if (v && typeof v === 'object') return v.base ?? v._light ?? ''
+    return v
+  }
+  return leaf
 }
 
 function flattenTokens(tokens) {
@@ -134,7 +261,7 @@ function flattenTokens(tokens) {
     const walk = (obj, path) => {
       for (const [k, v] of Object.entries(obj)) {
         if (v && typeof v === 'object' && !('value' in v)) walk(v, path ? path + '.' + k : k)
-        else flat[path ? path + '.' + k : k] = v && typeof v === 'object' ? v.value : v
+        else flat[path ? path + '.' + k : k] = v
       }
     }
     walk(group ?? {}, '')
@@ -143,23 +270,156 @@ function flattenTokens(tokens) {
   return out
 }
 
+// token leafs whose { value } is a conditional object -> list of
+// [category, name, { cond: value }] for variable overrides
+function conditionalTokens(tokens) {
+  const out = []
+  for (const [category, group] of Object.entries(tokens ?? {})) {
+    const walk = (obj, path) => {
+      for (const [k, v] of Object.entries(obj)) {
+        const name = path ? path + '.' + k : k
+        if (v && typeof v === 'object' && 'value' in v) {
+          if (v.value && typeof v.value === 'object') {
+            const conds = { ...v.value }
+            delete conds.base
+            if (Object.keys(conds).length) out.push([category, name, conds])
+          }
+        } else if (v && typeof v === 'object') walk(v, name)
+      }
+    }
+    walk(group ?? {}, '')
+  }
+  return out
+}
+
 function isPlainObject(v) {
   return typeof v === 'object' && v !== null && !Array.isArray(v)
 }
 
-// walk a style object the same way the generated runtime does so class
-// names match. Emits [condKey, prop, rawValue] triples.
-function walkStyles(obj, cond, out, breakpoints) {
+function negate(v) {
+  return /^\d/.test(v) ? '-' + v : `calc(${v} * -1)`
+}
+
+// resolve opacity modifier accent/50 against the color category
+function resolveColorValue(raw, flat, vars, varPrefix) {
+  const s = String(raw)
+  const slash = s.lastIndexOf('/')
+  if (slash === -1) return null
+  const name = s.slice(0, slash)
+  const pct = s.slice(slash + 1)
+  if (!/^\d{1,3}$/.test(pct)) return null
+  const table = flat.colors
+  if (!table || !(name in table)) return null
+  const base = vars ? `var(--${varPrefix}-colors-${dashName(name)})` : tokenBaseValue(table[name])
+  return `color-mix(in srgb, ${base} ${pct}%, transparent)`
+}
+
+// props not in the table still resolve tokens: the kebab-cased name
+// picks a category by convention so paddingTop: '4' and pt: '4' emit
+// the same atom
+function categorize(prop) {
+  if (PROPS[prop]) return PROPS[prop]
+  const k = kebab(prop)
+  let cat = null
+  if (/margin|padding|inset|^gap$|-gap|^top$|^right$|^bottom$|^left$/.test(k)) cat = 'spacing'
+  else if (/radius/.test(k)) cat = 'radii'
+  else if (/color|background|^fill$|^stroke$|caret|accent|^outline$|decoration/.test(k))
+    cat = 'colors'
+  else if (/width|height|^size$|flex-basis|^aspect/.test(k)) cat = 'sizes'
+  else if (/shadow/.test(k)) cat = 'shadows'
+  else if (/font-size/.test(k)) cat = 'fontSizes'
+  else if (/font-weight/.test(k)) cat = 'fontWeights'
+  else if (/font/.test(k)) cat = 'fonts'
+  else if (/line-height/.test(k)) cat = 'lineHeights'
+  else if (/letter-spacing/.test(k)) cat = 'letterSpacings'
+  else if (/z-index/.test(k)) cat = 'zIndex'
+  else if (/opacity/.test(k)) cat = 'opacity'
+  else if (/border/.test(k)) cat = 'borderWidths'
+  const numeric =
+    cat === 'spacing' ||
+    cat === 'sizes' ||
+    cat === 'radii' ||
+    cat === 'borderWidths' ||
+    cat === 'fontSizes' ||
+    cat === 'letterSpacings'
+  return [[k], cat, numeric]
+}
+
+// turn a raw value for prop into a list of [cssProp, value, important]
+// atoms. One css call can emit several atoms per prop.
+function resolveAtoms(prop, raw, flat, vars, varPrefix) {
+  const entry = categorize(prop)
+  const props = entry[0]
+  const category = entry[1]
+  const numeric = entry[2]
+  let value = String(raw)
+  let important = false
+  if (value.endsWith('!')) {
+    important = true
+    value = value.slice(0, -1)
+  }
+  if (category === 'colors') {
+    const mixed = resolveColorValue(value, flat, vars, varPrefix)
+    if (mixed != null) return props.map((p) => [p, mixed, important])
+  }
+  let out
+  if (value.length > 2 && value.startsWith('[') && value.endsWith(']')) {
+    out = value.slice(1, -1).replaceAll('_', ' ')
+  } else {
+    let negative = false
+    if (value.startsWith('-')) {
+      negative = true
+      value = value.slice(1)
+    }
+    const table = category ? flat[category] : null
+    let hit = null
+    let hitCat = category
+    if (table && value in table) hit = table[value]
+    else if (category === 'sizes' && flat.spacing && value in flat.spacing) {
+      hit = flat.spacing[value]
+      hitCat = 'spacing'
+    } else if (!category) {
+      // unmapped props fall back to scanning every token table
+      for (const [cat, t] of Object.entries(flat)) {
+        if (value in t) {
+          hit = t[value]
+          hitCat = cat
+          break
+        }
+      }
+    }
+    if (hit != null) {
+      const varName = `--${varPrefix}-${hitCat}-${dashName(value)}`
+      out = vars ? `var(${varName})` : String(tokenBaseValue(hit))
+      if (negative) out = vars ? `calc(${out} * -1)` : negate(out)
+    } else {
+      out = value
+      if (numeric && out !== '0' && /^\d+(\.\d+)?$/.test(out)) out += 'px'
+      if (negative) out = /^[\d.]/.test(out) ? '-' + out : `calc(${out} * -1)`
+    }
+  }
+  return props.map((p) => [p, out, important])
+}
+
+// walk a style object emitting [condKey, prop, rawValue] triples.
+// condKey is a ':'-joined chain of condition names.
+function walkStyles(obj, cond, out, ctx) {
   for (const [key, value] of Object.entries(obj)) {
     if (value == null || value === false) continue
-    if (key[0] === '_' || key in breakpoints) {
-      if (isPlainObject(value)) walkStyles(value, cond + key + ':', out, breakpoints)
+    if (isConditionKey(key, ctx)) {
+      if (isPlainObject(value)) walkStyles(value, cond + key + '\x1f', out, ctx)
+      continue
+    }
+    if (key === 'textStyle' || key === 'layerStyle') {
+      const map = key === 'textStyle' ? ctx.textStyles : ctx.layerStyles
+      const entry = map?.[value]
+      if (entry && isPlainObject(entry)) walkStyles(entry, cond, out, ctx)
       continue
     }
     if (isPlainObject(value)) {
       for (const [bp, v] of Object.entries(value)) {
         if (v == null || v === false) continue
-        const c = bp === 'base' ? cond : cond + bp + ':'
+        const c = bp === 'base' ? cond : cond + bp + '\x1f'
         out.push([c, key, v])
       }
       continue
@@ -168,46 +428,74 @@ function walkStyles(obj, cond, out, breakpoints) {
   }
 }
 
-function resolveDecl(prop, raw, flat) {
-  const entry = PROPS[prop]
-  const props = entry ? entry[0] : [kebab(prop)]
-  const category = entry ? entry[1] : null
-  const numeric = entry ? entry[2] : false
-  let value = String(raw)
-  // arbitrary values bypass token lookup: p: '[2px]', w: '[calc(100%-8px)]'
-  if (value.length > 2 && value.startsWith('[') && value.endsWith(']')) {
-    value = value.slice(1, -1).replaceAll('_', ' ')
-    return props.map((p) => `${p}:${value}`).join(';')
-  }
-  const table = category ? flat[category] : null
-  if (table && value in table) value = String(table[value])
-  else if (category === 'sizes' && flat.spacing && value in flat.spacing)
-    value = String(flat.spacing[value])
-  else if (numeric && value !== '0' && /^-?\d+(\.\d+)?$/.test(value)) value += 'px'
-  return props.map((p) => `${p}:${value}`).join(';')
+// a key is a condition when it is a known _condition, a breakpoint, a
+// custom condition name, an arbitrary & selector or an @-rule
+function isConditionKey(key, ctx) {
+  if (key in ctx.breakpoints) return true
+  if (key in ctx.conditions) return true
+  if (key[0] === '_') return true
+  if (key.includes('&')) return true
+  if (key[0] === '@') return true
+  return false
 }
 
-function compileStyles(obj, breakpoints, flat) {
+function buildConditions(config, breakpoints) {
+  // containers map becomes _cq<Name> conditions emitting @container rules
+  const conditions = { ...SELECTOR_CONDITIONS, ...MEDIA_CONDITIONS }
+  for (const [name, size] of Object.entries(config.containers ?? {})) {
+    conditions['_cq' + cap(name)] = `@container (min-width: ${size})`
+  }
+  for (const [name, template] of Object.entries(config.conditions ?? {})) {
+    conditions[name] = template
+  }
+  return { conditions, breakpoints }
+}
+
+// expand a ':'-joined condition key into a selector + at-rule wrappers
+function expandCond(condKey, cls, ctx) {
+  let selector = '.' + cls
+  const wrappers = []
+  let bpIndex = -1
+  const unknown = []
+  for (const c of condKey ? condKey.slice(0, -1).split('\x1f') : []) {
+    if (c in ctx.breakpoints) {
+      wrappers.push(`@media (min-width: ${ctx.breakpoints[c]})`)
+      bpIndex = Math.max(bpIndex, Object.keys(ctx.breakpoints).indexOf(c))
+    } else if (c in ctx.conditions) {
+      const t = ctx.conditions[c]
+      if (t[0] === '@') wrappers.push(t)
+      else selector = t.replaceAll('&', selector)
+    } else if (c.includes('&')) {
+      selector = c.replaceAll('&', selector)
+    } else if (c[0] === '@') {
+      wrappers.push(c)
+    } else {
+      unknown.push(c)
+    }
+  }
+  return { selector, wrappers, bpIndex, unknown }
+}
+
+function compileStyles(obj, ctx, flat, vars, varPrefix) {
   const triples = []
-  walkStyles(obj, '', triples, breakpoints)
+  walkStyles(obj, '', triples, ctx)
   const rules = []
   for (const [condKey, prop, raw] of triples) {
-    const cls = hash(condKey + prop + '=' + raw)
-    const conds = condKey ? condKey.slice(0, -1).split(':') : []
-    let selector = '.' + cls
-    const medias = []
-    let bpIndex = -1
-    for (const c of conds) {
-      if (c in breakpoints) {
-        medias.push(`(min-width: ${breakpoints[c]})`)
-        bpIndex = Math.max(bpIndex, Object.keys(breakpoints).indexOf(c))
-      } else if (c in MEDIA_CONDITIONS) {
-        medias.push(MEDIA_CONDITIONS[c])
-      } else if (c in SELECTOR_CONDITIONS) {
-        selector = SELECTOR_CONDITIONS[c].replaceAll('&', selector)
-      }
+    const entry = categorize(prop)
+    const selSuffix = entry && entry[3] ? entry[3] : ''
+    for (const [cssProp, value, imp] of resolveAtoms(prop, raw, flat, vars, varPrefix)) {
+      const decl = imp ? `${cssProp}:${value} !important` : `${cssProp}:${value}`
+      const cls = hash(condKey + selSuffix + cssProp + '=' + value + (imp ? '!' : ''))
+      const { selector, wrappers, bpIndex, unknown } = expandCond(condKey, cls, ctx)
+      rules.push({
+        cls,
+        selector: selector + selSuffix,
+        decl,
+        wrappers,
+        bpIndex,
+        unknown
+      })
     }
-    rules.push({ cls, selector, decl: resolveDecl(prop, raw, flat), medias, bpIndex })
   }
   return rules
 }
@@ -342,8 +630,104 @@ export async function loadConfig(cwd = process.cwd()) {
   return null
 }
 
+// style objects used inside recipes: base plus every variant option and
+// compound css, gathered per slot name (or the recipe root)
+function recipeStyleObjects(def, slots) {
+  const out = []
+  const push = (slot, obj) => {
+    if (obj && isPlainObject(obj)) out.push([slot, obj])
+  }
+  const collect = (styles) => {
+    if (!styles) return
+    if (slots) for (const s of slots) push(s, styles[s])
+    else push('', styles)
+  }
+  collect(def.base)
+  for (const variant of Object.values(def.variants ?? {})) {
+    for (const styles of Object.values(variant)) collect(styles)
+  }
+  for (const cv of def.compoundVariants ?? []) collect(cv.css)
+  return out
+}
+
+// compile every atom a recipe can emit so the generated runtime only
+// picks from classes that exist in styles.css
+function compileRecipes(config, ctx, flat, vars, varPrefix) {
+  const rules = []
+  const spec = []
+  for (const [name, def] of Object.entries(config.recipes ?? {})) {
+    for (const [, obj] of recipeStyleObjects(def, null)) {
+      rules.push(...compileStyles(obj, ctx, flat, vars, varPrefix))
+    }
+    spec.push([name, def, null])
+  }
+  for (const [name, def] of Object.entries(config.slotRecipes ?? {})) {
+    for (const [, obj] of recipeStyleObjects(def, def.slots ?? [])) {
+      rules.push(...compileStyles(obj, ctx, flat, vars, varPrefix))
+    }
+    spec.push([name, def, def.slots ?? []])
+  }
+  return { rules, spec }
+}
+
+function emitVariables(config, flat, ctx) {
+  const lines = []
+  const varOf = (cat, name) => `--${config.varPrefix ?? 's'}-${cat}-${dashName(name)}`
+  const root = []
+  for (const [cat, table] of Object.entries(flat)) {
+    for (const [name, leaf] of Object.entries(table)) {
+      root.push(`${varOf(cat, name)}:${tokenBaseValue(leaf)}`)
+    }
+  }
+  if (root.length) lines.push(`:root{${root.join(';')}}`)
+  // conditional token values override the variable in their context
+  for (const [cat, name, conds] of conditionalTokens(config.tokens)) {
+    for (const [cond, value] of Object.entries(conds)) {
+      const { wrappers } = expandCond(cond + '\x1f', 'x', ctx)
+      const t = ctx.conditions[cond]
+      const decl = `${varOf(cat, name)}:${tokenBaseValue(value)}`
+      if (t && t[0] === '@') lines.push(`${t}{:root{${decl}}}`)
+      else if (cond in ctx.breakpoints)
+        lines.push(`@media (min-width: ${ctx.breakpoints[cond]}){:root{${decl}}}`)
+      else if (t) {
+        // selector conditions apply the variable on the scoped element
+        const sel = t.replace(/&/g, '').trim() || ':root'
+        lines.push(`${sel}{${decl}}`)
+      } else if (cond.includes('&')) {
+        lines.push(`${cond.replace(/&/g, '').trim() || ':root'}{${decl}}`)
+      }
+      void wrappers
+    }
+  }
+  return lines.join('\n')
+}
+
+function emitKeyframes(keyframes) {
+  const out = []
+  for (const [name, steps] of Object.entries(keyframes ?? {})) {
+    const body = Object.entries(steps)
+      .map(([step, styles]) => {
+        const decls = Object.entries(styles)
+          .map(([p, v]) => `${kebab(p)}:${v}`)
+          .join(';')
+        return `${step}{${decls}}`
+      })
+      .join('')
+    out.push(`@keyframes ${name}{${body}}`)
+  }
+  return out.join('\n')
+}
+
 export function compile(config, cwd = process.cwd()) {
   const breakpoints = { ...DEFAULT_BREAKPOINTS, ...config.breakpoints }
+  const vars = config.cssVariables !== false
+  const varPrefix = config.varPrefix ?? 's'
+  const ctx = {
+    breakpoints,
+    conditions: buildConditions(config, breakpoints).conditions,
+    textStyles: config.textStyles ?? {},
+    layerStyles: config.layerStyles ?? {}
+  }
   const flat = flattenTokens(config.tokens)
   const include = config.include ?? ['./src/**/*.{ts,js,svelte}']
   const res = include.map((g) => globToRe(g.replace(/^\.\//, '')))
@@ -353,23 +737,42 @@ export function compile(config, cwd = process.cwd()) {
   })
 
   const seen = new Map()
+  const warned = new Set()
+  const pushRules = (rules) => {
+    for (const rule of rules) {
+      if (rule.unknown.length) {
+        for (const c of rule.unknown) {
+          if (!warned.has(c)) {
+            warned.add(c)
+            console.warn(`sigil css: unknown condition ${c}, styles under it were skipped`)
+          }
+        }
+        continue
+      }
+      if (!seen.has(rule.cls)) seen.set(rule.cls, rule)
+    }
+  }
   for (const file of files) {
     const src = readFileSync(file, 'utf8')
     for (const obj of extractCalls(src)) {
-      for (const rule of compileStyles(obj, breakpoints, flat)) {
-        if (!seen.has(rule.cls)) seen.set(rule.cls, rule)
-      }
+      pushRules(compileStyles(obj, ctx, flat, vars, varPrefix))
     }
   }
+  const { rules: recipeRules } = compileRecipes(config, ctx, flat, vars, varPrefix)
+  pushRules(recipeRules)
 
   const rules = [...seen.values()].sort((a, b) => a.bpIndex - b.bpIndex)
+  const joiner = config.minify ? '' : '\n'
   const blocks = []
   for (const r of rules) {
     const rule = `${r.selector}{${r.decl}}`
-    blocks.push(r.medias.length ? `@media ${r.medias.join(' and ')}{${rule}}` : rule)
+    blocks.push(r.wrappers.length ? `${r.wrappers.join('')}{${rule}}` : rule)
   }
+  if (vars) blocks.unshift(emitVariables(config, flat, ctx))
+  const kf = emitKeyframes(config.keyframes)
+  if (kf) blocks.unshift(kf)
 
-  const css = (config.preflight === false ? '' : PREFLIGHT) + blocks.join('\n') + '\n'
+  const css = (config.preflight === false ? '' : PREFLIGHT) + blocks.join(joiner) + '\n'
   return { css, count: rules.length, files: files.length }
 }
 
@@ -379,7 +782,7 @@ function tsUnion(values) {
   return keys.map((k) => `'${k}'`).join(' | ') + ' | (string & {})'
 }
 
-function generateDts(config, flat, breakpoints) {
+function generateDts(config, flat, ctx) {
   const cats = [
     'colors',
     'spacing',
@@ -391,19 +794,25 @@ function generateDts(config, flat, breakpoints) {
     'fonts',
     'lineHeights',
     'letterSpacings',
-    'zIndex'
+    'zIndex',
+    'opacity',
+    'borderWidths'
   ]
-  const unions = cats.map((c) => `type ${c[0].toUpperCase() + c.slice(1)} = ${tsUnion(flat[c])}`)
-  const bps = ['base', ...Object.keys(breakpoints)].map((b) => `'${b}'`).join(' | ')
+  const unions = cats.map((c) => `type ${cap(c)} = ${tsUnion(flat[c])}`)
+  const bps = ['base', ...Object.keys(ctx.breakpoints)].map((b) => `'${b}'`).join(' | ')
   const catOf = (name) => (PROPS[name] ? PROPS[name][1] : null)
   const lines = Object.keys(PROPS).map((p) => {
     const cat = catOf(p)
-    const t = cat ? cat[0].toUpperCase() + cat.slice(1) : 'string'
+    const t = cat ? cap(cat) : 'string'
     return `  ${JSON.stringify(p)}?: ResponsiveValue<${t}>`
   })
-  const conds = [...Object.keys(SELECTOR_CONDITIONS), ...Object.keys(MEDIA_CONDITIONS)]
+  const textStyleKeys = tsUnion(config.textStyles ?? {})
+  const layerStyleKeys = tsUnion(config.layerStyles ?? {})
+  lines.push(`  "textStyle"?: ${textStyleKeys}`)
+  lines.push(`  "layerStyle"?: ${layerStyleKeys}`)
+  const conds = Object.keys(ctx.conditions)
   const condLines = conds.map((c) => `  ${JSON.stringify(c)}?: StyleObject`)
-  const bpLines = Object.keys(breakpoints).map((b) => `  ${JSON.stringify(b)}?: StyleObject`)
+  const bpLines = Object.keys(ctx.breakpoints).map((b) => `  ${JSON.stringify(b)}?: StyleObject`)
   return `// generated by sigil-ui css. do not edit.
 type Breakpoint = ${bps}
 type ResponsiveValue<T> = T | Partial<Record<Breakpoint, T>>
@@ -415,49 +824,157 @@ ${bpLines.join('\n')}
   [key: string]: unknown
 }
 export declare function css(...styles: Array<StyleObject | false | null | undefined>): string
+export declare function atoms(...styles: Array<StyleObject | false | null | undefined>): string
 export declare function cx(...classes: Array<string | false | null | undefined>): string
 `
 }
 
-function generateRuntime(config, breakpoints) {
-  const bpKeys = JSON.stringify(Object.keys(breakpoints))
+function recipeDts(config) {
+  const propOf = (def) => {
+    const entries = Object.entries(def.variants ?? {}).map(
+      ([name, options]) =>
+        `    ${JSON.stringify(name)}?: ${Object.keys(options)
+          .map((k) => JSON.stringify(k))
+          .join(' | ')} | undefined`
+    )
+    return entries.length ? `{\n${entries.join('\n')}\n  }` : 'Record<string, never>'
+  }
+  const lines = []
+  for (const [name, def] of Object.entries(config.recipes ?? {})) {
+    lines.push(
+      `type ${cap(name)}Props = ${propOf(def)}`,
+      `export declare function ${name}(props?: ${cap(name)}Props): string`
+    )
+  }
+  for (const [name, def] of Object.entries(config.slotRecipes ?? {})) {
+    const slots = (def.slots ?? []).map((s) => JSON.stringify(s)).join(' | ')
+    lines.push(
+      `type ${cap(name)}Props = ${propOf(def)}`,
+      `export declare function ${name}(props?: ${cap(name)}Props): Record<${slots || 'string'}, string>`
+    )
+  }
+  return `// generated by sigil-ui css. do not edit.\n${lines.join('\n')}\n`
+}
+
+// the generated runtime resolves atoms through the very same functions
+// the compiler uses, so class names can never drift apart
+function generateRuntime(config, ctx, flat) {
+  const vars = config.cssVariables !== false
+  const varPrefix = config.varPrefix ?? 's'
+  const shared = [
+    isPlainObject,
+    kebab,
+    dashName,
+    tokenBaseValue,
+    negate,
+    resolveColorValue,
+    categorize,
+    resolveAtoms
+  ]
+    .map(String)
+    .join('\n')
   return `// generated by sigil-ui css. do not edit.
-const BPS = new Set(${bpKeys})
+const BPS = new Set(${JSON.stringify(Object.keys(ctx.breakpoints))})
+const CONDS = new Set(${JSON.stringify(Object.keys(ctx.conditions))})
+const PROPS = ${JSON.stringify(PROPS)}
+const FLAT = ${JSON.stringify(flat)}
+const TEXT = ${JSON.stringify(config.textStyles ?? {})}
+const LAYER = ${JSON.stringify(config.layerStyles ?? {})}
+const VARS = ${vars}
+const PREFIX = ${JSON.stringify(varPrefix)}
 function hash(s) {
   let h = 5381
   for (let i = 0; i < s.length; i++) h = (h * 33) ^ s.charCodeAt(i)
   return 's' + (h >>> 0).toString(36)
 }
-function isObj(v) {
-  return typeof v === 'object' && v !== null && !Array.isArray(v)
+const isObj = isPlainObject
+function isCond(k) {
+  return k[0] === '_' || k[0] === '@' || k.includes('&') || BPS.has(k) || CONDS.has(k)
 }
+${shared}
 function walk(obj, cond, out) {
   for (const k in obj) {
     const v = obj[k]
     if (v == null || v === false) continue
-    if (k[0] === '_' || BPS.has(k)) {
-      if (isObj(v)) walk(v, cond + k + ':', out)
+    if (isCond(k)) {
+      if (isObj(v)) walk(v, cond + k + '\x1f', out)
+      continue
+    }
+    if (k === 'textStyle' || k === 'layerStyle') {
+      const entry = (k === 'textStyle' ? TEXT : LAYER)[v]
+      if (entry && isObj(entry)) walk(entry, cond, out)
       continue
     }
     if (isObj(v)) {
       for (const b in v) {
         const val = v[b]
         if (val == null || val === false) continue
-        out.push(hash(cond + (b === 'base' ? '' : b + ':') + k + '=' + val))
+        pushAtom(out, cond + (b === 'base' ? '' : b + '\x1f'), k, val)
       }
       continue
     }
-    out.push(hash(cond + k + '=' + v))
+    pushAtom(out, cond, k, v)
   }
 }
-export function css(...styles) {
-  const out = []
-  for (const s of styles) if (s && typeof s === 'object') walk(s, '', out)
-  return out.join(' ')
+function pushAtom(out, cond, prop, raw) {
+  const entry = categorize(prop)
+  const sel = entry[3] || ''
+  for (const [p, v, imp] of resolveAtoms(prop, raw, FLAT, VARS, PREFIX)) {
+    out.set(cond + sel + p, hash(cond + sel + p + '=' + v + (imp ? '!' : '')))
+  }
 }
+export function atoms(...styles) {
+  const out = new Map()
+  for (const s of styles) if (s && typeof s === 'object') walk(s, '', out)
+  return [...out.values()].join(' ')
+}
+export const css = atoms
 export function cx(...classes) {
   return classes.filter(Boolean).join(' ')
 }
+`
+}
+
+function recipeRuntime(config) {
+  const recipes = []
+  for (const [name, def] of Object.entries(config.recipes ?? {})) {
+    recipes.push(`export const ${name} = makeRecipe(${JSON.stringify(def)}, null)`)
+  }
+  for (const [name, def] of Object.entries(config.slotRecipes ?? {})) {
+    recipes.push(
+      `export const ${name} = makeRecipe(${JSON.stringify(def)}, ${JSON.stringify(def.slots ?? [])})`
+    )
+  }
+  if (!recipes.length) return null
+  return `// generated by sigil-ui css. do not edit.
+import { atoms } from '../css/index.mjs'
+function makeRecipe(def, slots) {
+  const apply = (props) => {
+    const merged = { ...(def.defaultVariants ?? {}), ...(props ?? {}) }
+    const pick = []
+    if (def.base) pick.push(def.base)
+    for (const [name, options] of Object.entries(def.variants ?? {})) {
+      const chosen = merged[name]
+      if (chosen != null && options[chosen]) pick.push(options[chosen])
+    }
+    for (const cv of def.compoundVariants ?? []) {
+      const { css: extra, ...conds } = cv
+      const match = Object.entries(conds).every(([k, v]) => merged[k] === v)
+      if (match && extra) pick.push(extra)
+    }
+    return pick
+  }
+  if (!slots) return (props) => atoms(...apply(props))
+  return (props) => {
+    const picked = apply(props)
+    const out = {}
+    for (const slot of slots) {
+      out[slot] = atoms(...picked.map((s) => (s && s[slot]) || undefined))
+    }
+    return out
+  }
+}
+${recipes.join('\n')}
 `
 }
 
@@ -488,6 +1005,12 @@ export declare function center(o?: StyleObject): string
 
 export function build(config, cwd = process.cwd()) {
   const breakpoints = { ...DEFAULT_BREAKPOINTS, ...config.breakpoints }
+  const ctx = {
+    breakpoints,
+    conditions: buildConditions(config, breakpoints).conditions,
+    textStyles: config.textStyles ?? {},
+    layerStyles: config.layerStyles ?? {}
+  }
   const flat = flattenTokens(config.tokens)
   const outdir = resolve(cwd, config.outdir ?? 'styled-system')
   const { css, count, files } = compile(config, cwd)
@@ -496,10 +1019,16 @@ export function build(config, cwd = process.cwd()) {
   mkdirSync(join(outdir, 'css'), { recursive: true })
   mkdirSync(join(outdir, 'patterns'), { recursive: true })
   writeFileSync(join(outdir, 'styles.css'), css)
-  writeFileSync(join(outdir, 'css', 'index.mjs'), generateRuntime(config, breakpoints))
-  writeFileSync(join(outdir, 'css', 'index.d.ts'), generateDts(config, flat, breakpoints))
+  writeFileSync(join(outdir, 'css', 'index.mjs'), generateRuntime(config, ctx, flat))
+  writeFileSync(join(outdir, 'css', 'index.d.ts'), generateDts(config, flat, ctx))
   const pats = generatePatterns()
   writeFileSync(join(outdir, 'patterns', 'index.mjs'), pats.js)
   writeFileSync(join(outdir, 'patterns', 'index.d.ts'), pats.dts)
+  const rec = recipeRuntime(config)
+  if (rec) {
+    mkdirSync(join(outdir, 'recipes'), { recursive: true })
+    writeFileSync(join(outdir, 'recipes', 'index.mjs'), rec)
+    writeFileSync(join(outdir, 'recipes', 'index.d.ts'), recipeDts(config))
+  }
   return { count, files, outdir }
 }

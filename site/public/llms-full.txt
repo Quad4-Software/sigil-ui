@@ -1086,11 +1086,14 @@ import { defineConfig } from 'sigil-ui/css'
 
 export default defineConfig({
   include: ['./src/**/*.{svelte,ts}'],
-  tokens: { colors: { sig: { accent: 'var(--sig-accent)' } } }
+  tokens: { colors: { sig: { accent: 'var(--sig-accent)' } } },
+  recipes: { chip: { base: { px: '3' }, variants: { tone: { accent: {} } } } }
 })
 
-// then: npx sigil-ui css
-// use: import { css } from '../styled-system/css'
+// npx sigil-ui css --watch
+// tokens emit as --s-* vars so themes switch at runtime
+// import { css } from '../styled-system/css'
+// import { chip } from '../styled-system/recipes'
 ```
 
 

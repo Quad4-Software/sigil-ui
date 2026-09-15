@@ -119,5 +119,24 @@ export default defineConfig({
       wide: '0.025em',
       wider: '0.05em'
     }
+  },
+  recipes: {
+    chip: {
+      base: {
+        rounded: 'full',
+        border: '1px solid',
+        borderColor: 'sig.border',
+        bg: 'sig.surface',
+        px: '3',
+        py: '1',
+        fontSize: 'xs',
+        color: 'sig.muted'
+      },
+      variants: {
+        tone: {
+          accent: { borderColor: 'sig.accent', color: 'sig.fg' }
+        }
+      }
+    }
   }
 })

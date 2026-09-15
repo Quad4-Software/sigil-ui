@@ -16,6 +16,7 @@
 - `sigil-ui/themes/*`: accent presets (blue, emerald, orange, rose, violet) and `sigil-ui theme` CLI command
 - `sigil-ui css --watch`: rebuild `styled-system/` when sources change
 - sigil css: arbitrary values (`w: '[300px]'`), `_groupHover`, `_groupFocus`, `_open`, `_closed` conditions
+- sigil css engine rewrite: tokens emit as `--s-*` custom properties for runtime theme switching, longhand atomic classes with last-wins merging across `css()` arguments, recipes and slot recipes via `defineRecipe`/`defineSlotRecipe`, `textStyle`/`layerStyle`, keyframes, custom and container conditions, peer/group/rtl/motion conditions, token opacity modifiers (`accent/50`), `!` important suffix, negative spacing, `spaceX`/`spaceY` logical sibling margins, arbitrary `&` selector and `@`-rule keys
 - axe-core accessibility test suite
 
 ### Fixed

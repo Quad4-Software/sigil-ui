@@ -106,20 +106,22 @@ npx sigil-ui css --watch
 
 ```ts
 import { css } from '../styled-system/css'
+import { flex } from '../styled-system/patterns'
+import { chip } from '../styled-system/recipes'
 
-const card = css({
-  p: '4',
-  bg: 'surface',
-  rounded: 'md',
-  _hover: { bg: 'surface-hover' },
-  _groupHover: { borderColor: 'accent' },
-  md: { p: '6' },
-  w: '[300px]' // arbitrary value
-})
+const card = css(
+  { p: '4', bg: 'surface', rounded: 'md' },
+  { _hover: { bg: 'surface-hover' }, md: { p: '6' }, w: '[300px]' }
+)
 ```
 
-Token names are checked at compile time and surfaced in the generated
-types. Values that are not tokens pass through as raw CSS.
+Tokens emit as `--s-*` custom properties so themes can switch at
+runtime. Conditions (`_hover`, `_dark`, `_open`, `_peerChecked`,
+`_groupHover`, breakpoint keys like `md`, `@media`/`@container`
+keys, arbitrary `&` selector keys), per-property responsive objects,
+arbitrary values, important suffixes, token opacity (`accent/50`),
+keyframes, recipes and slot recipes are all supported. Later
+arguments win on conflicts.
 
 ## For agents
 

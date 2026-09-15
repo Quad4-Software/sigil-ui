@@ -185,6 +185,8 @@ export default defineConfig({
   include: ['./src/**/*.{svelte,ts,js}'],
   outdir: 'styled-system',
   preflight: true,
+  // tokens emit as --s-<cat>-<name> custom properties and rules
+  // reference var(--s-*) so themes can switch at runtime
   tokens: {
     colors: {},
     spacing: {},
@@ -195,7 +197,9 @@ export default defineConfig({
     fontWeights: {},
     fonts: {},
     lineHeights: {}
-  }
+  },
+  // conditions: { dark: '&:where(.dark, .dark *)' },
+  // recipes: { btn: { base: {...}, variants: { size: { sm: {...} } } } }
 })
 `
     )

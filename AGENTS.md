@@ -36,8 +36,11 @@ implemented in-house on runes; there are zero runtime dependencies.
   `sigil-ui/uno` and `sigil-ui/panda`
 - `css/engine.mjs` — the bundled build-time atomic CSS engine, exported
   as `sigil-ui/css` and driven by `sigil-ui css`. It scans source files
-  for style calls, resolves config tokens, and emits styled-system/
-  (styles.css plus a typed self-contained css() runtime)
+  for style calls, resolves config tokens to `--s-*` custom properties,
+  and emits styled-system/ (styles.css plus a typed self-contained
+  css() runtime, patterns, and recipe/slot-recipe functions). The
+  generated runtime embeds the same resolver functions the compiler
+  uses so emitted classes and runtime classes always match
 - `src/lib/theme/theme.svelte.ts` — `createTheme()` rune store
 - `src/lib/toast/toast.svelte.ts` — global toast store plus the `toast` API
 - `src/lib/pane/` — resizable split panes: pane-group, pane, pane-resizer,

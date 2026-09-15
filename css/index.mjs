@@ -1,1 +1,1 @@
-export { defineConfig } from './engine.mjs'
+export { defineConfig, defineRecipe, defineSlotRecipe } from './engine.mjs'

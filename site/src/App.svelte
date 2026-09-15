@@ -52,6 +52,7 @@
   import { ExternalLink, Moon, Sun } from '@lucide/svelte'
   import { css } from '../styled-system/css'
   import { flex, stack } from '../styled-system/patterns'
+  import { chip } from '../styled-system/recipes'
   import Code from './Code.svelte'
   import Logo from './Logo.svelte'
   import Spec from './Spec.svelte'
@@ -262,18 +263,7 @@
     </p>
     <div class={flex({ mt: '6', flexWrap: 'wrap', gap: '2' })}>
       {#each stats as stat (stat)}
-        <span
-          class={css({
-            rounded: 'full',
-            border: '1px solid',
-            borderColor: 'sig.border',
-            bg: 'sig.surface',
-            px: '3',
-            py: '1',
-            fontSize: 'xs',
-            color: 'sig.muted'
-          })}>{stat}</span
-        >
+        <span class={chip({ tone: stat === '0 runtime deps' ? 'accent' : undefined })}>{stat}</span>
       {/each}
     </div>
     <div

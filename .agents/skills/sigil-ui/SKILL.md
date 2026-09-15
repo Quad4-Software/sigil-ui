@@ -97,14 +97,23 @@ Pick one. All five produce the same result.
 
 - sigil css: the bundled build-time atomic engine, zero dependencies.
   Create sigil.config.mjs with `defineConfig` from `sigil-ui/css`, run
-  `npx sigil-ui css` (`--watch` for rebuilds), then import `{ css }`
-  and patterns (`flex`, `stack`, `grid`, `hstack`, `center`) from the
-  generated styled-system/. Style calls must be literal objects: the
-  compiler extracts them statically. Conditions (`_hover`, `_dark`,
-  `_focusVisible`, `_open`, `_groupHover`, breakpoints as keys),
-  per-property responsive values (`{ base: '4', md: '8' }`) and
-  arbitrary values (`w: '[300px]'`, underscores become spaces) are
-  supported. Unknown values pass through as raw CSS.
+  `npx sigil-ui css` (`--watch` for rebuilds), then import `{ css }`,
+  patterns (`flex`, `stack`, `grid`, `hstack`, `center`, `wrap`) and
+  recipes from the generated styled-system/. Style calls must be
+  literal objects: the compiler extracts them statically. Tokens emit
+  as `--s-<category>-<name>` custom properties so themes can switch at
+  runtime. Features: conditions (`_hover`, `_dark`, `_focusVisible`,
+  `_open`, `_expanded`, `_checked`, `_disabled`, `_groupHover`,
+  `_peerChecked`, `_rtl`, `_motionReduce`, breakpoint keys,
+  `@media`/`@container`/`@supports` keys, arbitrary `&` selector keys
+  like `'&:has(> img)'`, custom conditions in config), per-property
+  responsive values (`{ base: '4', md: '8' }`), arbitrary values
+  (`w: '[300px]'`, underscores become spaces), important suffix
+  (`p: '4!'`), token opacity (`bg: 'accent/50'`), negative spacing
+  (`mt: '-4'`), `spaceX`/`spaceY`, `textStyle`/`layerStyle`, keyframes,
+  `defineRecipe`/`defineSlotRecipe` in config. `css(a, b)` merges left
+  to right: later args and later object keys win. Unknown values pass
+  through as raw CSS.
 - Tailwind v4: `@import 'sigil-ui/tailwind.css'` after the tailwindcss
   import. Utilities: `bg-sig-accent`, `text-sig-fg`, `border-sig-border`,
   `rounded-sig`, `shadow-sig`.
