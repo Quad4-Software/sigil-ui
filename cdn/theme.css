@@ -1,0 +1,232 @@
+/* Default token values for sigil-ui components. Import once, override any
+   var to theme, or skip this file and drive the vars from your own
+   framework. Components carry fallbacks so nothing breaks without it.
+
+   Color tokens are registered with @property so they interpolate during
+   transitions instead of snapping. Initial values mirror the light theme
+   so var(--sig-*, fallback) behaves the same with or without this file. */
+
+@property --sig-bg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffffff;
+}
+@property --sig-fg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #18181b;
+}
+@property --sig-muted {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #71717a;
+}
+@property --sig-surface {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #f4f4f5;
+}
+@property --sig-surface-hover {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e4e4e7;
+}
+@property --sig-border {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #d4d4d8;
+}
+@property --sig-accent {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #4f46e5;
+}
+@property --sig-accent-hover {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #4338ca;
+}
+@property --sig-accent-fg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffffff;
+}
+@property --sig-danger {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #dc2626;
+}
+@property --sig-danger-hover {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #b91c1c;
+}
+@property --sig-danger-fg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffffff;
+}
+@property --sig-success {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #16a34a;
+}
+@property --sig-success-fg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffffff;
+}
+@property --sig-warning {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #d97706;
+}
+@property --sig-warning-fg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffffff;
+}
+@property --sig-info {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #2563eb;
+}
+@property --sig-info-fg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffffff;
+}
+@property --sig-ring {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #4f46e5;
+}
+@property --sig-overlay {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: rgb(0 0 0 / 0.5);
+}
+@property --sig-chart-1 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #4f46e5;
+}
+@property --sig-chart-2 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #0284c7;
+}
+@property --sig-chart-3 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #16a34a;
+}
+@property --sig-chart-4 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #d97706;
+}
+@property --sig-chart-5 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #dc2626;
+}
+@property --sig-radius {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0.375rem;
+}
+
+:root,
+[data-theme='light'] {
+  --sig-bg: #ffffff;
+  --sig-fg: #18181b;
+  --sig-muted: #71717a;
+  --sig-surface: #f4f4f5;
+  --sig-surface-hover: #e4e4e7;
+  --sig-border: #d4d4d8;
+  --sig-accent: #4f46e5;
+  --sig-accent-hover: #4338ca;
+  --sig-accent-fg: #ffffff;
+  --sig-accent-muted: color-mix(in srgb, var(--sig-accent) 12%, transparent);
+  --sig-danger: #dc2626;
+  --sig-danger-hover: #b91c1c;
+  --sig-danger-fg: #ffffff;
+  --sig-success: #16a34a;
+  --sig-success-fg: #ffffff;
+  --sig-warning: #d97706;
+  --sig-warning-fg: #ffffff;
+  --sig-info: #2563eb;
+  --sig-info-fg: #ffffff;
+  --sig-ring: #4f46e5;
+  --sig-overlay: rgb(0 0 0 / 0.5);
+  --sig-radius: 0.375rem;
+  --sig-shadow: 0 10px 30px rgb(0 0 0 / 0.15);
+  --sig-chart-1: #4f46e5;
+  --sig-chart-2: #0284c7;
+  --sig-chart-3: #16a34a;
+  --sig-chart-4: #d97706;
+  --sig-chart-5: #dc2626;
+}
+
+[data-theme='dark'] {
+  --sig-bg: #09090b;
+  --sig-fg: #fafafa;
+  --sig-muted: #a1a1aa;
+  --sig-surface: #18181b;
+  --sig-surface-hover: #27272a;
+  --sig-border: #3f3f46;
+  --sig-accent: #818cf8;
+  --sig-accent-hover: #6366f1;
+  --sig-accent-fg: #09090b;
+  --sig-accent-muted: color-mix(in srgb, var(--sig-accent) 18%, transparent);
+  --sig-danger: #ef4444;
+  --sig-danger-hover: #dc2626;
+  --sig-danger-fg: #09090b;
+  --sig-success: #4ade80;
+  --sig-success-fg: #09090b;
+  --sig-warning: #fbbf24;
+  --sig-warning-fg: #09090b;
+  --sig-info: #60a5fa;
+  --sig-info-fg: #09090b;
+  --sig-ring: #818cf8;
+  --sig-overlay: rgb(0 0 0 / 0.7);
+  --sig-shadow: 0 10px 30px rgb(0 0 0 / 0.5);
+  --sig-chart-1: #818cf8;
+  --sig-chart-2: #60a5fa;
+  --sig-chart-3: #4ade80;
+  --sig-chart-4: #fbbf24;
+  --sig-chart-5: #ef4444;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --sig-bg: #09090b;
+    --sig-fg: #fafafa;
+    --sig-muted: #a1a1aa;
+    --sig-surface: #18181b;
+    --sig-surface-hover: #27272a;
+    --sig-border: #3f3f46;
+    --sig-accent: #818cf8;
+    --sig-accent-hover: #6366f1;
+    --sig-accent-fg: #09090b;
+    --sig-accent-muted: color-mix(in srgb, var(--sig-accent) 18%, transparent);
+    --sig-danger: #ef4444;
+    --sig-danger-hover: #dc2626;
+    --sig-danger-fg: #09090b;
+    --sig-success: #4ade80;
+    --sig-success-fg: #09090b;
+    --sig-warning: #fbbf24;
+    --sig-warning-fg: #09090b;
+    --sig-info: #60a5fa;
+    --sig-info-fg: #09090b;
+    --sig-ring: #818cf8;
+    --sig-overlay: rgb(0 0 0 / 0.7);
+    --sig-shadow: 0 10px 30px rgb(0 0 0 / 0.5);
+    --sig-chart-1: #818cf8;
+    --sig-chart-2: #60a5fa;
+    --sig-chart-3: #4ade80;
+    --sig-chart-4: #fbbf24;
+    --sig-chart-5: #ef4444;
+  }
+}

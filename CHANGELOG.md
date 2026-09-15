@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `Loader`: spinner, dots, bars and pulse indicators in three sizes with `role="status"`
+- `Waveform`: voice-note amplitude bars with played-fraction coloring, a playing drift animation, and click or arrow-key seeking via `role="slider"`
+- `LikeButton`: heart or star reaction button with `aria-pressed`, optional count and a transform-only pop animation
+- `Chart.Waterfall`: running-total bridge columns with up, down and total kinds and dashed connectors
+- base.css: themed thin scrollbars (WebKit pseudo-elements plus Firefox scrollbar-color), selection, heading margins, mark, abbr, tables, sub/sup, and a `sig-prose` opt-in typography class for long-form content
+- `cdn/` committed at build time: `sigil.min.css` (theme + base + components), individual sheets and the headless modules, servable from jsdelivr and statically in GitHub mode
+
+### Changed
+
+- `sigil css` writes only files whose content changed and removes stale outputs instead of wiping outdir, so dev watchers stop reloading on no-op builds
+
 ## 0.10.0
 
 ### Added

@@ -1398,13 +1398,34 @@ export function renderAll(config, cwd = process.cwd()) {
 export function build(config, cwd = process.cwd()) {
   const outdir = resolve(cwd, config.outdir ?? 'styled-system')
   const { outputs, count, sourceCount, problems, components } = renderAll(config, cwd)
-  rmSync(outdir, { recursive: true, force: true })
+  const keep = new Set(outputs.keys())
+  let changed = 0
+
+  // remove files the render no longer emits, leave directories alone
+  if (existsSync(outdir)) {
+    const walk = (dir) => {
+      for (const e of readdirSync(dir, { withFileTypes: true })) {
+        const p = join(dir, e.name)
+        if (e.isDirectory()) {
+          walk(p)
+        } else if (!keep.has(relative(outdir, p))) {
+          rmSync(p)
+          changed++
+        }
+      }
+    }
+    walk(outdir)
+  }
+
+  // skip writes when the content is identical so watchers stay quiet
   for (const [rel, content] of outputs) {
     const target = join(outdir, rel)
+    if (existsSync(target) && readFileSync(target, 'utf8') === content) continue
     mkdirSync(join(target, '..'), { recursive: true })
     writeFileSync(target, content)
+    changed++
   }
-  return { count, files: sourceCount, outdir, problems, components }
+  return { count, files: sourceCount, outdir, problems, components, changed }
 }
 
 // stale-output guard for CI: regenerates everything and reports which

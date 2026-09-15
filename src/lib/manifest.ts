@@ -794,6 +794,83 @@ export const manifest: SigilManifest = {
       example: `<script>\n  import { Spinner } from 'sigil-ui'\n</script>\n\n<Spinner />`
     },
     {
+      name: 'Loader',
+      path: 'loader',
+      description:
+        'Loading indicators in four kinds: spinner, dots, bars and pulse. role=status with an aria-label, three sizes, transform-only animations, respects prefers-reduced-motion.',
+      props: [
+        {
+          name: 'kind',
+          type: "'spinner' | 'dots' | 'bars' | 'pulse'",
+          default: "'spinner'",
+          description: 'Indicator style.'
+        },
+        {
+          name: 'size',
+          type: "'sm' | 'md' | 'lg'",
+          default: "'md'",
+          description: 'Rendered size.'
+        },
+        { name: 'label', type: 'string', default: 'Loading', description: 'Accessible name.' },
+        classProp
+      ],
+      classes: ['sig-loader', 'sig-loader-dot', 'sig-loader-bar', 'sig-loader-pulse'],
+      dataAttributes: ['data-kind', 'data-size'],
+      example: `<script>\n  import { Loader } from 'sigil-ui'\n</script>\n\n<Loader kind="dots" />\n<Loader kind="bars" size="lg" label="Loading results" />`
+    },
+    {
+      name: 'Waveform',
+      path: 'waveform',
+      description:
+        'Voice-note style amplitude bars. Data-driven, optional played-fraction coloring, playing shimmer, and click or arrow-key seeking through role=slider. Pure CSS, no canvas.',
+      props: [
+        { name: 'bars', type: 'number[]', description: 'Amplitudes 0-1, one per bar.' },
+        {
+          name: 'progress',
+          type: 'number',
+          description: 'Played fraction 0-1; played bars render in the accent color.'
+        },
+        { name: 'playing', type: 'boolean', description: 'Subtle amplitude drift animation.' },
+        {
+          name: 'onseek',
+          type: '(fraction: number) => void',
+          description: 'Enables slider semantics and pointer or keyboard seeking.'
+        },
+        {
+          name: 'label',
+          type: 'string',
+          default: 'Audio waveform',
+          description: 'Accessible name.'
+        },
+        { name: 'height', type: 'number', default: '48', description: 'Rendered height in px.' },
+        classProp
+      ],
+      classes: ['sig-waveform', 'sig-waveform-bar'],
+      dataAttributes: ['data-playing', 'data-played'],
+      example: `<script>\n  import { Waveform } from 'sigil-ui'\n  let progress = $state(0.4)\n</script>\n\n<Waveform bars={amps} {progress} playing onseek={(f) => (progress = f)} />`
+    },
+    {
+      name: 'LikeButton',
+      path: 'like-button',
+      description:
+        'Star or heart reaction button with aria-pressed, an optional count and a transform-only pop animation. liked is bindable.',
+      props: [
+        { name: 'liked', type: 'boolean', bindable: true, description: 'Pressed state.' },
+        { name: 'count', type: 'number', description: 'Optional count shown beside the icon.' },
+        {
+          name: 'shape',
+          type: "'heart' | 'star'",
+          default: "'heart'",
+          description: 'Icon shape.'
+        },
+        { name: 'label', type: 'string', description: 'Accessible name override.' },
+        classProp
+      ],
+      classes: ['sig-like', 'sig-like-icon', 'sig-like-count'],
+      dataAttributes: ['data-shape', 'aria-pressed'],
+      example: `<script>\n  import { LikeButton } from 'sigil-ui'\n  let liked = $state(false)\n</script>\n\n<LikeButton bind:liked count={128} />\n<LikeButton shape="star" bind:liked />`
+    },
+    {
       name: 'Field',
       path: 'field',
       description:
@@ -872,7 +949,7 @@ export const manifest: SigilManifest = {
       name: 'Chart',
       path: 'chart',
       description:
-        'Chart namespace: Line, Area, Bar, Scatter, Radar, Heatmap, Gauge, Sparkline, Donut and Uptime. Pure SVG and flex, responsive, role=img with an aria-label. No canvas, no dependencies.',
+        'Chart namespace: Line, Area, Bar, Scatter, Radar, Heatmap, Gauge, Sparkline, Donut, Uptime and Waterfall. Pure SVG and flex, responsive, role=img with an aria-label. No canvas, no dependencies.',
       props: [
         {
           name: 'data',
@@ -916,7 +993,10 @@ export const manifest: SigilManifest = {
         'sig-uptime-bar',
         'sig-uptime-summary',
         'sig-uptime-pct',
-        'sig-uptime-avg'
+        'sig-uptime-avg',
+        'sig-waterfall',
+        'sig-waterfall-bar',
+        'sig-waterfall-link'
       ],
       dataAttributes: [],
       example: `<script>\n  import { Chart } from 'sigil-ui'\n  const traffic = [12, 18, 9, 24, 30, 22, 35]\n</script>\n\n<Chart.Line data={traffic} label="Weekly traffic" />\n<Chart.Bar data={[{ label: 'Mon', value: 12 }, { label: 'Tue', value: 18 }]} />\n<Chart.Sparkline data={traffic} filled />\n<Chart.Donut data={[{ value: 62, label: 'Used' }, { value: 38, label: 'Free' }]} />`

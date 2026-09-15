@@ -694,6 +694,74 @@ Data attributes:
 <Spinner />
 ```
 
+### Loader
+
+Loading indicators in four kinds: spinner, dots, bars and pulse. role=status with an aria-label, three sizes, transform-only animations, respects prefers-reduced-motion.
+
+Props:
+- kind ('spinner' | 'dots' | 'bars' | 'pulse', default 'spinner'): Indicator style.
+- size ('sm' | 'md' | 'lg', default 'md'): Rendered size.
+- label (string, default Loading): Accessible name.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-loader, sig-loader-dot, sig-loader-bar, sig-loader-pulse
+Data attributes: data-kind, data-size
+
+```svelte
+<script>
+  import { Loader } from 'sigil-ui'
+</script>
+
+<Loader kind="dots" />
+<Loader kind="bars" size="lg" label="Loading results" />
+```
+
+### Waveform
+
+Voice-note style amplitude bars. Data-driven, optional played-fraction coloring, playing shimmer, and click or arrow-key seeking through role=slider. Pure CSS, no canvas.
+
+Props:
+- bars (number[]): Amplitudes 0-1, one per bar.
+- progress (number): Played fraction 0-1; played bars render in the accent color.
+- playing (boolean): Subtle amplitude drift animation.
+- onseek ((fraction: number) => void): Enables slider semantics and pointer or keyboard seeking.
+- label (string, default Audio waveform): Accessible name.
+- height (number, default 48): Rendered height in px.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-waveform, sig-waveform-bar
+Data attributes: data-playing, data-played
+
+```svelte
+<script>
+  import { Waveform } from 'sigil-ui'
+  let progress = $state(0.4)
+</script>
+
+<Waveform bars={amps} {progress} playing onseek={(f) => (progress = f)} />
+```
+
+### LikeButton
+
+Star or heart reaction button with aria-pressed, an optional count and a transform-only pop animation. liked is bindable.
+
+Props:
+- liked (boolean, bindable): Pressed state.
+- count (number): Optional count shown beside the icon.
+- shape ('heart' | 'star', default 'heart'): Icon shape.
+- label (string): Accessible name override.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-like, sig-like-icon, sig-like-count
+Data attributes: data-shape, aria-pressed
+
+```svelte
+<script>
+  import { LikeButton } from 'sigil-ui'
+  let liked = $state(false)
+</script>
+
+<LikeButton bind:liked count={128} />
+<LikeButton shape="star" bind:liked />
+```
+
 ### Field
 
 Form field wrapper: label, control, hint and error with generated id, aria-describedby and aria-invalid wiring. The children snippet receives the props to spread on the control.
@@ -777,14 +845,14 @@ Data attributes: data-side
 
 ### Chart
 
-Chart namespace: Line, Area, Bar, Scatter, Radar, Heatmap, Gauge, Sparkline, Donut and Uptime. Pure SVG and flex, responsive, role=img with an aria-label. No canvas, no dependencies.
+Chart namespace: Line, Area, Bar, Scatter, Radar, Heatmap, Gauge, Sparkline, Donut, Uptime and Waterfall. Pure SVG and flex, responsive, role=img with an aria-label. No canvas, no dependencies.
 
 Props:
 - data (number[] | { label: string; value: number }[]): Series values. Donut segments accept { value, label, color }.
 - label (string): Accessible name for the figure.
 - height (number): Rendered height in px.
 - class (ClassValue): Merged with the base class. Pass framework utility classes here.
-CSS classes: sig-chart, sig-chart-line, sig-chart-area, sig-chart-grid, sig-chart-axis, sig-chart-bar, sig-chart-dot, sig-chart-ticks, sig-sparkline, sig-sparkline-line, sig-sparkline-area, sig-donut, sig-donut-track, sig-donut-seg, sig-donut-center, sig-heatmap, sig-heatmap-cell, sig-heatmap-label, sig-radar, sig-radar-ring, sig-radar-spoke, sig-radar-label, sig-radar-area, sig-radar-line, sig-scatter, sig-scatter-axis, sig-scatter-dot, sig-uptime, sig-uptime-bars, sig-uptime-bar, sig-uptime-summary, sig-uptime-pct, sig-uptime-avg
+CSS classes: sig-chart, sig-chart-line, sig-chart-area, sig-chart-grid, sig-chart-axis, sig-chart-bar, sig-chart-dot, sig-chart-ticks, sig-sparkline, sig-sparkline-line, sig-sparkline-area, sig-donut, sig-donut-track, sig-donut-seg, sig-donut-center, sig-heatmap, sig-heatmap-cell, sig-heatmap-label, sig-radar, sig-radar-ring, sig-radar-spoke, sig-radar-label, sig-radar-area, sig-radar-line, sig-scatter, sig-scatter-axis, sig-scatter-dot, sig-uptime, sig-uptime-bars, sig-uptime-bar, sig-uptime-summary, sig-uptime-pct, sig-uptime-avg, sig-waterfall, sig-waterfall-bar, sig-waterfall-link
 Data attributes: 
 
 ```svelte

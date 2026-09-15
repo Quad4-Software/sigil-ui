@@ -43,6 +43,9 @@
     Popover,
     Presence,
     Progress,
+    LikeButton,
+    Loader,
+    Waveform,
     RadioGroup,
     Rating,
     Reveal,
@@ -126,6 +129,13 @@
   let confirmOpen = $state(false)
   let apiFilter = $state('')
   let apiSelected = $state('Button')
+  let clipProgress = $state(0.35)
+  let clipPlaying = $state(false)
+  let liked = $state(false)
+  const clipAmps = [
+    0.3, 0.55, 0.8, 0.45, 0.9, 0.65, 1, 0.7, 0.5, 0.85, 0.4, 0.6, 0.95, 0.35, 0.75, 0.55, 0.25, 0.8,
+    0.5, 0.7, 0.45, 0.9, 0.3, 0.6, 0.85, 0.4, 0.7, 0.55, 0.95, 0.35, 0.65, 0.5, 0.8, 0.4, 0.6, 0.3
+  ]
   const benchMaxMs = Math.max(...bench.map((r) => r.coldBuildMs))
   const benchMaxDeps = Math.max(...bench.map((r) => r.dependencies))
   const benchMaxInstall = Math.max(...bench.map((r) => r.installBytes ?? 0))
@@ -235,6 +245,12 @@
     '<link rel="stylesheet" href="sigil-ui/theme.css" />\n<link rel="stylesheet" href="sigil-ui/components.css" />\n\n<button class="sig-btn" data-variant="primary">Save</button>'
   const vanillaJsCode =
     "import { attachAll, createTheme } from 'sigil-ui/headless'\n\nattachAll(document.body)\ncreateTheme()"
+  const cdnJsDelivrCode =
+    '<link rel="stylesheet"\n  href="https://cdn.jsdelivr.net/gh/Quad4-Software/sigil-ui@master/cdn/sigil.min.css" />\n\n<script type="module">\n  import { attachAll } from\n    "https://cdn.jsdelivr.net/gh/Quad4-Software/sigil-ui@master/cdn/headless/index.js"\n  attachAll(document.body)\n</' +
+    'script>'
+  const cdnStaticallyCode =
+    '<link rel="stylesheet"\n  href="https://cdn.statically.io/gh/Quad4-Software/sigil-ui/master/cdn/sigil.min.css" />\n\n<script type="module">\n  import { attachAll } from\n    "https://cdn.statically.io/gh/Quad4-Software/sigil-ui/master/cdn/headless/index.js"\n  attachAll(document.body)\n</' +
+    'script>'
 
   const section = css({
     scrollMarginTop: '20',
@@ -263,9 +279,22 @@
     fontSize: 'xs',
     color: 'sig.muted',
     flexShrink: '0',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1.5',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis'
   })
   const benchValue = css({ fontSize: 'xs', color: 'sig.fg', whiteSpace: 'nowrap' })
+  const benchLogo = css({ w: '4', h: '4', flexShrink: '0' })
+  const benchLogoSrc: Record<string, string> = {
+    'sigil css': 'logos/sigil.svg',
+    'Tailwind CSS v4': 'logos/tailwind.svg',
+    UnoCSS: 'logos/unocss.svg',
+    'Panda CSS': 'logos/panda.svg'
+  }
+  const benchLogoUrl = (tool: string) => `${import.meta.env.BASE_URL}${benchLogoSrc[tool]}`
   const iconBtn = css({
     display: 'inline-flex',
     alignItems: 'center',
@@ -618,6 +647,21 @@
                 </span>
                 <Chart.Uptime data={ping} warnAt={150} summary label="Edge latency, last 30 min" />
               </div>
+              <div class={stack({ gap: '2' })}>
+                <span class={css({ fontSize: 'xs', color: 'sig.muted' })}>
+                  Waterfall · running total deltas
+                </span>
+                <Chart.Waterfall
+                  data={[
+                    { label: 'Q1', value: 420, total: true },
+                    { label: 'New', value: 96 },
+                    { label: 'Expand', value: 54 },
+                    { label: 'Churn', value: -38 },
+                    { label: 'Q2', value: 0, total: true }
+                  ]}
+                  label="Revenue bridge"
+                />
+              </div>
             </div>
           </Spec></Reveal
         >
@@ -943,8 +987,18 @@
         <Reveal
           ><Spec
             label="Feedback"
-            hint="Badge, Avatar, Tooltip, Alert, Skeleton, Toaster"
-            for={['Badge', 'Avatar', 'Tooltip', 'Alert', 'Skeleton', 'Toaster']}
+            hint="Badge, Avatar, Tooltip, Alert, Skeleton, Toaster, Loader, Waveform, LikeButton"
+            for={[
+              'Badge',
+              'Avatar',
+              'Tooltip',
+              'Alert',
+              'Skeleton',
+              'Toaster',
+              'Loader',
+              'Waveform',
+              'LikeButton'
+            ]}
           >
             <div class={stack({ gap: '3' })}>
               <div class={flex({ flexWrap: 'wrap', alignItems: 'center', gap: '3' })}>
@@ -976,6 +1030,39 @@
                 The API will be read-only on Sunday between 02:00 and 03:00 UTC.
               </Alert>
               <Skeleton class={css({ h: '8', maxW: 'md' })} />
+              <div class={flex({ flexWrap: 'wrap', alignItems: 'center', gap: '5' })}>
+                <Loader kind="spinner" />
+                <Loader kind="dots" />
+                <Loader kind="bars" />
+                <Loader kind="pulse" />
+                <Loader kind="dots" size="sm" label="Loading comments" />
+                <Loader kind="bars" size="lg" label="Loading feed" />
+                <LikeButton bind:liked count={liked ? 129 : 128} />
+                <LikeButton shape="star" label="Star this project" />
+              </div>
+              <div class={stack({ gap: '2' })}>
+                <span class={css({ fontSize: 'xs', color: 'sig.muted' })}>
+                  Waveform · click or arrow keys to seek
+                </span>
+                <div class={flex({ alignItems: 'center', gap: '3' })}>
+                  <Button
+                    variant="secondary"
+                    aria-label={clipPlaying ? 'Pause clip' : 'Play clip'}
+                    onclick={() => (clipPlaying = !clipPlaying)}
+                  >
+                    {clipPlaying ? 'Pause' : 'Play'}
+                  </Button>
+                  <div class={css({ flex: '1', minW: '0' })}>
+                    <Waveform
+                      bars={clipAmps}
+                      progress={clipProgress}
+                      playing={clipPlaying}
+                      onseek={(f) => (clipProgress = f)}
+                      label="Voice note"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </Spec></Reveal
         >
@@ -1439,7 +1526,10 @@
             {#each bench as row (row.tool)}
               <Table.Row>
                 <Table.Cell>
-                  {row.tool}
+                  <span class={flex({ alignItems: 'center', gap: '2' })}>
+                    <img src={benchLogoUrl(row.tool)} alt="" class={benchLogo} />
+                    {row.tool}
+                  </span>
                   {#if row.tool === 'sigil css'}
                     <span class={css({ color: 'sig.muted', fontSize: 'xs' })}>
                       ({row.compileMs}ms in-process)
@@ -1484,7 +1574,9 @@
           <div class={stack({ gap: '2' })}>
             {#each bench as row (row.tool)}
               <div class={flex({ alignItems: 'center', gap: '3' })}>
-                <span class={benchLabel}>{row.tool}</span>
+                <span class={benchLabel}
+                  ><img src={benchLogoUrl(row.tool)} alt="" class={benchLogo} />{row.tool}</span
+                >
                 <div class={benchTrack}>
                   <div
                     class={row.tool === 'sigil css' ? benchBarAccent : benchBar}
@@ -1511,7 +1603,9 @@
           <div class={stack({ gap: '2' })}>
             {#each bench as row (row.tool)}
               <div class={flex({ alignItems: 'center', gap: '3' })}>
-                <span class={benchLabel}>{row.tool}</span>
+                <span class={benchLabel}
+                  ><img src={benchLogoUrl(row.tool)} alt="" class={benchLogo} />{row.tool}</span
+                >
                 <div class={benchTrack}>
                   <div
                     class={row.tool === 'sigil css' ? benchBarAccent : benchBar}
@@ -1538,7 +1632,9 @@
           <div class={stack({ gap: '2' })}>
             {#each bench as row (row.tool)}
               <div class={flex({ alignItems: 'center', gap: '3' })}>
-                <span class={benchLabel}>{row.tool}</span>
+                <span class={benchLabel}
+                  ><img src={benchLogoUrl(row.tool)} alt="" class={benchLogo} />{row.tool}</span
+                >
                 <div class={benchTrack}>
                   <div
                     class={row.tool === 'sigil css' ? benchBarAccent : benchBar}
@@ -1619,6 +1715,25 @@
         Overlays, popovers and menus wire explicitly through create functions since they pair a
         trigger with portaled content.
       </p>
+      <h3 class={css({ mt: '8', fontSize: 'lg', fontWeight: 'semibold' })}>Straight from a CDN</h3>
+      <p class={css({ mt: '2', fontSize: 'sm', color: 'sig.muted' })}>
+        The cdn/ directory is committed at every tag, so jsdelivr and statically can serve the
+        theme, base resets, component styles and the headless controllers with no install.
+        sigil.min.css bundles all three sheets. Pin a tag for immutable caching, or use @master to
+        track the latest. Once the package lands on npm the same paths work under
+        cdn.jsdelivr.net/npm/sigil-ui.
+      </p>
+      <div
+        class={css({
+          display: 'grid',
+          mt: '4',
+          gap: '3',
+          gridTemplateColumns: { base: '1fr', lg: 'repeat(2, 1fr)' }
+        })}
+      >
+        <Code title="jsdelivr">{cdnJsDelivrCode}</Code>
+        <Code title="statically">{cdnStaticallyCode}</Code>
+      </div>
     </section>
 
     <section id="tokens" class={section}>

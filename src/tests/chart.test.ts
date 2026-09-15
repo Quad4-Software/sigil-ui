@@ -192,3 +192,44 @@ describe('Chart.Uptime', () => {
     expect(screen.getByText('5 ms avg')).toBeInTheDocument()
   })
 })
+
+describe('Chart.Waterfall', () => {
+  it('renders a column per datum with up, down and total kinds', () => {
+    render(Chart.Waterfall, {
+      data: [
+        { label: 'Start', value: 100, total: true },
+        { label: 'In', value: 40 },
+        { label: 'Out', value: -25 },
+        { label: 'End', value: 0, total: true }
+      ],
+      label: 'Flow'
+    })
+    const fig = screen.getByRole('img', { name: 'Flow' })
+    const bars = fig.querySelectorAll('.sig-waterfall-bar')
+    expect(bars).toHaveLength(4)
+    expect(bars[0]).toHaveAttribute('data-kind', 'total')
+    expect(bars[1]).toHaveAttribute('data-kind', 'up')
+    expect(bars[2]).toHaveAttribute('data-kind', 'down')
+    expect(bars[3]).toHaveAttribute('data-kind', 'total')
+    expect(fig.querySelectorAll('.sig-waterfall-link')).toHaveLength(3)
+  })
+
+  it('carries the running total into the total column title', () => {
+    render(Chart.Waterfall, {
+      data: [
+        { label: 'a', value: 10 },
+        { label: 'b', value: 5 },
+        { label: 'sum', value: 0, total: true }
+      ]
+    })
+    const titles = [...document.querySelectorAll('.sig-waterfall-bar title')].map(
+      (t) => t.textContent
+    )
+    expect(titles).toEqual(['a: 10', 'b: 5', 'sum: 15'])
+  })
+
+  it('tolerates empty data', () => {
+    render(Chart.Waterfall, { data: [] })
+    expect(screen.getByRole('img')).toBeInTheDocument()
+  })
+})

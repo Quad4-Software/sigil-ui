@@ -68,7 +68,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "svelte-package && node scripts/gen-manifest.mjs && node scripts/gen-css.mjs",
+    "build": "svelte-package && node scripts/gen-manifest.mjs && node scripts/gen-css.mjs && node scripts/gen-cdn.mjs",
     "build:demo": "vite build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json --fail-on-warnings",

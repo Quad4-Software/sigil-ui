@@ -31,10 +31,11 @@ render; every --sig-* variable has a fallback. Dark mode follows
 
 Primitives: Button, Badge, Switch, Toggle, Input, Textarea, Select,
 Checkbox, RadioGroup, Slider, Avatar, Progress, Skeleton, Spinner,
-Separator, Tooltip, Alert, Stat, Kbd, Empty, Breadcrumb, Field,
-ScrollArea, Pagination, CountUp, CopyButton, Reveal, AspectRatio,
-AvatarGroup, TagsInput, FileUpload, Tree, Presence, Marquee,
-NumberInput, PinInput, Rating, Editable.
+Loader, Separator, Tooltip, Alert, Stat, Kbd, Empty, Breadcrumb,
+Field, ScrollArea, Pagination, CountUp, CopyButton, Reveal,
+AspectRatio, AvatarGroup, TagsInput, FileUpload, Tree, Presence,
+Marquee, NumberInput, PinInput, Rating, Editable, Waveform,
+LikeButton.
 
 Compound namespaces, each shipping Root plus named parts: Dialog,
 AlertDialog, Sheet, Card, Tabs, Accordion, Popover, HoverCard,
@@ -43,10 +44,12 @@ ToggleGroup, Timeline, Stepper, Carousel. Command.Dialog is a Cmd+K
 palette out of the box.
 
 Charts (Chart.Line/Bar/Area/Scatter/Radar/Heatmap/Sparkline/Donut/
-Gauge) are pure SVG with role=img and native tooltips. Chart.Uptime
-renders status-page pill bars for latency series with an uptime
-summary. DataTable adds sorting, row selection, filtering and a
-sticky header.
+Gauge/Waterfall) are pure SVG with role=img and native tooltips.
+Chart.Uptime renders status-page pill bars for latency series with
+an uptime summary, and Chart.Waterfall renders running-total bridges
+with up, down and total columns. Waveform renders voice-note
+amplitude bars with click or arrow-key seeking. DataTable adds
+sorting, row selection, filtering and a sticky header.
 
 Toasts: mount Toaster once, then call from anywhere:
 
@@ -95,6 +98,31 @@ page.
   attachAll(document)
 </script>
 ```
+
+base.css also themes scrollbars, selection, headings, mark, abbr,
+tables and sub/sup, and ships a sig-prose class for long-form
+typography (headings, lists, blockquotes, tables, figures).
+
+## CDN
+
+The cdn/ directory is committed at every tag, so jsdelivr and
+statically can serve it straight from GitHub. sigil.min.css bundles
+theme + base + components.
+
+```html
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/gh/Quad4-Software/sigil-ui@master/cdn/sigil.min.css"
+/>
+<script type="module">
+  import { attachAll } from 'https://cdn.jsdelivr.net/gh/Quad4-Software/sigil-ui@master/cdn/headless/index.js'
+  attachAll(document)
+</script>
+```
+
+Swap cdn.jsdelivr.net/gh for cdn.statically.io/gh to use statically.
+Pin a tag for immutable caching. Individual sheets live at
+cdn/theme.css, cdn/base.css and cdn/components.min.css.
 
 ## Styling adapters
 
