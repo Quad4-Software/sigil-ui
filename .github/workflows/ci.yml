@@ -35,6 +35,11 @@ jobs:
       - name: install
         run: pnpm install --frozen-lockfile
 
+      # svelte-package output must exist first: site/panda.config.ts and
+      # svelte-check both resolve sigil-ui/* exports through dist/.
+      - name: package
+        run: pnpm build
+
       - name: typecheck
         run: pnpm check
 
@@ -44,8 +49,8 @@ jobs:
       - name: test with coverage gates
         run: pnpm test:coverage
 
-      - name: package and lint artifact
-        run: pnpm build && pnpm pack:check
+      - name: lint artifact
+        run: pnpm pack:check
 
       - name: build site
         run: pnpm -F sigil-site build
