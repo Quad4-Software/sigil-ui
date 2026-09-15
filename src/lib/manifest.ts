@@ -948,6 +948,11 @@ export const manifest: SigilManifest = {
       name: 'No framework',
       entry: 'sigil-ui/theme.css',
       usage: `import 'sigil-ui/theme.css'\n\n/* or override any --sig-* var in your own stylesheet */`
+    },
+    {
+      name: 'sigil css',
+      entry: 'sigil-ui/css',
+      usage: `// sigil.config.mjs\nimport { defineConfig } from 'sigil-ui/css'\n\nexport default defineConfig({\n  include: ['./src/**/*.{svelte,ts}'],\n  tokens: { colors: { sig: { accent: 'var(--sig-accent)' } } }\n})\n\n// then: npx sigil-ui css\n// use: import { css } from '../styled-system/css'`
     }
   ]
 }

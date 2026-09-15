@@ -37,6 +37,10 @@
       "types": "./dist/panda.d.ts",
       "default": "./dist/panda.js"
     },
+    "./css": {
+      "types": "./css/index.d.ts",
+      "default": "./css/index.mjs"
+    },
     "./theme.css": "./dist/theme/sigil.css",
     "./tailwind.css": "./dist/theme/tailwind.css",
     "./manifest.json": "./dist/manifest.json",
@@ -47,7 +51,8 @@
   },
   "files": [
     "dist",
-    "bin"
+    "bin",
+    "css"
   ],
   "sideEffects": [
     "**/*.css"

@@ -40,6 +40,13 @@ export default defineConfig([
     }
   },
   {
+    // engine.mjs is shipped as plain JS; its public types live in index.d.ts
+    files: ['css/**/*.mjs'],
+    rules: {
+      '@typescript-eslint/ban-ts-comment': 'off'
+    }
+  },
+  {
     rules: {
       '@typescript-eslint/consistent-type-definitions': 'off',
       '@typescript-eslint/consistent-type-imports': 'error',

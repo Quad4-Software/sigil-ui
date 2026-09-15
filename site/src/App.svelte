@@ -61,7 +61,7 @@
     `${manifest.components.length} components`,
     '0 runtime deps',
     '0 primitive libs',
-    '4 styling adapters'
+    '5 styling adapters'
   ]
 
   const cliCode =
@@ -573,7 +573,8 @@
   <section id="adapters" class={section}>
     <h2 class={h2}>Adapters</h2>
     <p class={lead}>
-      One token contract, four ways to consume it. All of these produce the same themed components.
+      One token contract, five ways to consume it. sigil css is the bundled build-time atomic
+      engine. The rest adapt existing frameworks. All produce the same themed components.
     </p>
     <div
       class={css({

@@ -54,6 +54,7 @@
 - UnoCSS: sigil-ui/uno
 - Panda CSS: sigil-ui/panda
 - No framework: sigil-ui/theme.css
+- sigil css: sigil-ui/css
 
 ## Install
 

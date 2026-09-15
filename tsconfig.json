@@ -33,7 +33,6 @@
     "site/**/*.svelte",
     "vite.config.ts",
     "site/vite.config.ts",
-    "site/uno.config.ts",
     "svelte.config.js",
     "eslint.config.js"
   ]

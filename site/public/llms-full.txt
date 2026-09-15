@@ -839,6 +839,21 @@ import 'sigil-ui/theme.css'
 /* or override any --sig-* var in your own stylesheet */
 ```
 
+### sigil css (sigil-ui/css)
+
+```
+// sigil.config.mjs
+import { defineConfig } from 'sigil-ui/css'
+
+export default defineConfig({
+  include: ['./src/**/*.{svelte,ts}'],
+  tokens: { colors: { sig: { accent: 'var(--sig-accent)' } } }
+})
+
+// then: npx sigil-ui css
+// use: import { css } from '../styled-system/css'
+```
+
 
 ## CLI
 

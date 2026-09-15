@@ -68,8 +68,17 @@ Provide your own `--sig-*` values to theme.
 
 ## Theming by framework
 
-Pick one. All four produce the same result.
+Pick one. All five produce the same result.
 
+- sigil css: the bundled build-time atomic engine, zero dependencies.
+  Create sigil.config.mjs with `defineConfig` from `sigil-ui/css`, run
+  `npx sigil-ui css`, then import `{ css }` and patterns
+  (`flex`, `stack`, `grid`, `hstack`, `center`) from the generated
+  styled-system/. Style calls must be literal objects: the compiler
+  extracts them statically. Conditions (`_hover`, `_dark`,
+  `_focusVisible`, breakpoints as keys) and per-property responsive
+  values (`{ base: '4', md: '8' }`) are supported. Unknown values pass
+  through as raw CSS.
 - Tailwind v4: `@import 'sigil-ui/tailwind.css'` after the tailwindcss
   import. Utilities: `bg-sig-accent`, `text-sig-fg`, `border-sig-border`,
   `rounded-sig`, `shadow-sig`.

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -24,6 +24,8 @@ usage:
   sigil-ui adapters          Tailwind / UnoCSS / Panda / vanilla wiring
   sigil-ui manifest          full component metadata as JSON
   sigil-ui doctor            inspect the current project for setup gaps
+  sigil-ui css               build-time atomic CSS: generate styled-system/
+  sigil-ui css init          write a starter sigil.config.mjs
 
 quickstart:
   pnpm add sigil-ui
@@ -138,11 +140,14 @@ function doctor(m) {
     existsSync(join(cwd, 'tailwind.config.ts'))
   const hasUno = files.some((f) => /uno\.config\.(ts|js|mts)$/.test(f))
   const hasPanda = files.some((f) => /panda\.config\.(ts|js|mts)$/.test(f))
+  const hasSigilCss =
+    existsSync(join(cwd, 'sigil.config.mjs')) || existsSync(join(cwd, 'sigil.config.js'))
 
   if (hasTailwind)
     notes.push("tailwindcss detected: use @import 'sigil-ui/tailwind.css' for sig-* utilities")
   if (hasUno) notes.push('unocss detected: add sigilPreset from sigil-ui/uno')
   if (hasPanda) notes.push('panda detected: add sigilPreset from sigil-ui/panda')
+  if (hasSigilCss) notes.push('sigil css config detected: regenerate with npx sigil-ui css')
 
   console.log(`sigil-ui doctor for ${pkg.name ?? cwd}`)
   if (problems.length === 0 && notes.length === 0) {
@@ -158,6 +163,52 @@ const [cmd, arg] = process.argv.slice(2)
 
 if (!cmd || cmd === 'help' || cmd === '--help' || cmd === '-h') {
   console.log(HELP)
+  process.exit(0)
+}
+
+if (cmd === 'css') {
+  const { loadConfig, build } = await import(new URL('../css/engine.mjs', import.meta.url))
+  const cwd = process.cwd()
+  if (arg === 'init') {
+    const target = join(cwd, 'sigil.config.mjs')
+    if (existsSync(target)) {
+      console.error('sigil.config.mjs already exists')
+      process.exit(1)
+    }
+    writeFileSync(
+      target,
+      `import { defineConfig } from 'sigil-ui/css'
+
+export default defineConfig({
+  include: ['./src/**/*.{svelte,ts,js}'],
+  outdir: 'styled-system',
+  preflight: true,
+  tokens: {
+    colors: {},
+    spacing: {},
+    sizes: {},
+    radii: {},
+    shadows: {},
+    fontSizes: {},
+    fontWeights: {},
+    fonts: {},
+    lineHeights: {}
+  }
+})
+`
+    )
+    console.log('wrote sigil.config.mjs')
+    process.exit(0)
+  }
+  const config = await loadConfig(cwd)
+  if (!config) {
+    console.error('no sigil.config.mjs found. Run: sigil-ui css init')
+    process.exit(1)
+  }
+  const res = build(config, cwd)
+  console.log(
+    `sigil css: scanned ${res.files} files, emitted ${res.count} rules to ${res.outdir}/styles.css`
+  )
   process.exit(0)
 }
 
