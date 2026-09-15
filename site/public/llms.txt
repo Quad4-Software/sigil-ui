@@ -32,6 +32,17 @@
 - Dialog: Modal dialog namespace: Root (bindable open), Trigger, Portal, Overlay, Content, Title, Description, Close.
 - Toaster: Toast system.
 - PaneGroup: Resizable split panes (PaneGroup, Pane, PaneResizer).
+- Textarea: Styled native textarea with bindable value and invalid state.
+- RadioGroup: RadioGroup namespace: Root (bindable value, roving tabindex, arrow keys) and Item (role=radio, aria-checked).
+- Slider: Styled native range input with bindable value and filled track via a --sig-slider-pct custom property.
+- Toggle: Pressed/unpressed button with aria-pressed and data-state.
+- Kbd: Keyboard key cap for shortcuts and hints.
+- Breadcrumb: Breadcrumb namespace: Root renders nav + ol with aria-label, Item renders li with auto slash separators and aria-current on the last entry.
+- Popover: Popover namespace: Root (bindable open), Trigger (aria-haspopup=dialog), Content (anchored, side/align).
+- DropdownMenu: Menu namespace: Root (bindable open), Trigger (aria-haspopup=menu), Content (role=menu, arrow keys, Home/End), Item (role=menuitem, onSelect), Separator.
+- Empty: Empty state block with dashed border, optional icon snippet, title, description, and action slot.
+- Measure: Dev tool: wraps content, shows a live pixel size badge driven by ResizeObserver, and passes width/height to children snippet props.
+- GridOverlay: Dev tool: fixed overlay that draws a spacing grid and can outline elements whose content leaks or clips.
 
 ## Adapters
 

@@ -5,6 +5,7 @@ demo-dist/
 .svelte-kit/
 .vite/
 coverage/
+styled-system/
 *.tsbuildinfo
 *.local
 .env

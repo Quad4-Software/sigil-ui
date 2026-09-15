@@ -423,6 +423,259 @@ Data attributes: data-direction, data-state, data-index
 </PaneGroup>
 ```
 
+### Textarea
+
+Styled native textarea with bindable value and invalid state.
+
+Props:
+- value (string, bindable, default ''): Bindable textarea value.
+- invalid (boolean, default false): Sets aria-invalid and danger border.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-textarea
+Data attributes: data-invalid
+
+```svelte
+<script>
+  import { Textarea } from 'sigil-ui'
+  let bio = $state('')
+</script>
+
+<Textarea bind:value={bio} placeholder="Tell us about yourself" />
+```
+
+### RadioGroup
+
+RadioGroup namespace: Root (bindable value, roving tabindex, arrow keys) and Item (role=radio, aria-checked).
+
+Props:
+- value (string, bindable, default ''): Bindable selected value on RadioGroup.Root.
+- value (string): Required option value on RadioGroup.Item.
+- disabled (boolean, default false): Disables the group or a single item.
+- onValueChange ((value: string) => void): Called on selection change on RadioGroup.Root.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-radio-group, sig-radio, sig-radio-dot, sig-radio-label
+Data attributes: data-state, data-disabled, data-value
+
+```svelte
+<script>
+  import { RadioGroup } from 'sigil-ui'
+  let plan = $state('free')
+</script>
+
+<RadioGroup.Root bind:value={plan}>
+  <RadioGroup.Item value="free">Free</RadioGroup.Item>
+  <RadioGroup.Item value="pro">Pro</RadioGroup.Item>
+</RadioGroup.Root>
+```
+
+### Slider
+
+Styled native range input with bindable value and filled track via a --sig-slider-pct custom property.
+
+Props:
+- value (number, bindable, default 0): Bindable numeric value.
+- min (number, default 0): Minimum.
+- max (number, default 100): Maximum.
+- step (number, default 1): Step.
+- label (string): Accessible label via aria-label.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-slider
+Data attributes: data-disabled
+
+```svelte
+<script>
+  import { Slider } from 'sigil-ui'
+  let volume = $state(40)
+</script>
+
+<Slider bind:value={volume} label="Volume" />
+```
+
+### Toggle
+
+Pressed/unpressed button with aria-pressed and data-state.
+
+Props:
+- pressed (boolean, bindable, default false): Bindable pressed state.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-toggle
+Data attributes: data-state, data-disabled
+
+```svelte
+<script>
+  import { Toggle } from 'sigil-ui'
+  let bold = $state(false)
+</script>
+
+<Toggle bind:pressed={bold} aria-label="Bold">B</Toggle>
+```
+
+### Kbd
+
+Keyboard key cap for shortcuts and hints.
+
+Props:
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-kbd
+Data attributes: 
+
+```svelte
+<script>
+  import { Kbd } from 'sigil-ui'
+</script>
+
+<p>Press <Kbd>Ctrl</Kbd> + <Kbd>K</Kbd></p>
+```
+
+### Breadcrumb
+
+Breadcrumb namespace: Root renders nav + ol with aria-label, Item renders li with auto slash separators and aria-current on the last entry.
+
+Props:
+- label (string, default 'Breadcrumb'): aria-label for the nav landmark on Root.
+- current (boolean, default false): Marks the item as the current page via aria-current.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-breadcrumb, sig-crumbs, sig-crumb
+Data attributes: data-current
+
+```svelte
+<script>
+  import { Breadcrumb } from 'sigil-ui'
+</script>
+
+<Breadcrumb.Root>
+  <Breadcrumb.Item><a href="/">Home</a></Breadcrumb.Item>
+  <Breadcrumb.Item><a href="/lib">Library</a></Breadcrumb.Item>
+  <Breadcrumb.Item current>Current</Breadcrumb.Item>
+</Breadcrumb.Root>
+```
+
+### Popover
+
+Popover namespace: Root (bindable open), Trigger (aria-haspopup=dialog), Content (anchored, side/align). Outside click and Escape close, focus restored to trigger.
+
+Props:
+- open (boolean, bindable, default false): Bindable open state on Popover.Root.
+- side ('top' | 'bottom' | 'left' | 'right', default 'bottom'): Side of the trigger on Popover.Content.
+- align ('start' | 'center' | 'end', default 'center'): Alignment along the side on Popover.Content.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-pop-wrap, sig-pop-trigger, sig-pop-content
+Data attributes: data-state, data-side, data-align
+
+```svelte
+<script>
+  import { Popover, Button } from 'sigil-ui'
+</script>
+
+<Popover.Root>
+  <Popover.Trigger>Details</Popover.Trigger>
+  <Popover.Content side="bottom">Anchored content.</Popover.Content>
+</Popover.Root>
+```
+
+### DropdownMenu
+
+Menu namespace: Root (bindable open), Trigger (aria-haspopup=menu), Content (role=menu, arrow keys, Home/End), Item (role=menuitem, onSelect), Separator.
+
+Props:
+- open (boolean, bindable, default false): Bindable open state on DropdownMenu.Root.
+- onSelect (() => void): Called when the item is picked on DropdownMenu.Item.
+- side ('top' | 'bottom', default 'bottom'): Side of the trigger on DropdownMenu.Content.
+- align ('start' | 'center' | 'end', default 'start'): Alignment on DropdownMenu.Content.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-menu-wrap, sig-menu-trigger, sig-menu-content, sig-menu-item, sig-menu-sep
+Data attributes: data-state, data-side, data-align, data-disabled
+
+```svelte
+<script>
+  import { DropdownMenu, Button } from 'sigil-ui'
+</script>
+
+<DropdownMenu.Root>
+  <DropdownMenu.Trigger>Actions</DropdownMenu.Trigger>
+  <DropdownMenu.Content>
+    <DropdownMenu.Item onSelect={() => save()}>Save</DropdownMenu.Item>
+    <DropdownMenu.Separator />
+    <DropdownMenu.Item onSelect={() => remove()}>Delete</DropdownMenu.Item>
+  </DropdownMenu.Content>
+</DropdownMenu.Root>
+```
+
+### Empty
+
+Empty state block with dashed border, optional icon snippet, title, description, and action slot.
+
+Props:
+- title (string): Heading line.
+- description (string): Secondary line.
+- icon (Snippet): Decorative icon, aria-hidden.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-empty, sig-empty-icon, sig-empty-title, sig-empty-desc, sig-empty-actions
+Data attributes: 
+
+```svelte
+<script>
+  import { Empty, Button } from 'sigil-ui'
+</script>
+
+<Empty title="No results" description="Try a different search.">
+  <Button>Clear filters</Button>
+</Empty>
+```
+
+### Measure
+
+Dev tool: wraps content, shows a live pixel size badge driven by ResizeObserver, and passes width/height to children snippet props.
+
+Props:
+- badge (boolean, default true): Show the pixel readout badge.
+- decimals (number, default 0): Badge precision.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+- children (Snippet): Content rendered inside the element.
+CSS classes: sig-measure, sig-measure-badge
+Data attributes: 
+
+```svelte
+<script>
+  import { Measure, Card } from 'sigil-ui'
+</script>
+
+<Measure>
+  <Card.Root>...</Card.Root>
+</Measure>
+```
+
+### GridOverlay
+
+Dev tool: fixed overlay that draws a spacing grid and can outline elements whose content leaks or clips. Pair with findOverflows() and tagOverflows() from sigil-ui.
+
+Props:
+- size (number, default 8): Grid cell size in px.
+- overflow (boolean, default false): Outline overflowing elements in danger color.
+- interval (number, default 0): Re-scan overflows every N ms. 0 scans once.
+- onScan ((issues: OverflowIssue[]) => void): Called after each overflow scan.
+- class (ClassValue): Merged with the base class. Pass framework utility classes here.
+CSS classes: sig-grid-overlay
+Data attributes: data-overflow, data-sig-overflow
+
+```svelte
+<script>
+  import { GridOverlay } from 'sigil-ui'
+  let debug = $state(true)
+</script>
+
+{#if debug}
+  <GridOverlay size={8} overflow interval={1000} />
+{/if}
+```
+
 ## Tokens
 
 - --sig-bg: light #ffffff, dark #09090b. Page and surface base

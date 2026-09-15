@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "predev": "pnpm -C .. build",
+    "codegen": "panda",
+    "predev": "pnpm -C .. build && panda",
     "dev": "vite",
-    "prebuild": "pnpm -C .. build && node ../scripts/gen-llms.mjs",
+    "prebuild": "pnpm -C .. build && node ../scripts/gen-llms.mjs && panda",
     "build": "vite build",
     "preview": "vite preview"
   },
@@ -14,9 +15,9 @@
     "sigil-ui": "workspace:*"
   },
   "devDependencies": {
+    "@pandacss/dev": "1.12.1",
     "@sveltejs/vite-plugin-svelte": "7.3.0",
     "svelte": "5.57.0",
-    "unocss": "66.10.0",
     "vite": "8.2.2"
   }
 }

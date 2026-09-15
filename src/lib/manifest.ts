@@ -496,6 +496,289 @@ export const manifest: SigilManifest = {
       classes: ['sig-pane-group', 'sig-pane', 'sig-pane-resizer', 'sig-pane-handle'],
       dataAttributes: ['data-direction', 'data-state', 'data-index'],
       example: `<script>\n  import { PaneGroup, Pane, PaneResizer } from 'sigil-ui'\n</script>\n\n<PaneGroup direction="horizontal" autoSaveId="dash" style="height: 24rem">\n  <Pane defaultSize={30} minSize={20}>Sidebar</Pane>\n  <PaneResizer />\n  <Pane>Main</Pane>\n</PaneGroup>`
+    },
+    {
+      name: 'Textarea',
+      path: 'textarea',
+      description: 'Styled native textarea with bindable value and invalid state.',
+      props: [
+        {
+          name: 'value',
+          type: 'string',
+          default: "''",
+          bindable: true,
+          description: 'Bindable textarea value.'
+        },
+        {
+          name: 'invalid',
+          type: 'boolean',
+          default: 'false',
+          description: 'Sets aria-invalid and danger border.'
+        },
+        classProp
+      ],
+      classes: ['sig-textarea'],
+      dataAttributes: ['data-invalid'],
+      example: `<script>\n  import { Textarea } from 'sigil-ui'\n  let bio = $state('')\n</script>\n\n<Textarea bind:value={bio} placeholder="Tell us about yourself" />`
+    },
+    {
+      name: 'RadioGroup',
+      path: 'radio-group',
+      description:
+        'RadioGroup namespace: Root (bindable value, roving tabindex, arrow keys) and Item (role=radio, aria-checked).',
+      props: [
+        {
+          name: 'value',
+          type: 'string',
+          default: "''",
+          bindable: true,
+          description: 'Bindable selected value on RadioGroup.Root.'
+        },
+        {
+          name: 'value',
+          type: 'string',
+          description: 'Required option value on RadioGroup.Item.'
+        },
+        {
+          name: 'disabled',
+          type: 'boolean',
+          default: 'false',
+          description: 'Disables the group or a single item.'
+        },
+        {
+          name: 'onValueChange',
+          type: '(value: string) => void',
+          description: 'Called on selection change on RadioGroup.Root.'
+        },
+        classProp,
+        childrenProp
+      ],
+      classes: ['sig-radio-group', 'sig-radio', 'sig-radio-dot', 'sig-radio-label'],
+      dataAttributes: ['data-state', 'data-disabled', 'data-value'],
+      example: `<script>\n  import { RadioGroup } from 'sigil-ui'\n  let plan = $state('free')\n</script>\n\n<RadioGroup.Root bind:value={plan}>\n  <RadioGroup.Item value="free">Free</RadioGroup.Item>\n  <RadioGroup.Item value="pro">Pro</RadioGroup.Item>\n</RadioGroup.Root>`
+    },
+    {
+      name: 'Slider',
+      path: 'slider',
+      description:
+        'Styled native range input with bindable value and filled track via a --sig-slider-pct custom property.',
+      props: [
+        {
+          name: 'value',
+          type: 'number',
+          default: '0',
+          bindable: true,
+          description: 'Bindable numeric value.'
+        },
+        { name: 'min', type: 'number', default: '0', description: 'Minimum.' },
+        { name: 'max', type: 'number', default: '100', description: 'Maximum.' },
+        { name: 'step', type: 'number', default: '1', description: 'Step.' },
+        { name: 'label', type: 'string', description: 'Accessible label via aria-label.' },
+        classProp
+      ],
+      classes: ['sig-slider'],
+      dataAttributes: ['data-disabled'],
+      example: `<script>\n  import { Slider } from 'sigil-ui'\n  let volume = $state(40)\n</script>\n\n<Slider bind:value={volume} label="Volume" />`
+    },
+    {
+      name: 'Toggle',
+      path: 'toggle',
+      description: 'Pressed/unpressed button with aria-pressed and data-state.',
+      props: [
+        {
+          name: 'pressed',
+          type: 'boolean',
+          default: 'false',
+          bindable: true,
+          description: 'Bindable pressed state.'
+        },
+        classProp,
+        childrenProp
+      ],
+      classes: ['sig-toggle'],
+      dataAttributes: ['data-state', 'data-disabled'],
+      example: `<script>\n  import { Toggle } from 'sigil-ui'\n  let bold = $state(false)\n</script>\n\n<Toggle bind:pressed={bold} aria-label="Bold">B</Toggle>`
+    },
+    {
+      name: 'Kbd',
+      path: 'kbd',
+      description: 'Keyboard key cap for shortcuts and hints.',
+      props: [classProp, childrenProp],
+      classes: ['sig-kbd'],
+      dataAttributes: [],
+      example: `<script>\n  import { Kbd } from 'sigil-ui'\n</script>\n\n<p>Press <Kbd>Ctrl</Kbd> + <Kbd>K</Kbd></p>`
+    },
+    {
+      name: 'Breadcrumb',
+      path: 'breadcrumb',
+      description:
+        'Breadcrumb namespace: Root renders nav + ol with aria-label, Item renders li with auto slash separators and aria-current on the last entry.',
+      props: [
+        {
+          name: 'label',
+          type: 'string',
+          default: "'Breadcrumb'",
+          description: 'aria-label for the nav landmark on Root.'
+        },
+        {
+          name: 'current',
+          type: 'boolean',
+          default: 'false',
+          description: 'Marks the item as the current page via aria-current.'
+        },
+        classProp,
+        childrenProp
+      ],
+      classes: ['sig-breadcrumb', 'sig-crumbs', 'sig-crumb'],
+      dataAttributes: ['data-current'],
+      example: `<script>\n  import { Breadcrumb } from 'sigil-ui'\n</script>\n\n<Breadcrumb.Root>\n  <Breadcrumb.Item><a href="/">Home</a></Breadcrumb.Item>\n  <Breadcrumb.Item><a href="/lib">Library</a></Breadcrumb.Item>\n  <Breadcrumb.Item current>Current</Breadcrumb.Item>\n</Breadcrumb.Root>`
+    },
+    {
+      name: 'Popover',
+      path: 'popover',
+      description:
+        'Popover namespace: Root (bindable open), Trigger (aria-haspopup=dialog), Content (anchored, side/align). Outside click and Escape close, focus restored to trigger.',
+      props: [
+        {
+          name: 'open',
+          type: 'boolean',
+          default: 'false',
+          bindable: true,
+          description: 'Bindable open state on Popover.Root.'
+        },
+        {
+          name: 'side',
+          type: "'top' | 'bottom' | 'left' | 'right'",
+          default: "'bottom'",
+          description: 'Side of the trigger on Popover.Content.'
+        },
+        {
+          name: 'align',
+          type: "'start' | 'center' | 'end'",
+          default: "'center'",
+          description: 'Alignment along the side on Popover.Content.'
+        },
+        classProp,
+        childrenProp
+      ],
+      classes: ['sig-pop-wrap', 'sig-pop-trigger', 'sig-pop-content'],
+      dataAttributes: ['data-state', 'data-side', 'data-align'],
+      example: `<script>\n  import { Popover, Button } from 'sigil-ui'\n</script>\n\n<Popover.Root>\n  <Popover.Trigger>Details</Popover.Trigger>\n  <Popover.Content side="bottom">Anchored content.</Popover.Content>\n</Popover.Root>`
+    },
+    {
+      name: 'DropdownMenu',
+      path: 'dropdown-menu',
+      description:
+        'Menu namespace: Root (bindable open), Trigger (aria-haspopup=menu), Content (role=menu, arrow keys, Home/End), Item (role=menuitem, onSelect), Separator.',
+      props: [
+        {
+          name: 'open',
+          type: 'boolean',
+          default: 'false',
+          bindable: true,
+          description: 'Bindable open state on DropdownMenu.Root.'
+        },
+        {
+          name: 'onSelect',
+          type: '() => void',
+          description: 'Called when the item is picked on DropdownMenu.Item.'
+        },
+        {
+          name: 'side',
+          type: "'top' | 'bottom'",
+          default: "'bottom'",
+          description: 'Side of the trigger on DropdownMenu.Content.'
+        },
+        {
+          name: 'align',
+          type: "'start' | 'center' | 'end'",
+          default: "'start'",
+          description: 'Alignment on DropdownMenu.Content.'
+        },
+        classProp,
+        childrenProp
+      ],
+      classes: [
+        'sig-menu-wrap',
+        'sig-menu-trigger',
+        'sig-menu-content',
+        'sig-menu-item',
+        'sig-menu-sep'
+      ],
+      dataAttributes: ['data-state', 'data-side', 'data-align', 'data-disabled'],
+      example: `<script>\n  import { DropdownMenu, Button } from 'sigil-ui'\n</script>\n\n<DropdownMenu.Root>\n  <DropdownMenu.Trigger>Actions</DropdownMenu.Trigger>\n  <DropdownMenu.Content>\n    <DropdownMenu.Item onSelect={() => save()}>Save</DropdownMenu.Item>\n    <DropdownMenu.Separator />\n    <DropdownMenu.Item onSelect={() => remove()}>Delete</DropdownMenu.Item>\n  </DropdownMenu.Content>\n</DropdownMenu.Root>`
+    },
+    {
+      name: 'Empty',
+      path: 'empty',
+      description:
+        'Empty state block with dashed border, optional icon snippet, title, description, and action slot.',
+      props: [
+        { name: 'title', type: 'string', description: 'Heading line.' },
+        { name: 'description', type: 'string', description: 'Secondary line.' },
+        { name: 'icon', type: 'Snippet', description: 'Decorative icon, aria-hidden.' },
+        classProp,
+        childrenProp
+      ],
+      classes: [
+        'sig-empty',
+        'sig-empty-icon',
+        'sig-empty-title',
+        'sig-empty-desc',
+        'sig-empty-actions'
+      ],
+      dataAttributes: [],
+      example: `<script>\n  import { Empty, Button } from 'sigil-ui'\n</script>\n\n<Empty title="No results" description="Try a different search.">\n  <Button>Clear filters</Button>\n</Empty>`
+    },
+    {
+      name: 'Measure',
+      path: 'measure',
+      description:
+        'Dev tool: wraps content, shows a live pixel size badge driven by ResizeObserver, and passes width/height to children snippet props.',
+      props: [
+        {
+          name: 'badge',
+          type: 'boolean',
+          default: 'true',
+          description: 'Show the pixel readout badge.'
+        },
+        { name: 'decimals', type: 'number', default: '0', description: 'Badge precision.' },
+        classProp,
+        childrenProp
+      ],
+      classes: ['sig-measure', 'sig-measure-badge'],
+      dataAttributes: [],
+      example: `<script>\n  import { Measure, Card } from 'sigil-ui'\n</script>\n\n<Measure>\n  <Card.Root>...</Card.Root>\n</Measure>`
+    },
+    {
+      name: 'GridOverlay',
+      path: 'grid-overlay',
+      description:
+        'Dev tool: fixed overlay that draws a spacing grid and can outline elements whose content leaks or clips. Pair with findOverflows() and tagOverflows() from sigil-ui.',
+      props: [
+        { name: 'size', type: 'number', default: '8', description: 'Grid cell size in px.' },
+        {
+          name: 'overflow',
+          type: 'boolean',
+          default: 'false',
+          description: 'Outline overflowing elements in danger color.'
+        },
+        {
+          name: 'interval',
+          type: 'number',
+          default: '0',
+          description: 'Re-scan overflows every N ms. 0 scans once.'
+        },
+        {
+          name: 'onScan',
+          type: '(issues: OverflowIssue[]) => void',
+          description: 'Called after each overflow scan.'
+        },
+        classProp
+      ],
+      classes: ['sig-grid-overlay'],
+      dataAttributes: ['data-overflow', 'data-sig-overflow'],
+      example: `<script>\n  import { GridOverlay } from 'sigil-ui'\n  let debug = $state(true)\n</script>\n\n{#if debug}\n  <GridOverlay size={8} overflow interval={1000} />\n{/if}`
     }
   ],
   tokens: [

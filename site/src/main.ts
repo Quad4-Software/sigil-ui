@@ -1,5 +1,5 @@
 import { mount } from 'svelte'
-import 'virtual:uno.css'
+import '../styled-system/styles.css'
 import 'sigil-ui/theme.css'
 import './app.css'
 import App from './App.svelte'

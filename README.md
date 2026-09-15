@@ -21,11 +21,13 @@ Override any --sig-* variable to retheme at once. Dark mode follows
 
 ## Components
 
-Primitives: Button, Badge, Switch, Input, Select, Checkbox, Avatar,
-Progress, Skeleton, Separator, Tooltip, Alert, Stat.
+Primitives: Button, Badge, Switch, Toggle, Input, Textarea, Select,
+Checkbox, RadioGroup, Slider, Avatar, Progress, Skeleton, Separator,
+Tooltip, Alert, Stat, Kbd, Empty, Breadcrumb.
 
-Namespaces: Dialog, Card, Tabs, Accordion. Each ships Root plus named
-parts (Dialog.Root, Card.Header, Tabs.Trigger, Accordion.Item, ...).
+Namespaces: Dialog, Card, Tabs, Accordion, Popover, DropdownMenu. Each
+ships Root plus named parts (Dialog.Root, Card.Header, Tabs.Trigger,
+Accordion.Item, ...).
 
 Toasts: mount Toaster once, then call toast.success('Saved') and friends
 from anywhere.
@@ -33,6 +35,10 @@ from anywhere.
 Panes: PaneGroup, Pane, PaneResizer give accessible resizable splits with
 pointer drag, arrow keys, min/max constraints and optional layout
 persistence via autoSaveId.
+
+Dev tools: Measure reports live element size, GridOverlay draws a
+spacing grid and outlines overflowing elements, and findOverflows() /
+measure() / tagOverflows() are exported for programmatic layout checks.
 
 All of it forwards native attributes and events, traps focus where
 required, wires aria relationships, and honors reduced motion.

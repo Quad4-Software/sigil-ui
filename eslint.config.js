@@ -12,6 +12,7 @@ export default defineConfig([
       '**/dist/',
       'node_modules/',
       'coverage/',
+      '**/styled-system/',
       '.svelte-check/',
       '.svelte-kit/'
     ]

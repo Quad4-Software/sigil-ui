@@ -4,24 +4,35 @@
     Alert,
     Avatar,
     Badge,
+    Breadcrumb,
     Button,
     Card,
     Checkbox,
     createTheme,
     Dialog,
+    DropdownMenu,
+    Empty,
+    GridOverlay,
     Input,
+    Kbd,
+    Measure,
     Pane,
     PaneGroup,
     PaneResizer,
+    Popover,
     Progress,
+    RadioGroup,
     Select,
     Separator,
     Skeleton,
+    Slider,
     Stat,
     Switch,
     Tabs,
+    Textarea,
     toast,
     Toaster,
+    Toggle,
     Tooltip
   } from '$lib/index.js'
   import '../lib/theme/sigil.css'
@@ -32,7 +43,11 @@
   let checked = $state(true)
   let name = $state('')
   let plan = $state('pro')
+  let radioPlan = $state('free')
   let tab = $state('usage')
+  let volume = $state(40)
+  let pressed = $state(false)
+  let debug = $state(false)
 </script>
 
 <main class="page">
@@ -90,16 +105,48 @@
     <h2>Inputs</h2>
     <div class="grid">
       <Input bind:value={name} placeholder="Your name" aria-label="name" />
+      <Textarea placeholder="Notes" aria-label="notes" />
       <Select bind:value={plan} aria-label="plan">
         <option value="free">Free</option>
         <option value="pro">Pro</option>
         <option value="team">Team</option>
       </Select>
+      <RadioGroup.Root bind:value={radioPlan}>
+        <RadioGroup.Item value="free">Free</RadioGroup.Item>
+        <RadioGroup.Item value="pro">Pro</RadioGroup.Item>
+      </RadioGroup.Root>
+      <Slider bind:value={volume} label="Volume" />
       <label class="row"><Checkbox bind:checked /> Notify me</label>
       <div class="row">
         <Switch bind:checked={switched} aria-label="toggle" />
-        <span>{switched ? 'on' : 'off'}</span>
+        <Toggle bind:pressed aria-label="bold">B</Toggle>
+        <span>{switched ? 'on' : 'off'}, {pressed ? 'bold' : 'plain'}</span>
       </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Navigation</h2>
+    <Breadcrumb.Root>
+      <Breadcrumb.Item><a href="/">Home</a></Breadcrumb.Item>
+      <Breadcrumb.Item current>Demo</Breadcrumb.Item>
+    </Breadcrumb.Root>
+    <p style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--sig-muted)">
+      Shortcuts like <Kbd>Ctrl</Kbd> + <Kbd>K</Kbd> render as key caps.
+    </p>
+  </section>
+
+  <section>
+    <h2>Empty and dev tools</h2>
+    <Empty title="No results" description="Try widening the filter.">
+      <Button variant="secondary">Reset</Button>
+    </Empty>
+    <div class="row" style="margin-top: 1rem">
+      <Measure>
+        <div class="fill" style="padding: 1rem">Measured box</div>
+      </Measure>
+      <Switch bind:checked={debug} aria-label="grid overlay" />
+      <span>grid overlay</span>
     </div>
   </section>
 
@@ -158,6 +205,18 @@
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
+      <Popover.Root>
+        <Popover.Trigger class="sig-btn" data-variant="secondary">Popover</Popover.Trigger>
+        <Popover.Content>Anchored panel content.</Popover.Content>
+      </Popover.Root>
+      <DropdownMenu.Root>
+        <DropdownMenu.Trigger class="sig-btn" data-variant="secondary">Menu</DropdownMenu.Trigger>
+        <DropdownMenu.Content>
+          <DropdownMenu.Item onSelect={() => toast.info('Profile')}>Profile</DropdownMenu.Item>
+          <DropdownMenu.Separator />
+          <DropdownMenu.Item onSelect={() => toast.danger('Deleted')}>Delete</DropdownMenu.Item>
+        </DropdownMenu.Content>
+      </DropdownMenu.Root>
       <Button variant="secondary" onclick={() => toast.success('Saved to disk')}>Toast</Button>
       <Button
         variant="secondary"
@@ -169,6 +228,9 @@
 </main>
 
 <Toaster />
+{#if debug}
+  <GridOverlay size={8} overflow interval={1000} />
+{/if}
 
 <style>
   .page {

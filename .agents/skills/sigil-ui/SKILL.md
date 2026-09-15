@@ -21,17 +21,24 @@ Provide your own `--sig-*` values to theme.
 
 ## Components
 
-- Primitives: Button, Badge, Switch, Input, Select, Checkbox, Avatar,
-  Progress, Skeleton, Separator, Tooltip, Alert, Stat.
+- Primitives: Button, Badge, Switch, Toggle, Input, Textarea, Select,
+  Checkbox, Slider, Avatar, Progress, Skeleton, Separator, Tooltip,
+  Alert, Stat, Kbd, Empty.
 - Namespaces: Dialog (Root, Trigger, Portal, Overlay, Content, Title,
   Description, Close), Card (Root, Header, Title, Description, Content,
   Footer), Tabs (Root, List, Trigger, Content), Accordion (Root, Item,
-  Trigger, Content).
+  Trigger, Content), RadioGroup (Root, Item), Breadcrumb (Root, Item),
+  Popover (Root, Trigger, Content), DropdownMenu (Root, Trigger,
+  Content, Item, Separator).
 - Overlays: Toaster plus the `toast` API
   (`toast(title, opts)`, `toast.success/info/warning/danger`, action
   buttons, `duration`, `toast.dismiss(id)`).
 - Layout: PaneGroup, Pane, PaneResizer for resizable splits
   (`direction`, `autoSaveId`, `defaultSize`/`minSize`/`maxSize` percent).
+- Dev tools: Measure (live px size badge via ResizeObserver),
+  GridOverlay (spacing grid plus overflow outlines), and the
+  `findOverflows` / `measure` / `tagOverflows` exports for programmatic
+  layout checks.
 
 ## Component usage rules
 
@@ -48,6 +55,13 @@ Provide your own `--sig-*` values to theme.
   assertively (role=alert), the rest politely (role=status).
 - Panes: PaneResizer is a focusable separator. Arrow keys resize by
   keyboardStep percent (default 5). autoSaveId persists the layout.
+- Menus and popovers: `bind:open` on Root, Trigger carries the aria
+  wiring, Content takes `side` and `align`. Escape and outside pointer
+  down close them and restore focus. DropdownMenu items take `onSelect`
+  and navigate with arrows plus Home/End.
+- Layout debugging: wrap a subtree in `<GridOverlay overflow>` to
+  outline elements whose content leaks or clips, or call
+  `findOverflows()` / `measure(el)` directly in tests and tools.
 
 ## Theming by framework
 
