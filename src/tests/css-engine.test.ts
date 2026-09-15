@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { afterAll, describe, expect, it } from 'vitest'
-import { build, compile, defineConfig, extractCalls } from '../../css/engine.mjs'
+import { build, compile, defineConfig, extractCalls, minifyCss } from '../../css/engine.mjs'
 
 const config = {
   include: ['./src/**/*.ts'],
@@ -322,5 +322,38 @@ describe('build', () => {
       .map((c: string) => cssText.match(new RegExp(`\\.${c}\\{([^}]+)\\}`))?.[1])
     expect(bodyDecls).not.toContain('padding-top:var(--s-spacing-4)')
     expect(bodyDecls).toContain('padding-top:var(--s-spacing-8)')
+  })
+})
+
+describe('minify', () => {
+  it('strips comments and whitespace without breaking calc or color functions', () => {
+    const out = minifyCss(
+      `/* header */\n.a { width: calc(100% - 4px); color: color-mix(in srgb, red 50%, blue) }\n.b { margin: 0 }`
+    )
+    expect(out).not.toContain('header')
+    expect(out).toContain('calc(100% - 4px)')
+    expect(out).toContain('color-mix(in srgb,red 50%,blue)')
+    expect(out).toContain('.a{')
+  })
+
+  it('always writes styles.min.css alongside styles.css', () => {
+    const mcwd = mkdtempSync(join(process.cwd(), '.tmp-css-min-'))
+    try {
+      mkdirSync(join(mcwd, 'src'), { recursive: true })
+      writeFileSync(join(mcwd, 'src', 'm.ts'), `css({ p: '4' })`)
+      build(
+        defineConfig({
+          ...config,
+          tokens: { ...config.tokens, spacing: { '4': '1rem' } }
+        }),
+        mcwd
+      )
+      const pretty = readFileSync(join(mcwd, 'styled-system', 'styles.css'), 'utf8')
+      const mini = readFileSync(join(mcwd, 'styled-system', 'styles.min.css'), 'utf8')
+      expect(mini.length).toBeLessThan(pretty.length)
+      expect(mini).not.toContain('\n')
+    } finally {
+      rmSync(mcwd, { recursive: true, force: true })
+    }
   })
 })

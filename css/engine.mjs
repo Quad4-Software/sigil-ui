@@ -754,7 +754,6 @@ export function compile(config, cwd = process.cwd()) {
   pushRules(recipeRules)
 
   const rules = [...seen.values()].sort((a, b) => a.bpIndex - b.bpIndex)
-  const joiner = config.minify ? '' : '\n'
   const blocks = []
   for (const r of rules) {
     const rule = `${r.selector}{${r.decl}}`
@@ -764,8 +763,20 @@ export function compile(config, cwd = process.cwd()) {
   const kf = emitKeyframes(config.keyframes)
   if (kf) blocks.unshift(kf)
 
-  const css = (config.preflight === false ? '' : PREFLIGHT) + blocks.join(joiner) + '\n'
+  const pretty = (config.preflight === false ? '' : PREFLIGHT) + blocks.join('\n') + '\n'
+  const css = config.minify ? minifyCss(pretty) : pretty
   return { css, count: rules.length, files: files.length }
+}
+
+// conservative whitespace and comment stripper. Leaves + and / alone so
+// calc() and color functions stay valid
+export function minifyCss(css) {
+  return css
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/\s+/g, ' ')
+    .replace(/\s*([{}:;,>~])\s*/g, '$1')
+    .replace(/;}/g, '}')
+    .trim()
 }
 
 function tsUnion(values) {
@@ -1011,6 +1022,7 @@ export function build(config, cwd = process.cwd()) {
   mkdirSync(join(outdir, 'css'), { recursive: true })
   mkdirSync(join(outdir, 'patterns'), { recursive: true })
   writeFileSync(join(outdir, 'styles.css'), css)
+  writeFileSync(join(outdir, 'styles.min.css'), config.minify ? css : minifyCss(css))
   writeFileSync(join(outdir, 'css', 'index.mjs'), generateRuntime(config, ctx, flat))
   writeFileSync(join(outdir, 'css', 'index.d.ts'), generateDts(config, flat, ctx))
   const pats = generatePatterns()

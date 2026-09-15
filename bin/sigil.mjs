@@ -27,6 +27,7 @@ usage:
   sigil-ui css               build-time atomic CSS: generate styled-system/
   sigil-ui css init          write a starter sigil.config.mjs
   sigil-ui css --watch       rebuild styled-system/ when source files change
+  sigil-ui css --minify      emit minified styles.css (styles.min.css is always written)
   sigil-ui theme [name]      list accent presets or print one to stdout
 
 quickstart:
@@ -211,7 +212,7 @@ export default defineConfig({
     console.error('no sigil.config.mjs found. Run: sigil-ui css init')
     process.exit(1)
   }
-  const res = build(config, cwd)
+  const res = build(arg === '--minify' || arg === '-m' ? { ...config, minify: true } : config, cwd)
   console.log(
     `sigil css: scanned ${res.files} files, emitted ${res.count} rules to ${res.outdir}/styles.css`
   )

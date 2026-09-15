@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "codegen": "sigil-ui css",
-    "predev": "pnpm -C .. build && sigil-ui css",
+    "codegen": "sigil-ui css && node ../scripts/gen-sizes.mjs",
+    "predev": "pnpm -C .. build && sigil-ui css && node ../scripts/gen-sizes.mjs",
     "dev": "vite",
-    "prebuild": "pnpm -C .. build && node ../scripts/gen-llms.mjs && sigil-ui css",
+    "prebuild": "pnpm -C .. build && node ../scripts/gen-llms.mjs && sigil-ui css && node ../scripts/gen-sizes.mjs",
     "build": "vite build",
     "preview": "vite preview"
   },

@@ -42,8 +42,10 @@ ToggleGroup, Timeline, Stepper. Command.Dialog is a Cmd+K palette
 out of the box.
 
 Charts (Chart.Line/Bar/Area/Scatter/Radar/Heatmap/Sparkline/Donut/
-Gauge) are pure SVG with role=img and native tooltips. DataTable adds
-sorting, row selection, filtering and a sticky header.
+Gauge) are pure SVG with role=img and native tooltips. Chart.Uptime
+renders status-page pill bars for latency series with an uptime
+summary. DataTable adds sorting, row selection, filtering and a
+sticky header.
 
 Toasts: mount Toaster once, then call from anywhere:
 
@@ -79,7 +81,7 @@ popovers, menus, tooltips, panes and toasts.
 
 ```html
 <link rel="stylesheet" href="sigil-ui/theme.css" />
-<link rel="stylesheet" href="sigil-ui/components.css" />
+<link rel="stylesheet" href="sigil-ui/components.min.css" />
 <script type="module">
   import { attachAll } from 'sigil-ui/headless'
   attachAll(document)
@@ -105,6 +107,7 @@ source files for style calls and emits one atomic stylesheet.
 ```
 npx sigil-ui css        # generate styled-system/ and styles.css
 npx sigil-ui css --watch
+npx sigil-ui css --minify   # styles.css minified; styles.min.css is always written
 ```
 
 ```ts

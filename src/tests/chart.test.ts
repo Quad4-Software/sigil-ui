@@ -168,3 +168,27 @@ describe('Chart.Scatter', () => {
     expect(fig.querySelectorAll('.sig-scatter-dot')).toHaveLength(3)
   })
 })
+
+describe('Chart.Uptime', () => {
+  it('renders a bar per sample with derived status', () => {
+    render(Chart.Uptime, { data: [12, 40, 0, 25], warnAt: 30, label: 'Ping' })
+    const fig = screen.getByRole('img', { name: 'Ping' })
+    const bars = fig.querySelectorAll('.sig-uptime-bar')
+    expect(bars).toHaveLength(4)
+    expect(bars[0]).toHaveAttribute('data-status', 'up')
+    expect(bars[1]).toHaveAttribute('data-status', 'warn')
+    expect(bars[2]).toHaveAttribute('data-status', 'down')
+  })
+
+  it('honors explicit status and renders the summary', () => {
+    render(Chart.Uptime, {
+      data: [
+        { ms: 10, status: 'up' },
+        { ms: 0, status: 'down' }
+      ],
+      summary: true
+    })
+    expect(screen.getByText('50%')).toBeInTheDocument()
+    expect(screen.getByText('5 ms avg')).toBeInTheDocument()
+  })
+})

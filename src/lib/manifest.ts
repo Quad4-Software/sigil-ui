@@ -872,7 +872,7 @@ export const manifest: SigilManifest = {
       name: 'Chart',
       path: 'chart',
       description:
-        'Chart namespace: Line, Area, Bar, Scatter, Radar, Heatmap, Gauge, Sparkline and Donut. Pure SVG, responsive via viewBox, role=img with an aria-label. No canvas, no dependencies.',
+        'Chart namespace: Line, Area, Bar, Scatter, Radar, Heatmap, Gauge, Sparkline, Donut and Uptime. Pure SVG and flex, responsive, role=img with an aria-label. No canvas, no dependencies.',
       props: [
         {
           name: 'data',
@@ -910,7 +910,13 @@ export const manifest: SigilManifest = {
         'sig-radar-line',
         'sig-scatter',
         'sig-scatter-axis',
-        'sig-scatter-dot'
+        'sig-scatter-dot',
+        'sig-uptime',
+        'sig-uptime-bars',
+        'sig-uptime-bar',
+        'sig-uptime-summary',
+        'sig-uptime-pct',
+        'sig-uptime-avg'
       ],
       dataAttributes: [],
       example: `<script>\n  import { Chart } from 'sigil-ui'\n  const traffic = [12, 18, 9, 24, 30, 22, 35]\n</script>\n\n<Chart.Line data={traffic} label="Weekly traffic" />\n<Chart.Bar data={[{ label: 'Mon', value: 12 }, { label: 'Tue', value: 18 }]} />\n<Chart.Sparkline data={traffic} filled />\n<Chart.Donut data={[{ value: 62, label: 'Used' }, { value: 38, label: 'Free' }]} />`

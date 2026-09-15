@@ -62,12 +62,15 @@
     Tooltip,
     Tree
   } from 'sigil-ui'
-  import { ExternalLink, Moon, Sun } from '@lucide/svelte'
+  import { Check, Copy, Moon, Sun } from '@lucide/svelte'
   import { css } from '../styled-system/css'
   import { flex, stack } from '../styled-system/patterns'
   import { chip } from '../styled-system/recipes'
+  import { sizes, fmt } from './sizes'
   import Code from './Code.svelte'
+  import GithubIcon from './GithubIcon.svelte'
   import Logo from './Logo.svelte'
+  import ManifestPanel from './ManifestPanel.svelte'
   import Spec from './Spec.svelte'
 
   const theme = createTheme()
@@ -93,6 +96,37 @@
   let wizard = $state(1)
   let cardShown = $state(true)
   let confirmOpen = $state(false)
+  let apiFilter = $state('')
+
+  let pgComponent = $state<'Button' | 'Badge' | 'Alert'>('Button')
+  let pgVariant = $state<'primary' | 'secondary' | 'ghost' | 'danger'>('primary')
+  let pgBadgeTone = $state<'neutral' | 'accent' | 'danger' | 'success' | 'warning' | 'info'>(
+    'accent'
+  )
+  let pgAlertTone = $state<'default' | 'success' | 'warning' | 'danger' | 'info'>('info')
+  let pgDisabled = $state(false)
+  let pgText = $state('Save changes')
+
+  const pgCode = $derived.by(() => {
+    if (pgComponent === 'Badge') return `<Badge tone="${pgBadgeTone}">${pgText}</Badge>`
+    if (pgComponent === 'Alert')
+      return `<Alert tone="${pgAlertTone}" title="${pgText}">\n  Supporting description goes here.\n</Alert>`
+    const variant = pgVariant === 'primary' ? '' : ` variant="${pgVariant}"`
+    const disabled = pgDisabled ? ' disabled' : ''
+    return `<Button${variant}${disabled}>${pgText}</Button>`
+  })
+
+  const ping = [
+    42, 38, 55, 47, 61, 44, 39, 58, 66, 49, 43, 52, 240, 48, 45, 0, 51, 44, 57, 63, 46, 41, 53, 190,
+    47, 44, 50, 0, 55, 42
+  ]
+
+  const footprint = [
+    `library ${fmt(sizes.js.gz)} gz`,
+    `components.min.css ${fmt(sizes.componentsMin.gz)} gz`,
+    `headless ${fmt(sizes.headless.gz)} gz`,
+    `engine ${fmt(sizes.engine.gz)}`
+  ]
 
   const treeItems = [
     {
@@ -177,8 +211,8 @@
   const section = css({
     scrollMarginTop: '20',
     borderTop: '1px solid',
-    borderColor: 'sig.border',
-    py: '14'
+    borderColor: 'color-mix(in oklab, var(--sig-fg) 8%, transparent)',
+    py: '10'
   })
   const kicker = css({
     fontFamily: 'mono',
@@ -192,6 +226,18 @@
   const h2 = css({ fontSize: '2xl', fontWeight: 'semibold', letterSpacing: 'tight' })
   const lead = css({ mt: '2', color: 'sig.muted' })
   const link = css({ color: 'sig.muted', _hover: { color: 'sig.fg' } })
+  const navLink = css({
+    px: '3',
+    py: '1',
+    rounded: 'full',
+    border: '1px solid',
+    borderColor: 'color-mix(in oklab, var(--sig-fg) 10%, transparent)',
+    fontSize: 'sm',
+    color: 'sig.muted',
+    textDecoration: 'none',
+    transition: 'color 150ms, border-color 150ms, background-color 150ms',
+    _hover: { color: 'sig.fg', bg: 'sig.surface', borderColor: 'sig.accent' }
+  })
   const wide = css({ gridColumn: '1 / -1' })
   const iconBtn = css({
     display: 'inline-flex',
@@ -265,12 +311,13 @@
       sigil-ui
     </a>
     <nav class={flex({ alignItems: 'center', gap: '5', fontSize: 'sm' })}>
-      <span class={css({ display: { base: 'none', sm: 'flex' }, alignItems: 'center', gap: '5' })}>
-        <a class={link} href="#components">components</a>
-        <a class={link} href="#adapters">adapters</a>
-        <a class={link} href="#vanilla">vanilla</a>
-        <a class={link} href="#tokens">tokens</a>
-        <a class={link} href="#api">api</a>
+      <span class={css({ display: { base: 'none', md: 'flex' }, alignItems: 'center', gap: '2' })}>
+        <a class={navLink} href="#playground">playground</a>
+        <a class={navLink} href="#components">components</a>
+        <a class={navLink} href="#adapters">adapters</a>
+        <a class={navLink} href="#vanilla">vanilla</a>
+        <a class={navLink} href="#tokens">tokens</a>
+        <a class={navLink} href="#api">api</a>
       </span>
       <button
         class={iconBtn}
@@ -285,7 +332,7 @@
         rel="noopener"
         aria-label="sigil-ui on GitHub"
       >
-        <ExternalLink size={16} />
+        <GithubIcon size={17} />
       </a>
       <button class={iconBtn} aria-label="Toggle theme" onclick={() => theme.toggle()}>
         {#if theme.resolved === 'dark'}
@@ -299,7 +346,7 @@
 </header>
 
 <main id="top" class={css({ mx: 'auto', maxW: '6xl', px: '4', pb: '24' })}>
-  <section class={css({ position: 'relative', pt: '14', pb: '16' })}>
+  <section class={css({ position: 'relative', pt: '10', pb: '12' })}>
     <div
       aria-hidden="true"
       class={css({ position: 'absolute', inset: '0', overflow: 'hidden', pointerEvents: 'none' })}
@@ -324,10 +371,8 @@
       ></div>
     </div>
     <div class={css({ position: 'relative' })}>
-      <p class={kicker}>Svelte 5 plus vanilla JS. Zero dependencies, any CSS</p>
       <h1
         class={css({
-          mt: '2',
           fontSize: { base: '4xl', sm: '5xl', lg: '6xl' },
           maxW: '3xl',
           fontWeight: 'bold',
@@ -367,7 +412,7 @@
           class={`sig-btn ${css({ textDecoration: 'none' })}`}
           data-variant="secondary"
         >
-          <ExternalLink size={15} /> GitHub
+          <GithubIcon size={15} /> GitHub
         </a>
       </div>
       <div class={flex({ mt: '6', flexWrap: 'wrap', gap: '2' })}>
@@ -377,6 +422,9 @@
           >
         {/each}
       </div>
+      <p class={css({ mt: '3', fontFamily: 'mono', fontSize: 'xs', color: 'sig.muted' })}>
+        {footprint.join('  ·  ')}
+      </p>
     </div>
     <div
       class={css({
@@ -389,6 +437,123 @@
       <Code title="install">{installCode}</Code>
       <Code title="use">{useCode}</Code>
     </div>
+  </section>
+
+  <section id="playground" class={section}>
+    <p class={kicker}>Live props, generated markup</p>
+    <h2 class={h2}>Playground</h2>
+    <p class={lead}>
+      Flip the props, watch the component react, copy the generated code. The panes are the
+      library's own resizable PaneGroup.
+    </p>
+    <PaneGroup
+      direction="horizontal"
+      class={css({
+        mt: '6',
+        h: '96',
+        overflow: 'hidden',
+        rounded: 'sig',
+        border: '1px solid',
+        borderColor: 'color-mix(in oklab, var(--sig-fg) 9%, transparent)'
+      })}
+    >
+      <Pane defaultSize={28} minSize={20}>
+        <div class={stack({ flex: '1', gap: '4', bg: 'sig.surface', p: '4', overflowY: 'auto' })}>
+          <div class={stack({ gap: '2' })}>
+            <span class={css({ fontSize: 'xs', fontWeight: 'medium', color: 'sig.muted' })}>
+              Component
+            </span>
+            <ToggleGroup.Root bind:value={pgComponent} aria-label="Playground component">
+              <ToggleGroup.Item value="Button">Button</ToggleGroup.Item>
+              <ToggleGroup.Item value="Badge">Badge</ToggleGroup.Item>
+              <ToggleGroup.Item value="Alert">Alert</ToggleGroup.Item>
+            </ToggleGroup.Root>
+          </div>
+          {#if pgComponent === 'Button'}
+            <Field label="Variant">
+              {#snippet children(props)}
+                <Select {...props} bind:value={pgVariant}>
+                  <option value="primary">primary</option>
+                  <option value="secondary">secondary</option>
+                  <option value="ghost">ghost</option>
+                  <option value="danger">danger</option>
+                </Select>
+              {/snippet}
+            </Field>
+            <label class={flex({ alignItems: 'center', gap: '2', fontSize: 'sm' })}>
+              <Switch bind:checked={pgDisabled} aria-label="Disabled" /> Disabled
+            </label>
+          {:else if pgComponent === 'Badge'}
+            <Field label="Tone">
+              {#snippet children(props)}
+                <Select {...props} bind:value={pgBadgeTone}>
+                  <option value="neutral">neutral</option>
+                  <option value="accent">accent</option>
+                  <option value="success">success</option>
+                  <option value="warning">warning</option>
+                  <option value="danger">danger</option>
+                  <option value="info">info</option>
+                </Select>
+              {/snippet}
+            </Field>
+          {:else}
+            <Field label="Tone">
+              {#snippet children(props)}
+                <Select {...props} bind:value={pgAlertTone}>
+                  <option value="default">default</option>
+                  <option value="success">success</option>
+                  <option value="warning">warning</option>
+                  <option value="danger">danger</option>
+                  <option value="info">info</option>
+                </Select>
+              {/snippet}
+            </Field>
+          {/if}
+          <Field label={pgComponent === 'Alert' ? 'Title' : 'Label'}>
+            {#snippet children(props)}
+              <Input {...props} bind:value={pgText} />
+            {/snippet}
+          </Field>
+        </div>
+      </Pane>
+      <PaneResizer />
+      <Pane>
+        <PaneGroup direction="vertical">
+          <Pane minSize={30}>
+            <div
+              class={css({
+                flex: '1',
+                display: 'grid',
+                placeItems: 'center',
+                p: '4',
+                overflowY: 'auto'
+              })}
+            >
+              {#if pgComponent === 'Badge'}
+                <Badge tone={pgBadgeTone}>{pgText}</Badge>
+              {:else if pgComponent === 'Alert'}
+                <Alert tone={pgAlertTone} title={pgText}>Supporting description goes here.</Alert>
+              {:else}
+                <Button variant={pgVariant} disabled={pgDisabled}>{pgText}</Button>
+              {/if}
+            </div>
+          </Pane>
+          <PaneResizer />
+          <Pane defaultSize={38} minSize={20}>
+            <div class={css({ flex: '1', overflowY: 'auto', bg: 'sig.surface' })}>
+              <pre
+                class={css({
+                  p: '4',
+                  fontFamily: 'mono',
+                  fontSize: 'sm',
+                  color: 'sig.fg',
+                  whiteSpace: 'pre-wrap'
+                })}>{pgCode}</pre>
+            </div>
+          </Pane>
+        </PaneGroup>
+      </Pane>
+    </PaneGroup>
   </section>
 
   <section id="components" class={section}>
@@ -413,7 +578,11 @@
         {row.requests.toLocaleString()}
       {/snippet}
       <Reveal class={wide}
-        ><Spec label="Dashboard" hint="Card, Stat, Progress, CountUp, Sparkline">
+        ><Spec
+          label="Dashboard"
+          hint="Card, Stat, Progress, CountUp, Sparkline"
+          for={['Card', 'Stat', 'Progress', 'CountUp', 'Chart']}
+        >
           <div
             class={css({
               display: 'grid',
@@ -468,7 +637,7 @@
       >
 
       <Reveal class={wide}
-        ><Spec label="Charts" hint="pure SVG, viewBox-scaled, role=img">
+        ><Spec label="Charts" hint="pure SVG, viewBox-scaled, role=img" for="Chart">
           <div
             class={css({
               display: 'grid',
@@ -513,12 +682,22 @@
               <span class={css({ fontSize: 'xs', color: 'sig.muted' })}>Scatter</span>
               <Chart.Scatter data={scatter} label="Latency vs size" />
             </div>
+            <div class={stack({ gap: '2' })}>
+              <span class={css({ fontSize: 'xs', color: 'sig.muted' })}>
+                Uptime · ping latency, status-page pills
+              </span>
+              <Chart.Uptime data={ping} warnAt={150} summary label="Edge latency, last 30 min" />
+            </div>
           </div>
         </Spec></Reveal
       >
 
       <Reveal class={wide}
-        ><Spec label="Panes" hint="drag the separator or focus it and use arrow keys">
+        ><Spec
+          label="Panes"
+          hint="drag the separator or focus it and use arrow keys"
+          for="PaneGroup"
+        >
           <PaneGroup
             direction="horizontal"
             class={css({
@@ -598,6 +777,18 @@
         ><Spec
           label="Forms"
           hint="Input, Textarea, Select, Checkbox, RadioGroup, Slider, Switch, Toggle"
+          for={[
+            'Input',
+            'Textarea',
+            'Select',
+            'Checkbox',
+            'RadioGroup',
+            'Slider',
+            'Switch',
+            'Toggle',
+            'ToggleGroup',
+            'Field'
+          ]}
         >
           <div
             class={css({
@@ -655,7 +846,7 @@
       >
 
       <Reveal class={wide}
-        ><Spec label="Data entry" hint="TagsInput, FileUpload">
+        ><Spec label="Data entry" hint="TagsInput, FileUpload" for={['TagsInput', 'FileUpload']}>
           <div
             class={css({
               display: 'grid',
@@ -675,7 +866,7 @@
       >
 
       <Reveal
-        ><Spec label="Buttons" hint="variants driven by data-variant">
+        ><Spec label="Buttons" hint="variants driven by data-variant" for="Button">
           <div class={flex({ flexWrap: 'wrap', alignItems: 'center', gap: '3' })}>
             <Button>Primary</Button>
             <Button variant="secondary">Secondary</Button>
@@ -691,6 +882,7 @@
         ><Spec
           label="Overlays"
           hint="Dialog traps focus, Popover and Menu dismiss on outside click"
+          for={['Dialog', 'Popover', 'DropdownMenu', 'Sheet', 'HoverCard', 'AlertDialog']}
         >
           <div class={flex({ flexWrap: 'wrap', alignItems: 'center', gap: '3' })}>
             <Dialog.Root bind:open={dialogOpen}>
@@ -786,7 +978,11 @@
       >
 
       <Reveal
-        ><Spec label="Feedback" hint="Badge, Avatar, Tooltip, Alert, Skeleton, Toaster">
+        ><Spec
+          label="Feedback"
+          hint="Badge, Avatar, Tooltip, Alert, Skeleton, Toaster"
+          for={['Badge', 'Avatar', 'Tooltip', 'Alert', 'Skeleton', 'Toaster']}
+        >
           <div class={stack({ gap: '3' })}>
             <div class={flex({ flexWrap: 'wrap', alignItems: 'center', gap: '3' })}>
               <Badge>neutral</Badge>
@@ -822,7 +1018,7 @@
       >
 
       <Reveal
-        ><Spec label="Table" hint="semantic markup, token borders, row hover">
+        ><Spec label="Table" hint="semantic markup, token borders, row hover" for="Table">
           <Table.Root>
             <Table.Head>
               <Table.Row>
@@ -853,7 +1049,11 @@
       >
 
       <Reveal class={wide}
-        ><Spec label="Data table" hint="sortable columns, aria-sort, Pagination">
+        ><Spec
+          label="Data table"
+          hint="sortable columns, aria-sort, Pagination"
+          for={['DataTable', 'Pagination']}
+        >
           {@const cols = [
             { key: 'name', label: 'Service', sortable: true },
             { key: 'status', label: 'Status', sortable: true, cell: statusCell },
@@ -877,7 +1077,11 @@
       >
 
       <Reveal class={wide}
-        ><Spec label="Navigation" hint="Menubar, Tabs, Accordion, Breadcrumb, Kbd">
+        ><Spec
+          label="Navigation"
+          hint="Menubar, Tabs, Accordion, Breadcrumb, Kbd"
+          for={['Menubar', 'Tabs', 'Accordion', 'Breadcrumb', 'Kbd']}
+        >
           <div class={stack({ gap: '5' })}>
             <Menubar.Root>
               <Menubar.Menu>
@@ -945,7 +1149,11 @@
       >
 
       <Reveal
-        ><Spec label="Command palette" hint="Cmd+K menu, keyboard filter and navigation">
+        ><Spec
+          label="Command palette"
+          hint="Cmd+K menu, keyboard filter and navigation"
+          for="Command"
+        >
           <div class={stack({ gap: '4' })}>
             <p class={css({ fontSize: 'sm', color: 'sig.muted' })}>
               Try <Kbd>Ctrl</Kbd> + <Kbd>K</Kbd>, or:
@@ -971,7 +1179,7 @@
       >
 
       <Reveal
-        ><Spec label="Combobox" hint="filterable listbox with aria-activedescendant">
+        ><Spec label="Combobox" hint="filterable listbox with aria-activedescendant" for="Combobox">
           <div class={stack({ gap: '3' })}>
             <Combobox.Root bind:value={pickedFruit}>
               <Combobox.Input placeholder="Pick a fruit" />
@@ -990,7 +1198,11 @@
       >
 
       <Reveal
-        ><Spec label="Context menu" hint="right-click the box, viewport-clamped menu">
+        ><Spec
+          label="Context menu"
+          hint="right-click the box, viewport-clamped menu"
+          for="ContextMenu"
+        >
           <ContextMenu.Root>
             <div
               class={css({
@@ -1018,7 +1230,7 @@
       >
 
       <Reveal
-        ><Spec label="Scroll area" hint="custom scrollbar, vertical or horizontal">
+        ><Spec label="Scroll area" hint="custom scrollbar, vertical or horizontal" for="ScrollArea">
           <ScrollArea
             class={css({ h: '40', rounded: 'sig', border: '1px solid', borderColor: 'sig.border' })}
           >
@@ -1041,7 +1253,11 @@
       >
 
       <Reveal class={wide}
-        ><Spec label="Structure" hint="Tree, Timeline, Stepper">
+        ><Spec
+          label="Structure"
+          hint="Tree, Timeline, Stepper"
+          for={['Tree', 'Timeline', 'Stepper']}
+        >
           <div
             class={css({
               display: 'grid',
@@ -1080,7 +1296,11 @@
       >
 
       <Reveal class={wide}
-        ><Spec label="Media and motion" hint="AspectRatio, AvatarGroup, Presence, Marquee">
+        ><Spec
+          label="Media and motion"
+          hint="AspectRatio, AvatarGroup, Presence, Marquee"
+          for={['AspectRatio', 'AvatarGroup', 'Presence', 'Marquee']}
+        >
           <div
             class={css({
               display: 'grid',
@@ -1143,7 +1363,7 @@
       >
 
       <Reveal
-        ><Spec label="Empty" hint="dashed empty state with actions">
+        ><Spec label="Empty" hint="dashed empty state with actions" for="Empty">
           <Empty title="No deployments yet" description="Push to main to trigger the first build.">
             <Button variant="secondary">Read the docs</Button>
           </Empty>
@@ -1151,7 +1371,11 @@
       >
 
       <Reveal
-        ><Spec label="Dev tools" hint="Measure, GridOverlay, findOverflows">
+        ><Spec
+          label="Dev tools"
+          hint="Measure, GridOverlay, findOverflows"
+          for={['Measure', 'GridOverlay']}
+        >
           <div class={stack({ gap: '4' })}>
             <Measure>
               <div class={css({ rounded: 'sig', bg: 'sig.surface', p: '4', fontSize: 'sm' })}>
@@ -1213,11 +1437,15 @@
     <div class={flex({ mt: '4', alignItems: 'center', gap: '3' })}>
       <CopyButton
         text="pnpm add sigil-ui"
-        label="Copy install command"
-        copiedLabel="Copied"
         class="sig-btn"
         data-variant="secondary"
-      />
+        aria-label="Copy install command"
+      >
+        {#snippet children({ copied })}
+          {#if copied}<Check size={15} />{:else}<Copy size={15} />{/if}
+          {copied ? 'Copied' : 'Copy install command'}
+        {/snippet}
+      </CopyButton>
       <span class={css({ fontSize: 'sm', color: 'sig.muted' })}>
         CopyButton uses the Clipboard API with a textarea fallback.
       </span>
@@ -1320,21 +1548,31 @@
     <p class={lead}>
       Every component, prop and styling hook, generated from the same manifest agents consume.
     </p>
+    <div class={css({ mt: '6', maxW: 'sm' })}>
+      <Input
+        bind:value={apiFilter}
+        placeholder="Filter components"
+        aria-label="Filter API reference"
+      />
+    </div>
     <div
       class={css({
         display: 'grid',
-        mt: '8',
+        mt: '4',
         gap: '3',
         alignItems: 'start',
         gridTemplateColumns: { base: '1fr', lg: 'repeat(2, 1fr)' }
       })}
     >
-      {#each manifest.components as component (component.name)}
+      {#each manifest.components.filter((c) => {
+        const q = apiFilter.trim().toLowerCase()
+        return !q || c.name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q)
+      }) as component (component.name)}
         <details
           class={css({
             rounded: 'sig',
             border: '1px solid',
-            borderColor: 'sig.border',
+            borderColor: 'color-mix(in oklab, var(--sig-fg) 9%, transparent)',
             p: '4',
             transition: 'border-color 150ms',
             _hover: { borderColor: 'sig.accent' },
@@ -1347,38 +1585,8 @@
               {component.description}
             </span>
           </summary>
-          <div class={css({ mt: '3', overflowX: 'auto' })}>
-            <table class={css({ w: 'full', textAlign: 'left', fontSize: 'sm' })}>
-              <thead class={css({ color: 'sig.muted' })}>
-                <tr>
-                  <th class={css({ py: '1', pr: '4', fontWeight: 'medium' })}>prop</th>
-                  <th class={css({ py: '1', pr: '4', fontWeight: 'medium' })}>type</th>
-                  <th class={css({ py: '1', fontWeight: 'medium' })}>description</th>
-                </tr>
-              </thead>
-              <tbody>
-                {#each component.props as prop, i (i)}
-                  <tr class={css({ borderTop: '1px solid', borderColor: 'sig.border' })}>
-                    <td class={css({ py: '1.5', pr: '4', fontFamily: 'mono', fontSize: 'xs' })}
-                      >{prop.name}{prop.bindable ? ' (bindable)' : ''}</td
-                    >
-                    <td
-                      class={css({
-                        py: '1.5',
-                        pr: '4',
-                        fontFamily: 'mono',
-                        fontSize: 'xs',
-                        color: 'sig.muted'
-                      })}>{prop.type}</td
-                    >
-                    <td class={css({ py: '1.5', color: 'sig.muted' })}>{prop.description}</td>
-                  </tr>
-                {/each}
-              </tbody>
-            </table>
-            <p class={css({ mt: '2', fontSize: 'xs', color: 'sig.muted' })}>
-              classes: {component.classes.join(', ')}
-            </p>
+          <div class={css({ mt: '3' })}>
+            <ManifestPanel for={component.name} />
           </div>
         </details>
       {/each}
@@ -1390,6 +1598,7 @@
   <Command.Input placeholder="Type a command" />
   <Command.List>
     <Command.Empty>No results.</Command.Empty>
+    <Command.Item value="playground" onSelect={jump('#playground')}>Playground</Command.Item>
     <Command.Item value="components" onSelect={jump('#components')}>Components</Command.Item>
     <Command.Item value="adapters" onSelect={jump('#adapters')}>Adapters</Command.Item>
     <Command.Item value="vanilla" onSelect={jump('#vanilla')}>Vanilla usage</Command.Item>
@@ -1434,7 +1643,18 @@
       <a class={link} href="#components">components</a>
       <a class={link} href="#adapters">adapters</a>
       <a class={link} href="#tokens">tokens</a>
-      <a class={link} href="https://github.com/Quad4-Software/sigil-ui" rel="noopener">github</a>
+      <a
+        class={flex({
+          alignItems: 'center',
+          gap: '1.5',
+          color: 'sig.muted',
+          _hover: { color: 'sig.fg' }
+        })}
+        href="https://github.com/Quad4-Software/sigil-ui"
+        rel="noopener"
+      >
+        <GithubIcon size={15} /> github
+      </a>
     </nav>
     <span>0BSD. Quad4 Software.</span>
   </div>

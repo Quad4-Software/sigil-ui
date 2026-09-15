@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
+  import { Check, Copy } from '@lucide/svelte'
   import { css, cx } from '../styled-system/css'
 
   let {
@@ -27,7 +28,7 @@
       overflow: 'hidden',
       rounded: 'sig',
       border: '1px solid',
-      borderColor: 'sig.border'
+      borderColor: 'color-mix(in oklab, var(--sig-fg) 9%, transparent)'
     }),
     className
   )}
@@ -38,21 +39,32 @@
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        borderBottom: '1px solid',
-        borderColor: 'sig.border',
-        bg: 'sig.surface',
-        px: '3',
-        py: '1.5',
+        px: '4',
+        pt: '3',
+        fontFamily: 'mono',
         fontSize: 'xs',
         color: 'sig.muted'
       })}
     >
       <span>{title}</span>
       <button
-        class={css({ cursor: 'pointer', fontSize: 'xs', _hover: { color: 'sig.fg' } })}
+        class={css({
+          display: 'inline-flex',
+          cursor: 'pointer',
+          border: 'none',
+          bg: 'transparent',
+          p: '0',
+          color: 'sig.muted',
+          _hover: { color: 'sig.fg' }
+        })}
+        aria-label="Copy code"
         onclick={copy}
       >
-        {copied ? 'copied' : 'copy'}
+        {#if copied}
+          <Check size={13} />
+        {:else}
+          <Copy size={13} />
+        {/if}
       </button>
     </figcaption>
   {/if}
@@ -61,7 +73,6 @@
     class={css({
       flex: '1',
       overflowX: 'auto',
-      bg: 'sig.surface',
       p: '4',
       fontSize: 'sm',
       lineHeight: 'relaxed'

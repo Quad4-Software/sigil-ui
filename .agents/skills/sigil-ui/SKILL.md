@@ -52,8 +52,9 @@ Provide your own `--sig-*` values to theme.
   Pagination (bind:page, sibling windowing).
 - Charts: Chart.Line (multi-series), Chart.Bar, Chart.Area,
   Chart.Scatter, Chart.Radar, Chart.Heatmap, Chart.Sparkline,
-  Chart.Donut, Chart.Gauge. Pure SVG, role=img, native tooltips,
-  token-driven colors.
+  Chart.Donut, Chart.Gauge, Chart.Uptime (status-page pill bars for
+  latency series: number[] or { ms, status, label }[], warnAt,
+  summary). Pure SVG, role=img, native tooltips, token-driven colors.
 - Overlays: Toaster plus the `toast` API
   (`toast(title, opts)`, `toast.success/info/warning/danger`, action
   buttons, `duration`, `toast.dismiss(id)`).
@@ -91,8 +92,9 @@ Provide your own `--sig-*` values to theme.
 
 Two entry points cover plain HTML and JavaScript:
 
-- `sigil-ui/components.css` is every component's stylesheet extracted
-  to flat classes. Write the documented markup
+- `sigil-ui/components.css` (or the minified `components.min.css`) is
+  every component's stylesheet extracted to flat classes. Write the
+  documented markup
   (`<button class="sig-btn" data-variant="primary">`) and it looks
   identical to the Svelte output.
 - `sigil-ui/headless` is the behavior layer: attachTabs,
@@ -108,7 +110,9 @@ Pick one. All five produce the same result.
 
 - sigil css: the bundled build-time atomic engine, zero dependencies.
   Create sigil.config.mjs with `defineConfig` from `sigil-ui/css`, run
-  `npx sigil-ui css` (`--watch` for rebuilds), then import `{ css }`,
+  `npx sigil-ui css` (`--watch` for rebuilds, `--minify` or
+  `minify: true` to minify styles.css; styles.min.css is always
+  emitted), then import `{ css }`,
   patterns (`flex`, `stack`, `grid`, `hstack`, `center`, `wrap`) and
   recipes from the generated styled-system/. Style calls must be
   literal objects: the compiler extracts them statically. Tokens emit

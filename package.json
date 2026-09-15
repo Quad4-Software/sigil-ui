@@ -43,6 +43,7 @@
     },
     "./theme.css": "./dist/theme/sigil.css",
     "./components.css": "./dist/components.css",
+    "./components.min.css": "./dist/components.min.css",
     "./headless": {
       "types": "./dist/headless/index.d.ts",
       "default": "./dist/headless/index.js"

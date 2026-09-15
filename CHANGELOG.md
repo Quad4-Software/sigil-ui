@@ -26,6 +26,9 @@
 - `Menubar` namespace: application menubar with arrow-key navigation across menus
 - `Chart.Heatmap`, `Chart.Radar` and `Chart.Scatter` visualizations
 - `Presence` (enter/exit animation wrapper that holds children mounted while the exit runs) and `Marquee` (seamless loop, `pauseOnHover`)
+- `Chart.Uptime`: status-page pill bars for latency series (`warnAt` threshold, explicit `status` per sample, optional uptime/avg summary)
+- `sigil-ui/components.min.css`: minified build of the vanilla stylesheet, published alongside `components.css`
+- sigil css: `minify` config option and `--minify` CLI flag; `styles.min.css` is emitted on every build
 - `Dialog.Root` accepts `onOpenChange`
 
 ### Fixed
