@@ -1,6 +1,6 @@
 {
   "name": "sigil-ui",
-  "version": "0.0.0",
+  "version": "0.10.0",
   "description": "Svelte 5 runes component library. CSS framework agnostic, themed through CSS variables.",
   "license": "0BSD",
   "type": "module",

@@ -53,7 +53,7 @@ const childrenProp: SigilProp = {
 
 export const manifest: SigilManifest = {
   package: 'sigil-ui',
-  version: '0.0.0',
+  version: '0.10.0',
   sveltePeer: '^5.0.0',
   themeEntry: 'sigil-ui/theme.css',
   components: [
