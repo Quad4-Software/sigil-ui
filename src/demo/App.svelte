@@ -272,7 +272,7 @@
   }
 
   .fill {
-    height: 100%;
+    flex: 1;
     display: grid;
     place-content: center;
     color: var(--sig-muted);

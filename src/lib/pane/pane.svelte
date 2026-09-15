@@ -44,10 +44,19 @@
 
 <style>
   :global(.sig-pane) {
+    display: flex;
+    flex-direction: column;
     flex-shrink: 1;
     flex-basis: 0%;
     min-width: 0;
     min-height: 0;
     overflow: auto;
+  }
+
+  /* Nested groups fill the pane through flex sizing instead of relying on
+     height: 100%, which cannot resolve against a flexed item height. */
+  :global(.sig-pane > .sig-pane-group) {
+    flex: 1 1 0%;
+    height: auto;
   }
 </style>

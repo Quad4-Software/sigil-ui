@@ -58,6 +58,11 @@
     '4 styling adapters'
   ]
 
+  const cliCode =
+    'npx sigil-ui list\nnpx sigil-ui docs Button\nnpx sigil-ui tokens\nnpx sigil-ui doctor'
+  const metaCode =
+    "import { manifest } from 'sigil-ui'\n// or fetch sigil-ui/manifest.json\n// llms.txt and llms-full.txt are served at this site's root"
+
   const section = css({
     scrollMarginTop: '20',
     borderTop: '1px solid',
@@ -155,7 +160,15 @@
     >
       Components that do not care about your CSS framework
     </h1>
-    <p class={css({ mt: '4', maxW: '2xl', fontSize: 'lg', color: 'sig.muted', lineHeight: 'relaxed' })}>
+    <p
+      class={css({
+        mt: '4',
+        maxW: '2xl',
+        fontSize: 'lg',
+        color: 'sig.muted',
+        lineHeight: 'relaxed'
+      })}
+    >
       sigil-ui ships runes-native components styled through a
       <code>--sig-*</code> token contract. Tailwind v4, UnoCSS, Panda CSS or plain CSS all theme the same
       components. Zero runtime dependencies beyond runed and clsx. Focus traps, keyboard navigation and
@@ -253,7 +266,7 @@
             <div
               class={css({
                 display: 'grid',
-                h: 'full',
+                flex: '1',
                 placeContent: 'center',
                 fontSize: 'sm',
                 color: 'sig.muted'
@@ -269,7 +282,7 @@
                 <div
                   class={css({
                     display: 'grid',
-                    h: 'full',
+                    flex: '1',
                     placeContent: 'center',
                     fontSize: 'sm',
                     color: 'sig.muted'
@@ -283,7 +296,7 @@
                 <div
                   class={css({
                     display: 'grid',
-                    h: 'full',
+                    flex: '1',
                     placeContent: 'center',
                     fontSize: 'sm',
                     color: 'sig.muted'
@@ -351,39 +364,6 @@
         </div>
       </Spec>
 
-      <Spec label="Feedback" hint="Badge, Avatar, Tooltip, Alert, Skeleton, Toaster">
-        <div class={stack({ gap: '3' })}>
-          <div class={flex({ flexWrap: 'wrap', alignItems: 'center', gap: '3' })}>
-            <Badge>neutral</Badge>
-            <Badge tone="accent">accent</Badge>
-            <Badge tone="danger">danger</Badge>
-            <Avatar fallback="Ada Lovelace" alt="Ada Lovelace" />
-            <Tooltip text="Pure CSS, aria-describedby wired">
-              {#snippet children({ props })}
-                <Button variant="secondary" {...props}>Tooltip</Button>
-              {/snippet}
-            </Tooltip>
-            <Button variant="secondary" onclick={() => toast.success('Deploy finished')}>
-              Success toast
-            </Button>
-            <Button
-              variant="secondary"
-              onclick={() =>
-                toast.danger('Deploy failed', {
-                  description: 'Rollback started automatically.',
-                  action: { label: 'Retry', onclick: () => toast.info('Retrying') }
-                })}
-            >
-              Error toast
-            </Button>
-          </div>
-          <Alert tone="info" title="Scheduled maintenance">
-            The API will be read-only on Sunday between 02:00 and 03:00 UTC.
-          </Alert>
-          <Skeleton class={css({ h: '8', maxW: 'md' })} />
-        </div>
-      </Spec>
-
       <Spec label="Overlays" hint="Dialog traps focus, Popover and Menu dismiss on outside click">
         <div class={flex({ flexWrap: 'wrap', alignItems: 'center', gap: '3' })}>
           <Dialog.Root bind:open={dialogOpen}>
@@ -423,6 +403,45 @@
             </DropdownMenu.Content>
           </DropdownMenu.Root>
         </div>
+      </Spec>
+
+      <Spec label="Feedback" hint="Badge, Avatar, Tooltip, Alert, Skeleton, Toaster">
+        <div class={stack({ gap: '3' })}>
+          <div class={flex({ flexWrap: 'wrap', alignItems: 'center', gap: '3' })}>
+            <Badge>neutral</Badge>
+            <Badge tone="accent">accent</Badge>
+            <Badge tone="danger">danger</Badge>
+            <Avatar fallback="Ada Lovelace" alt="Ada Lovelace" />
+            <Tooltip text="Pure CSS, aria-describedby wired">
+              {#snippet children({ props })}
+                <Button variant="secondary" {...props}>Tooltip</Button>
+              {/snippet}
+            </Tooltip>
+            <Button variant="secondary" onclick={() => toast.success('Deploy finished')}>
+              Success toast
+            </Button>
+            <Button
+              variant="secondary"
+              onclick={() =>
+                toast.danger('Deploy failed', {
+                  description: 'Rollback started automatically.',
+                  action: { label: 'Retry', onclick: () => toast.info('Retrying') }
+                })}
+            >
+              Error toast
+            </Button>
+          </div>
+          <Alert tone="info" title="Scheduled maintenance">
+            The API will be read-only on Sunday between 02:00 and 03:00 UTC.
+          </Alert>
+          <Skeleton class={css({ h: '8', maxW: 'md' })} />
+        </div>
+      </Spec>
+
+      <Spec label="Empty" hint="dashed empty state with actions">
+        <Empty title="No deployments yet" description="Push to main to trigger the first build.">
+          <Button variant="secondary">Read the docs</Button>
+        </Empty>
       </Spec>
 
       <Spec
@@ -471,13 +490,11 @@
         </div>
       </Spec>
 
-      <Spec label="Empty" hint="dashed empty state with actions">
-        <Empty title="No deployments yet" description="Push to main to trigger the first build.">
-          <Button variant="secondary">Read the docs</Button>
-        </Empty>
-      </Spec>
-
-      <Spec label="Dev tools" hint="Measure, GridOverlay, findOverflows">
+      <Spec
+        label="Dev tools"
+        hint="Measure, GridOverlay, findOverflows"
+        class={css({ gridColumn: '1 / -1' })}
+      >
         <div class={stack({ gap: '4' })}>
           <Measure>
             <div class={css({ rounded: 'sig', bg: 'sig.surface', p: '4', fontSize: 'sm' })}>
@@ -527,13 +544,8 @@
         gridTemplateColumns: { base: '1fr', md: 'repeat(2, 1fr)' }
       })}
     >
-      <Code title="cli"
-        >npx sigil-ui list npx sigil-ui docs Button npx sigil-ui tokens npx sigil-ui doctor</Code
-      >
-      <Code title="metadata"
-        >import {'{ manifest }'} from 'sigil-ui' // or fetch sigil-ui/manifest.json // llms.txt and llms-full.txt
-        are served at this site's root</Code
-      >
+      <Code title="cli">{cliCode}</Code>
+      <Code title="metadata">{metaCode}</Code>
     </div>
     <p class={css({ mt: '4', fontSize: 'sm', color: 'sig.muted' })}>
       Agent skills ship in the repo and install with

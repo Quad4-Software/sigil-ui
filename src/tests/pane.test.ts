@@ -1,6 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/svelte'
 import { describe, expect, it, vi } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import Fixture from './fixtures/pane-fixture.svelte'
+import NestedFixture from './fixtures/pane-nested-fixture.svelte'
 
 describe('PaneGroup', () => {
   it('sizes panes from defaultSize with the rest split equally', () => {
@@ -80,5 +83,30 @@ describe('PaneGroup', () => {
     const resizer = screen.getByRole('separator')
     expect(resizer).toHaveAttribute('aria-orientation', 'horizontal')
     expect(screen.getByTestId('group')).toHaveAttribute('data-direction', 'vertical')
+  })
+
+  it('nests a group inside a pane with its own resizer and sizes', () => {
+    render(NestedFixture)
+    const inner = screen.getByTestId('inner')
+    const main = screen.getByTestId('main')
+    expect(main.contains(inner)).toBe(true)
+    expect(inner).toHaveAttribute('data-direction', 'vertical')
+    expect(screen.getAllByRole('separator')).toHaveLength(2)
+    // Inner panes are registered and sized independently of the outer group
+    const innerPanes = inner.querySelectorAll('.sig-pane')
+    expect(innerPanes).toHaveLength(2)
+    for (const p of innerPanes) {
+      const style = (p as HTMLElement).style
+      expect(style.flexGrow).not.toBe('')
+      expect(Number(style.flexGrow)).toBeGreaterThan(0)
+    }
+  })
+
+  it('makes panes column flex containers so nested groups can fill them', () => {
+    // Percentage heights do not resolve inside flex items; pane children must
+    // size via flex. Guard the stylesheet rules that make nesting work.
+    const src = readFileSync(resolve(process.cwd(), 'src/lib/pane/pane.svelte'), 'utf8')
+    expect(src).toMatch(/\.sig-pane\)\s*\{[^}]*display:\s*flex/s)
+    expect(src).toMatch(/\.sig-pane\s*>\s*\.sig-pane-group\)\s*\{[^}]*flex:\s*1/s)
   })
 })

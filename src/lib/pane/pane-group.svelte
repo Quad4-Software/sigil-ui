@@ -117,10 +117,12 @@
 </div>
 
 <style>
+  /* No width/height defaults: unlayered styles beat layered utility classes
+     (Tailwind, Panda, UnoCSS), so a hardcoded 100% would make size utilities
+     like h-48 unoverridable. Root groups get size from the consumer; nested
+     groups fill their pane via .sig-pane > .sig-pane-group. */
   :global(.sig-pane-group) {
     display: flex;
-    width: 100%;
-    height: 100%;
     overflow: hidden;
   }
 
